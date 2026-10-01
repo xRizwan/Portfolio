@@ -4326,6 +4326,18 @@ html:has(body.notes-pending) {
   }
   .motion-toggle-phone {
     display: inline-block;
-    margin: 8px 0 10px;
+    margin: 3px 0 9px;
+    padding: 3px 8px;
+    font-size: 7px;
+  }
+  /* The header grows with the extra row; the logo and the controls keep their old positions. */
+  .site-nav {
+    height: auto;
+    min-height: 78px;
+    align-items: flex-start;
+    padding-top: 17px;
+  }
+  .nav-actions {
+    margin-top: 8px;
   }
 }
