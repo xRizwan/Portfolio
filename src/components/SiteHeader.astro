@@ -11,6 +11,14 @@ import Icon from './Icon.astro';
     <p class="micro identity-role">
       {site.name} / {site.role}
     </p>
+    <button
+      aria-pressed="false"
+      class="motion-toggle motion-toggle-phone"
+      data-motion
+      type="button"
+    >
+      Pause motion
+    </button>
   </div>
   <nav aria-label="Main navigation" class="main-nav">
     {mainNav.map((link) => (

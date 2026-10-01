@@ -4314,3 +4314,18 @@ html:has(body.notes-pending) {
   -webkit-mask: var(--icon) center / contain no-repeat;
   mask: var(--icon) center / contain no-repeat;
 }
+
+/* Phones: "Pause motion" sits under the name so the top row has room for the theme toggle and
+   menu. Both buttons exist in the markup; only one is shown at a time. */
+.motion-toggle-phone {
+  display: none;
+}
+@media (max-width: 650px) {
+  .nav-actions > .motion-toggle {
+    display: none;
+  }
+  .motion-toggle-phone {
+    display: inline-block;
+    margin: 8px 0 10px;
+  }
+}
