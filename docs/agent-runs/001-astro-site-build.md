@@ -176,3 +176,15 @@ Date: 2026-10-01. Roles: planner, implementer, and reviewer performed by one age
   `/tech` files), tinted with the brand colour darkened for the pastel paper. Skills without
   a logo file (AWS services, concepts) stay text only.
 - Checks: `npm run verify` pass; spread notes screenshotted at 1440px (dark theme).
+
+## Follow-up: repository and deployment
+
+- Pushed to `github.com/xRizwan/Portfolio` (`main`). `prototypes/` and the root `Image.png`
+  are git-ignored. Tracked files were scanned for local paths and secrets (none).
+- CI first failed at lint: type-aware rules need Astro's generated types, which a fresh
+  checkout lacks. `npm run lint` now runs `astro sync` first; the next run passed.
+- Deployed to Vercel (project `portfolio`, GitHub import, Astro preset, production from
+  `main`): https://portfolio-rho-eosin-4yuo5wl6kt.vercel.app. Checked live: pages return 200,
+  unknown URLs and the hidden XOR article return 404, canonical and sitemap use the
+  production domain, `robots.txt` allows crawling.
+- Still not run: Lighthouse and a structured-data validator. No custom domain yet.
