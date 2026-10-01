@@ -10,7 +10,7 @@
     "dev": "astro dev",
     "build": "npm run validate:content && astro build",
     "preview": "astro preview",
-    "lint": "eslint . --max-warnings=0",
+    "lint": "astro sync && eslint . --max-warnings=0",
     "typecheck": "astro check",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
