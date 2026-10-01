@@ -1,0 +1,160 @@
+---
+title: 'Real-Time Financial Fraud Detection'
+headline: "Following a transaction\nthrough a fraud system."
+description: 'My Udacity Software Architect project: a design for a bank that wants to check transactions for fraud in real time, built around Kafka, with the trade-offs I ran into.'
+intro: 'My project for the Udacity Software Architect Nanodegree. A bank checks for fraud in overnight batches and wants to do it in real time. I had to design the system that replaces it.'
+eyebrow: 'Software architecture / Udacity project'
+status: 'design-study'
+pubDate: 2026-09-21
+toc:
+  - { id: 'brief', label: '01 / The brief' }
+  - { id: 'flow', label: '02 / Event flow' }
+  - { id: 'decisions', label: '03 / Decisions' }
+  - { id: 'failures', label: '04 / Failure handling' }
+  - { id: 'targets', label: '05 / Design targets' }
+tocLinks:
+  - { label: 'Original PDF ↗', href: '/documents/fraud-detection-architecture.pdf' }
+backLink: { label: '← Back to projects', href: '/#work' }
+diagram:
+  src: '/diagrams/fraud-detection-system.svg'
+  alt: 'Fraud detection system architecture: API, transactions, Kafka, fraud analysis with Redis, alerts, reporting, PostgreSQL and S3'
+  caption: 'Click the diagram to inspect it at full size. Based on my submitted architecture document. Arrows describe the proposed event and request flow.'
+blog:
+  category: 'architecture'
+  label: 'Architecture / Case study'
+  title: 'Real-Time Financial Fraud Detection Case Study'
+  summary: 'How I designed a real-time fraud system for a bank, and the trade-offs I had to accept.'
+  art: 'fraud-diagram'
+---
+
+import Callout from '../../components/Callout.astro';
+import FlowExplorer from '../../components/FlowExplorer.astro';
+
+<h2 id="brief">The brief</h2>
+
+The bank in the project runs its fraud checks as a batch job, so a bad transaction is only noticed hours later. The new system has to analyse up to 1,000 transactions per second, show the high-risk ones to fraud analysts right away, and keep every transaction so it can be replayed for compliance.
+
+I did not build this system. The project was to design it and defend the design in a document, which is linked at the bottom.
+
+<Callout>
+  <strong>This is a design, not a running system.</strong> The numbers on this page are requirements
+  from the brief and targets I proposed. I have not measured any of them.
+</Callout>
+
+<h2 id="flow">One transaction, three stages</h2>
+
+The easiest way to explain the design is to follow one transaction through it.
+
+<FlowExplorer />
+
+1. **Accept.** The API Gateway checks who is calling. The Transaction Service validates the transaction, saves it in PostgreSQL, publishes a `TransactionReceived` event to Kafka, and returns a transaction ID.
+2. **Analyse.** The Fraud Detection Service reads the event, looks up recent customer features in Redis, runs the model, and publishes `FraudAnalysisCompleted` with the risk score and the model version.
+3. **Deliver.** Three services read that result on their own. The Alert Service pushes high-risk results to analysts over a WebSocket. The Reporting Service stores results so analysts can search them. An archive consumer copies every event to S3.
+
+<h2 id="decisions">Why I split it this way</h2>
+
+My first idea was simpler: the API calls the model and waits for the answer. The problem is that the API is then only as fast as the model. If the model slows down, the bank stops accepting transactions.
+
+So I put Kafka in the middle. The API only has to save the transaction and publish an event, and it can answer straight away. The model does its work a moment later. The price is that for a short time a transaction is accepted but has no fraud result yet. I decided that was fine here, because the brief asks for fast alerts to analysts, not for blocking the payment.
+
+Kafka also solved the replay requirement almost for free. It keeps the events, so a service that was down can continue from where it stopped, and the reporting database can be rebuilt by replaying them.
+
+Every choice had a cost that I had to write down:
+
+<div class="table-scroll">
+  <table>
+    <caption class="sr-only">Technology choices, why I picked each one, and what it costs</caption>
+    <thead>
+      <tr>
+        <th>Choice</th>
+        <th>Why I picked it</th>
+        <th>What it costs</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Kafka</td>
+        <td>High throughput, keeps events, lets services read them separately</td>
+        <td>More to run, and the same event can arrive twice</td>
+      </tr>
+      <tr>
+        <td>Redis</td>
+        <td>Fast lookup of recent customer features</td>
+        <td>A feature can be missing or old</td>
+      </tr>
+      <tr>
+        <td>PostgreSQL</td>
+        <td>A reliable record that analysts can query</td>
+        <td>It is a second copy of the data next to the events</td>
+      </tr>
+      <tr>
+        <td>WebSockets</td>
+        <td>Alerts reach the analyst without refreshing</td>
+        <td>An analyst who disconnects misses alerts</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+I left out a service mesh. The API Gateway, Kubernetes, and OpenTelemetry already cover routing, scaling, and monitoring for a system of this size.
+
+<h2 id="failures">What happens when something fails?</h2>
+
+This was the part I understood least when I started, and the part I learned the most from.
+
+A consumer tells Kafka that an event is done only after it has finished processing it. If the service crashes just before that, another instance reads the same event again. So the same transaction can be processed twice. I first thought Kafka's exactly-once feature would fix this, but that only covers Kafka-to-Kafka steps. The database sits outside Kafka. The fix is to use the transaction ID or event ID as a unique key, so writing the same result a second time changes nothing.
+
+The other protections in the design:
+
+- An event that keeps failing is retried, then moved to a dead-letter topic so it does not block the rest.
+- Kafka topics are replicated across brokers, and PostgreSQL has backups and point-in-time recovery.
+- Redis is treated as a cache. If a feature is missing, the service uses a fallback value and records that it did.
+- Alerts are stored, so an analyst whose WebSocket dropped can load the ones they missed over REST.
+
+Every request and event carries a transaction ID and a trace ID. With OpenTelemetry that makes it possible to follow one transaction through the API, Kafka, Redis, the model, and the alert.
+
+<h2 id="targets">Targets I proposed</h2>
+
+The brief only gives the 1,000 transactions per second. The rest are starting targets I suggested in the document.
+
+<div class="table-scroll">
+  <table>
+    <caption class="sr-only">
+      Proposed service targets from the design, not measured results
+    </caption>
+    <thead>
+      <tr>
+        <th>Proposed target</th>
+        <th>What it measures</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1,000 transactions / second</td>
+        <td>Peak load without the Kafka backlog growing</td>
+      </tr>
+      <tr>
+        <td>99% within 200 ms</td>
+        <td>Time to acknowledge a valid transaction</td>
+      </tr>
+      <tr>
+        <td>99% within 2 seconds</td>
+        <td>Time to a fraud result under normal load</td>
+      </tr>
+      <tr>
+        <td>99% within 1 second</td>
+        <td>Time for a high-risk result to reach a connected analyst</td>
+      </tr>
+      <tr>
+        <td>99.9% per month</td>
+        <td>Availability of the transaction API</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+If I built this, the first thing I would do is load test it and watch consumer lag and model time, not only the API response time. A fast API tells you nothing if the fraud results are falling behind.
+
+<a class="action" href="/documents/fraud-detection-architecture.pdf">
+  Read my architecture document <span aria-hidden="true">↗</span>
+</a>

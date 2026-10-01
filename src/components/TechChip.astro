@@ -1,0 +1,32 @@
+---
+import { chips } from '../data/experience';
+
+interface Props {
+  name: string;
+  small?: boolean;
+}
+
+const { name, small = false } = Astro.props;
+const chip = chips[name];
+if (!chip) throw new Error(`No chip data for "${name}" in src/data/experience.ts`);
+const style = {
+  '--brand': chip.brand,
+  '--text': chip.text,
+  ...(chip.tile ? { '--tile': chip.tile } : {}),
+};
+---
+
+<li class:list={['tech-chip', { small }]} style={style}>
+  {chip.icon ? (
+    <span
+      aria-hidden="true"
+      class="tech-icon"
+      style={{ '--icon': `url(/tech/${chip.icon}.svg)` }}
+    />
+  ) : (
+    <span aria-hidden="true" class="tech-icon tech-badge">
+      {chip.badge}
+    </span>
+  )}
+  {name}
+</li>

@@ -1,0 +1,28 @@
+---
+import CertificateShowcase from '../components/home/CertificateShowcase.astro';
+import Hero from '../components/home/Hero.astro';
+import SkillNotes from '../components/home/SkillNotes.astro';
+import WorkList from '../components/home/WorkList.astro';
+import { site } from '../data/site';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { profilePage } from '../lib/structured-data';
+
+const origin = Astro.site ?? new URL('http://localhost:4321');
+// These body classes switch on the home page's hero, notes, and yarn styles in global.css.
+const bodyClass =
+  'current exploration rizzy variation variation-studio variation-cute variation-frame variation-side variation-fit variation-arrive variation-yarn yarn-center';
+---
+
+<BaseLayout
+  bodyClass={bodyClass}
+  description={site.description}
+  type="profile"
+  jsonLd={[profilePage(origin, '/')]}
+>
+  <main id="main">
+    <Hero />
+    <SkillNotes />
+    <WorkList />
+    <CertificateShowcase />
+  </main>
+</BaseLayout>

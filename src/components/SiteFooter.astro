@@ -1,0 +1,37 @@
+---
+import { site } from '../data/site';
+import Icon from './Icon.astro';
+
+const year = new Date().getFullYear();
+const contacts = [
+  { icon: 'mail', label: site.email, href: `mailto:${site.email}` },
+  { icon: 'github', label: 'GitHub', href: site.github },
+  { icon: 'linkedin', label: 'LinkedIn', href: site.linkedin },
+  { icon: 'document', label: 'Resume', href: site.resume },
+] as const;
+---
+
+<footer class="closing frame" id="contact">
+  <div class="closing-main">
+    <div>
+      <p class="micro">Something worth figuring out together?</p>
+      <a class="closing-link" href={`mailto:${site.email}`}>
+        Start a conversation<span aria-hidden="true">↗</span>
+      </a>
+    </div>
+    <ul class="contact-links">
+      {contacts.map((contact) => (
+        <li>
+          <a href={contact.href}>
+            <Icon name={contact.icon} size={20} />
+            {contact.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+  <div class="closing-meta">
+    <span>{site.name}</span>
+    <span>© {year}</span>
+  </div>
+</footer>

@@ -1,0 +1,102 @@
+---
+title: 'Why my small neural network kept failing on XOR'
+headline: "The gradients were right.\nThe network still failed."
+description: 'Dead ReLUs, hidden-layer capacity, and what 30 random seeds showed about a hand-written NumPy network that sometimes could not learn XOR.'
+intro: 'I wrote a neural network in NumPy to understand backpropagation. Then a four-input problem sent me back to the drawing board.'
+eyebrow: 'Article / Machine learning'
+pubDate: 2026-08-19
+draft: true
+topics: 'XOR / ReLU / handwritten gradients'
+toc:
+  - { id: 'problem', label: '01 / The failure' }
+  - { id: 'experiment', label: '02 / The experiment' }
+  - { id: 'lesson', label: '03 / The limit' }
+source:
+  label: 'Source code'
+  url: 'https://github.com/xRizwan/neural-network-from-scratch'
+blog:
+  category: 'ml'
+  label: 'Machine learning / Experiment'
+  title: 'The gradients were right. The network still failed.'
+  summary: 'Dead ReLUs, hidden-layer capacity, and what 30 seeds taught me about XOR.'
+  art: 'formula'
+---
+
+import Callout from '../../components/Callout.astro';
+
+**The short version:** the handwritten gradients were correct. Several ReLU units stopped responding during training, and with only four hidden units there was too little capacity left to learn XOR.
+
+<h2 id="problem">Four inputs. Inconsistent results.</h2>
+
+My first version had four hidden units with ReLU. Some runs solved XOR; others stopped around 75% accuracy. I initially suspected a mistake in the handwritten gradients.
+
+The problem was dead ReLUs. Some units produced zero for every input. Their gradients were also zero, so they could not recover. With only four hidden units, losing several of them left too little useful capacity.
+
+<Callout>
+  <strong>What changed:</strong> a wider hidden layer and LeakyReLU made learning more consistent in
+  this experiment.
+</Callout>
+
+<h2 id="experiment">I tried it across 30 seeds.</h2>
+
+<div class="table-scroll">
+  <table>
+    <caption class="sr-only">
+      Share of 30 random seeds that solved XOR, by activation and hidden-layer width
+    </caption>
+    <thead>
+      <tr>
+        <th>Activation</th>
+        <th>Hidden units</th>
+        <th>Solved XOR</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>ReLU</td>
+        <td>4</td>
+        <td>53%</td>
+      </tr>
+      <tr>
+        <td>ReLU</td>
+        <td>8</td>
+        <td>87%</td>
+      </tr>
+      <tr>
+        <td>ReLU</td>
+        <td>16</td>
+        <td>100%</td>
+      </tr>
+      <tr>
+        <td>LeakyReLU</td>
+        <td>4</td>
+        <td>67%</td>
+      </tr>
+      <tr>
+        <td>LeakyReLU</td>
+        <td>8</td>
+        <td>100%</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+He initialization did not fix the same failing seeds. The practical change was giving the network more working units and preserving a nonzero gradient on the negative side.
+
+<pre class="code">
+  <code>{`model = Sequential()
+model.add(Dense(8, input_dim=2))
+model.add(LeakyReLU())
+model.add(Dense(1, input_dim=8))
+model.add(Sigmoid())`}</code>
+</pre>
+
+<h2 id="lesson">A small but important limit</h2>
+
+All four possible XOR inputs are in the training data. This demonstrates whether the network can fit the function. It does not demonstrate generalization to new data.
+
+Writing the layers myself made this failure easier to inspect. I could follow the values and gradients instead of treating training as a single call to a library.
+
+<a class="action" href="https://github.com/xRizwan/neural-network-from-scratch">
+  View the source <span aria-hidden="true">↗</span>
+</a>

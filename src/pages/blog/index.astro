@@ -1,0 +1,82 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getBlogListings } from '../../lib/collections';
+import { breadcrumbs } from '../../lib/structured-data';
+
+const listings = await getBlogListings();
+const origin = Astro.site ?? new URL('http://localhost:4321');
+const count = (value: number) => `${value} ${value === 1 ? 'article' : 'articles'}`;
+---
+
+<BaseLayout
+  title="Blog"
+  description="Articles by Muhammad Rizwan on machine learning experiments and software architecture decisions, written from actual projects."
+  jsonLd={[
+    breadcrumbs(origin, [
+      { name: 'Home', path: '/' },
+      { name: 'Blog', path: '/blog/' },
+    ]),
+  ]}
+>
+  <main class="wrap" id="main">
+    <section class="detail-top">
+      <h1>
+        Things I learned
+        <br />
+        by building.
+      </h1>
+    </section>
+    <div aria-label="Filter articles" class="blog-filters" hidden>
+      <button aria-pressed="true" data-filter="all" type="button">
+        All articles
+      </button>
+      <button aria-pressed="false" data-filter="ml" type="button">
+        Machine learning
+      </button>
+      <button aria-pressed="false" data-filter="architecture" type="button">
+        Architecture
+      </button>
+    </div>
+    <p aria-live="polite" class="blog-count" style="margin-bottom:20px">
+      {count(listings.length)}
+    </p>
+    <section aria-label="Articles" class="blog-grid">
+      {listings.map(({ href, card }) => (
+        <article class="blog-entry" data-category={card.category}>
+          <a href={href}>
+            <div class="blog-art">
+              {card.art === 'formula' ? (
+                <span class="formula" aria-hidden="true">
+                  ∂L / ∂w
+                </span>
+              ) : card.art === 'pauc' ? (
+                <span class="formula" aria-hidden="true">
+                  0.169
+                </span>
+              ) : (
+                <img
+                  alt="Fraud detection system architecture"
+                  height="790"
+                  src="/diagrams/fraud-detection-system.svg"
+                  width="1120"
+                  loading="lazy"
+                  decoding="async"
+                />
+              )}
+            </div>
+            <span class="micro">{card.label}</span>
+            <h2>{card.title}</h2>
+            <p>{card.summary}</p>
+            <span class="text-link" style="margin-top:25px">
+              Read the article <span aria-hidden="true">↗</span>
+            </span>
+          </a>
+        </article>
+      ))}
+    </section>
+  </main>
+</BaseLayout>
+
+<script>
+  import '../../scripts/blog-filters';
+</script>

@@ -1,0 +1,94 @@
+---
+import { chips } from '../../data/experience';
+import { doodles, skillGroups } from '../../data/skills';
+
+// Skills that have a logo on the Experience page show the same logo here. Some notes word a
+// skill differently, so those names point at the matching chip.
+const aliases: Record<string, string> = {
+  'Nuxt.js': 'Nuxt',
+  'C# / .NET': '.NET / ASP.NET Core',
+  'ASP.NET Core': '.NET / ASP.NET Core',
+  Pandas: 'pandas',
+  'Hugging Face Transformers': 'Hugging Face',
+  Claude: 'Claude Code',
+  'Figma-to-code': 'Figma',
+};
+const logoFor = (skill: string) => {
+  const chip = chips[aliases[skill] ?? skill];
+  return chip?.icon ? { icon: `url(/tech/${chip.icon}.svg)`, brand: chip.brand } : undefined;
+};
+---
+
+<section aria-labelledby="skills-title" class="skills-section frame" id="skills">
+  <div class="skills-heading">
+    <h2 id="skills-title">My skills</h2>
+    <button class="reset-notes" hidden type="button">
+      Reset notes ↺
+    </button>
+    <button aria-pressed="false" class="spread-notes" hidden type="button">
+      Spread notes
+    </button>
+  </div>
+  <div class="skills-layout">
+    <div class="skills-grid">
+      {skillGroups.map((group) => (
+        <article
+          class="skill-group"
+          id={`skills-${group.id}`}
+          aria-labelledby={`skills-${group.id}-title`}
+          tabindex="0"
+          style={{
+            '--note-angle': `${group.angle}deg`,
+            '--note-column': group.column,
+            '--note-row': group.row,
+            '--note-offset': `${group.offset}px`,
+            ...(group.step ? { '--note-step': group.step } : {}),
+          }}
+        >
+          <button
+            aria-label={`Move ${group.name} note; use arrow keys when focused`}
+            class="note-handle"
+            hidden
+            type="button"
+          >
+            ⠿
+          </button>
+          <header>
+            <h3 id={`skills-${group.id}-title`}>{group.title}</h3>
+          </header>
+          {group.context && <p>{group.context}</p>}
+          <ul class="skill-list">
+            {group.items.map((item) => {
+              const logo = logoFor(item);
+              return (
+                <li>
+                  {logo && (
+                    <span
+                      aria-hidden="true"
+                      class="skill-icon"
+                      style={{ '--icon': logo.icon, '--brand': logo.brand }}
+                    />
+                  )}
+                  {item}
+                </li>
+              );
+            })}
+          </ul>
+          <svg
+            aria-hidden="true"
+            class="note-doodle"
+            viewBox="0 0 66 64"
+            set:html={doodles[group.doodle]}
+          />
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<script>
+  import '../../scripts/skill-notes';
+</script>
+<script>
+  import '../../scripts/note-arrival';
+</script>

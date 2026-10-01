@@ -1,0 +1,60 @@
+---
+import { getEntry } from 'astro:content';
+import { workRows } from '../../data/work';
+import { articleHref, projectHref } from '../../lib/content';
+
+// Resolve each row against its collection so a renamed or missing entry fails the build.
+const rows = await Promise.all(
+  workRows.map(async (row) => {
+    const entry = await getEntry(row.collection, row.id);
+    if (!entry)
+      throw new Error(`Work row "${row.title}" points at missing ${row.collection}/${row.id}`);
+    return {
+      ...row,
+      href: row.collection === 'projects' ? projectHref(row.id) : articleHref(row.id),
+    };
+  }),
+);
+---
+
+<section aria-labelledby="work-title" class="current-work frame" id="work">
+  <div class="project-intro">
+    <h2 id="work-title">Blog &amp; Work Samples</h2>
+  </div>
+  {rows.map((row) => (
+    <a
+      class="current-project-row"
+      data-cursor={row.cursor}
+      data-preview={row.preview}
+      href={row.href}
+    >
+      <div>
+        <span class="micro">{row.label}</span>
+        <h3>{row.title}</h3>
+      </div>
+      <span aria-hidden="true" class="row-arrow">
+        ↗
+      </span>
+    </a>
+  ))}
+  <div aria-hidden="true" class="hover-preview">
+    <div data-preview-art="architecture">
+      <img
+        alt=""
+        height="790"
+        src="/diagrams/fraud-detection-system.svg"
+        width="1120"
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+    <div data-preview-art="triage">
+      <span>0.169</span>
+      <small>PARTIAL AUC IN CROSS-VALIDATION (MAX 0.2)</small>
+    </div>
+    <div data-preview-art="vision">
+      <span>80.6%</span>
+      <small>DOCUMENTED TEST ACCURACY</small>
+    </div>
+  </div>
+</section>

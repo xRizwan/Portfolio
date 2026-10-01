@@ -1,0 +1,37 @@
+---
+// Stage selector for the fraud-detection case study. The ordered list that follows it in the
+// article carries the same information without JavaScript.
+const stages = [
+  {
+    label: '01 Accept',
+    text: 'The API Gateway checks the request. The Transaction Service saves the transaction in PostgreSQL, publishes TransactionReceived to Kafka, and returns a transaction ID. This reply only means the transaction was accepted. The fraud result comes later.',
+  },
+  {
+    label: '02 Analyse',
+    text: 'The Fraud Detection Service, written in Python, reads the event, gets customer features from Redis, runs the model, and publishes FraudAnalysisCompleted. Kafka keeps the events so they can be replayed.',
+  },
+  {
+    label: '03 Deliver',
+    text: 'Alerting and reporting each read the result on their own. High-risk alerts go to the analyst over a WebSocket, reporting stores results for searching, and an archive consumer copies events to S3.',
+  },
+];
+const [first] = stages;
+---
+
+<div aria-label="Explore transaction stages" class="flow-controls" role="group">
+  {stages.map((stage, index) => (
+    <button aria-pressed={index === 0 ? 'true' : 'false'} data-flow={index} type="button">
+      {stage.label}
+    </button>
+  ))}
+</div>
+<p aria-live="polite" class="flow-explanation" data-flow-explanation>
+  {first?.text}
+</p>
+{stages.map((stage) => (
+  <template data-flow-text>{stage.text}</template>
+))}
+
+<script>
+  import '../scripts/flow-explorer';
+</script>

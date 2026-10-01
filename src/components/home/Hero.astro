@@ -1,0 +1,73 @@
+---
+import { Image, getImage } from 'astro:assets';
+import portrait from '../../assets/portrait.png';
+import { site } from '../../data/site';
+import TitleCatSprite from './TitleCatSprite.astro';
+
+// The 3D scene draws the portrait from this optimized copy; the <Image> below is the
+// no-WebGL fallback and stays visible until the scene has rendered.
+const scenePortrait = await getImage({ src: portrait, width: 720, format: 'webp', quality: 82 });
+---
+
+<section aria-labelledby="rizzy-name" class="current-hero rizzy-hero" data-field-zone>
+  <canvas aria-hidden="true" id="current-canvas"></canvas>
+  <div class="split-stage frame">
+    <div class="current-title">
+      <p class="hello">Hi, I’m</p>
+      <h1 id="rizzy-name">
+        <span class="charged-text" data-text="RIZZY">
+          RIZZY
+          <TitleCatSprite />
+        </span>
+        <span class="sr-only"> — {site.name}</span>
+      </h1>
+      <div class="hero-about">
+        <p class="hero-role">{site.intro.role}</p>
+        <p class="hero-summary">{site.intro.summary}</p>
+      </div>
+      <div class="hero-actions">
+        <a class="field-cta" data-magnetic href="#skills">
+          Explore my toolkit <span aria-hidden="true">↓</span>
+        </a>
+      </div>
+    </div>
+    <div class="split-scene">
+      <div
+        aria-label="A large black frame holding a portrait of Muhammad Rizwan, with a calico cat napping on top and a tuxedo kitten peeking out from behind the left edge"
+        class="room-viewport"
+        id="room-viewport"
+        role="img"
+        data-portrait={scenePortrait.src}
+      >
+        <div aria-hidden="true" class="room-fallback">
+          <div class="fallback-monitor">
+            <Image src={portrait} alt="" width={460} loading="eager" fetchpriority="high" />
+          </div>
+          <div class="fallback-base"></div>
+        </div>
+        <canvas aria-hidden="true" id="workbench-canvas"></canvas>
+      </div>
+      <div class="scene-controls">
+        <button aria-pressed="false" class="scene-action" hidden type="button">
+          Say hi
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import '../../scripts/hero-field';
+</script>
+<script>
+  import '../../scripts/frame-scene';
+</script>
+<script>
+  import '../../scripts/title-cats';
+</script>
+<script>
+  import '../../scripts/title-cat-fallback';
+</script>
+<script>
+  import '../../scripts/yarn';
+</script>

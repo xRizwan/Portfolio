@@ -1,0 +1,175 @@
+---
+import { Image, getImage } from 'astro:assets';
+import { credentialAlt, credentials } from '../../data/certificates';
+
+// Each link points at a large optimized copy. With JavaScript it opens the carousel at that
+// credential's slide (`data-slide`); without it, the link opens the image itself.
+const items = await Promise.all(
+  credentials.map(async (credential, slide) => {
+    const full = await getImage({
+      src: credential.image,
+      width: 1600,
+      format: 'webp',
+      quality: 85,
+    });
+    return {
+      ...credential,
+      slide,
+      alt: credentialAlt(credential),
+      full: full.src,
+      fullWidth: full.attributes.width as number,
+      fullHeight: full.attributes.height as number,
+    };
+  }),
+);
+const certificates = items.filter((item) => item.kind === 'certificate');
+const badges = items.filter((item) => item.kind === 'badge');
+
+// At rest only the featured fan shows; the rest wait hidden behind the centre sheet. On hover or
+// focus the fan widens as before and the others continue it past the edges, reachable by scrolling:
+// the fan keeps slots -2 to 2 and the rest take 3, -3, 4, -4, ... on alternate sides.
+let extra = 0;
+const sheets = certificates.map((item) => {
+  const slot = item.fan ?? (extra % 2 === 0 ? 3 + extra / 2 : -(3 + (extra - 1) / 2));
+  if (item.fan === undefined) extra += 1;
+  return { ...item, slot };
+});
+const slots = sheets.map((sheet) => sheet.slot);
+const minSlot = Math.min(...slots);
+const slotSpan = Math.max(...slots) - minSlot;
+---
+
+<section aria-labelledby="certificates-title" class="certificate-showcase frame" id="certificates">
+  <h2 id="certificates-title" class="sr-only">
+    Certificates
+  </h2>
+  <div
+    class="cert-stack"
+    data-cert-stack
+    data-centre-index={-minSlot}
+    data-slot-span={slotSpan}
+    style={{ '--slot-span': slotSpan, '--centre-index': -minSlot }}
+  >
+    <div class="cert-track">
+      {sheets.map((item) => {
+        const fan = item.fan ?? 0;
+        return (
+          <a
+            class:list={['cert-sheet', { 'is-extra': item.fan === undefined }]}
+            data-certificate={item.title}
+            data-slide={item.slide}
+            href={item.full}
+            style={{
+              '--sheet-position': fan,
+              '--sheet-layer': item.fan === undefined ? 0 : 5 - Math.abs(fan),
+              '--slot-index': item.slot - minSlot,
+              '--slot-layer': 10 - Math.abs(item.slot),
+              '--slot-tilt': Math.max(-2, Math.min(2, item.slot)),
+            }}
+          >
+            <Image
+              src={item.image}
+              alt={item.alt}
+              width={800}
+              sizes="(max-width: 900px) 90vw, 420px"
+              loading="lazy"
+            />
+            <span>
+              {item.title} <span aria-hidden="true">↗</span>
+            </span>
+          </a>
+        );
+      })}
+    </div>
+  </div>
+  <details class="all-certificates">
+    <summary data-carousel-open>
+      See all certificates <span aria-hidden="true">↗</span>
+    </summary>
+    <section aria-label="Certificate documents" class="certificate-collection">
+      {certificates.map((item) => (
+        <article class="certificate-card">
+          <a
+            class="certificate-image"
+            data-certificate={item.title}
+            data-slide={item.slide}
+            href={item.full}
+          >
+            <Image
+              src={item.image}
+              alt={item.alt}
+              width={900}
+              sizes="(max-width: 900px) 90vw, 560px"
+            />
+          </a>
+          <div class="certificate-caption">
+            <p class="label">{item.issuer}</p>
+            <h3>{item.title}</h3>
+          </div>
+        </article>
+      ))}
+    </section>
+    <section aria-labelledby="badges-title" class="badge-collection">
+      <h3 id="badges-title" class="micro">
+        Badges
+      </h3>
+      <ul>
+        {badges.map((item) => (
+          <li>
+            <a
+              class="badge-image"
+              data-certificate={item.title}
+              data-slide={item.slide}
+              href={item.full}
+            >
+              <Image src={item.image} alt={item.alt} width={320} />
+            </a>
+            <p class="label">{item.issuer}</p>
+            <p class="badge-title">{item.title}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
+  </details>
+</section>
+
+<dialog aria-label="Certificates" aria-roledescription="carousel" class="certificate-dialog">
+  <div class="dialog-top">
+    <button data-close type="button">
+      Close <span aria-hidden="true">×</span>
+    </button>
+  </div>
+  <div class="carousel-track" data-carousel-track>
+    {items.map((item) => (
+      <figure
+        aria-label={`${item.slide + 1} of ${items.length}: ${item.title}`}
+        aria-roledescription="slide"
+        class="carousel-slide"
+        role="group"
+      >
+        <img
+          alt={item.alt}
+          decoding="async"
+          height={item.fullHeight}
+          loading="lazy"
+          src={item.full}
+          width={item.fullWidth}
+        />
+      </figure>
+    ))}
+  </div>
+  <div class="carousel-controls">
+    <button aria-label="Previous certificate" data-carousel-prev type="button">
+      <span aria-hidden="true">←</span>
+    </button>
+    <span aria-live="polite" class="carousel-count" data-carousel-count></span>
+    <button aria-label="Next certificate" data-carousel-next type="button">
+      <span aria-hidden="true">→</span>
+    </button>
+  </div>
+</dialog>
+
+<script>
+  import '../../scripts/certificate-dialog';
+  import '../../scripts/certificate-stack';
+</script>

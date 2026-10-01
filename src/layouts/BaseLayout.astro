@@ -1,0 +1,67 @@
+---
+import '@fontsource/manrope/400.css';
+import '@fontsource/manrope/500.css';
+import '@fontsource/manrope/600.css';
+import '@fontsource/manrope/700.css';
+import '@fontsource/manrope/800.css';
+import '@fontsource/newsreader/400.css';
+import '@fontsource/newsreader/400-italic.css';
+import '@fontsource/newsreader/500.css';
+import '@fontsource/newsreader/500-italic.css';
+import '@fontsource/newsreader/600.css';
+import '@fontsource/bricolage-grotesque/400.css';
+import '@fontsource/bricolage-grotesque/600.css';
+import '@fontsource/bricolage-grotesque/800.css';
+import '@fontsource/caveat/500.css';
+import '@fontsource/caveat/700.css';
+import '@fontsource/space-mono/400.css';
+import '@fontsource/space-mono/700.css';
+import '../styles/global.css';
+import Seo from '../components/Seo.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import { site } from '../data/site';
+
+type SeoProps = import('astro/types').ComponentProps<typeof Seo>;
+
+interface Props extends SeoProps {
+  /** Body classes carried over from the selected design; they scope page-specific styles. */
+  bodyClass?: string;
+}
+
+const { bodyClass = 'current exploration detail-page variation variation-studio', ...seo } =
+  Astro.props;
+---
+
+<!doctype html>
+<html lang={site.language} data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#f3f2e9" />
+    <meta name="color-scheme" content="light dark" />
+    <!-- Light is the default. Apply a saved dark theme before the first paint to avoid a flash. -->
+    <script is:inline>
+      try {
+        if (localStorage.getItem('theme') === 'dark') delete document.documentElement.dataset.theme;
+      } catch {
+        /* storage unavailable: keep the default light theme */
+      }
+    </script>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <Seo {...seo} />
+    <slot name="head" />
+  </head>
+  <body class={bodyClass}>
+    <a class="skip" href="#main">
+      Skip to content
+    </a>
+    <SiteHeader />
+    <slot />
+    <SiteFooter />
+    <script>
+      import '../scripts/site-chrome';
+    </script>
+  </body>
+</html>

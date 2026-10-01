@@ -1,0 +1,50 @@
+{
+  "name": "muhammad-rizwan-portfolio",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "npm run validate:content && astro build",
+    "preview": "astro preview",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "astro check",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "validate:content": "node scripts/validate-content.ts",
+    "test": "vitest run",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm run validate:content && npm run test",
+    "verify": "npm run check && astro build"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@astrojs/mdx": "^8.0.2",
+    "@astrojs/sitemap": "^3.7.4",
+    "@fontsource/bricolage-grotesque": "^5.3.0",
+    "@fontsource/caveat": "^5.3.0",
+    "@fontsource/manrope": "^5.3.0",
+    "@fontsource/newsreader": "^5.3.0",
+    "@fontsource/space-mono": "^5.3.0",
+    "astro": "^7.3.5",
+    "three": "^0.186.1",
+    "typescript": "~6.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@types/three": "^0.186.0",
+    "astro-eslint-parser": "^1.4.0",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-astro": "^1.7.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "globals": "^17.12.0",
+    "prettier": "^3.9.9",
+    "prettier-plugin-astro": "^1.1.0",
+    "typescript-eslint": "^8.71.0",
+    "vitest": "^5.0.3",
+    "yaml": "^2.9.1"
+  }
+}

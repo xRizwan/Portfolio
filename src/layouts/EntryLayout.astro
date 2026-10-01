@@ -1,0 +1,80 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import { headlineLines } from '../lib/content';
+
+type BaseProps = import('astro/types').ComponentProps<typeof BaseLayout>;
+
+interface Props extends BaseProps {
+  headline: string;
+  intro: string;
+  eyebrow: string;
+  backLink: { label: string; href: string };
+  meta?: string[];
+  toc: { id: string; label: string }[];
+  tocLinks?: { label: string; href: string }[];
+  diagram?: { src: string; alt: string; caption: string } | undefined;
+  tocLabel?: string;
+}
+
+const {
+  headline,
+  intro,
+  eyebrow,
+  backLink,
+  meta = [],
+  toc,
+  tocLinks = [],
+  diagram,
+  tocLabel = 'On this page',
+  ...base
+} = Astro.props;
+const lines = headlineLines(headline);
+---
+
+<BaseLayout {...base}>
+  <main class="wrap" id="main">
+    <section class="detail-top">
+      <a class="back-link" href={backLink.href}>
+        {backLink.label}
+      </a>
+      <p class="label">{eyebrow}</p>
+      <h1>
+        {lines.map((line, index) => (
+          <Fragment>
+            {index > 0 && <br />}
+            {line}
+          </Fragment>
+        ))}
+      </h1>
+      <p class="intro">{intro}</p>
+      {meta.length > 0 && (
+        <div class="detail-meta">
+          {meta.map((item) => (
+            <span>{item}</span>
+          ))}
+        </div>
+      )}
+    </section>
+    {diagram && (
+      <Fragment>
+        <a aria-label="Open the full diagram" class="full-diagram" href={diagram.src}>
+          <img alt={diagram.alt} height="790" src={diagram.src} width="1120" decoding="async" />
+        </a>
+        <p class="diagram-caption">{diagram.caption}</p>
+      </Fragment>
+    )}
+    <div class="case-layout">
+      <nav aria-label={tocLabel} class="case-toc">
+        {toc.map((item) => (
+          <a href={`#${item.id}`}>{item.label}</a>
+        ))}
+        {tocLinks.map((link) => (
+          <a href={link.href}>{link.label}</a>
+        ))}
+      </nav>
+      <article class="prose">
+        <slot />
+      </article>
+    </div>
+  </main>
+</BaseLayout>

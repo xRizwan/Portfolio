@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 790" role="img" aria-labelledby="title desc">
+  <title id="title">Real-time financial fraud detection architecture</title>
+  <desc id="desc">An analyst interface calls an API gateway and transaction service. Transactions are stored in PostgreSQL and published to Kafka. Fraud analysis reads Redis features and publishes results back to Kafka. Alerting, reporting, and archival services consume events independently.</desc>
+  <defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".7" fill="#393839"/></pattern><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="m0 0 10 5-10 5z" fill="#ff8653"/></marker></defs>
+  <rect width="1120" height="790" rx="8" fill="#111217"/><rect width="1120" height="790" fill="url(#grid)"/>
+  <g font-family="monospace" fill="#eee4d4"><text x="40" y="42" font-size="17" font-weight="bold">FRAUD DETECTION / SYSTEM MAP</text><text x="40" y="67" font-size="11">Solution architecture / independent services / replayable events</text></g>
+  <g fill="none" stroke="#ff8653" stroke-width="2" marker-end="url(#arrow)">
+    <path d="M240 155H300"/><path d="M480 155H550"/><path d="M750 155H870"/><path d="M650 195V260"/>
+    <path d="M970 195V335H420V400"/><path d="M520 425H825V155H870"/>
+    <path d="M520 455H580"/><path d="M1005 195V365H140V400"/>
+    <path d="M100 400V195"/><path d="M1040 195V545H140V595"/>
+    <path d="M240 635H320"/><path d="M1070 195V565H740V595"/><path d="M830 635H870"/>
+  </g>
+  <g fill="#191a20" stroke="#ff8653" stroke-width="1.5">
+    <rect x="40" y="115" width="200" height="80" rx="6"/><rect x="300" y="115" width="180" height="80" rx="6"/><rect x="550" y="115" width="200" height="80" rx="6"/><rect x="870" y="115" width="200" height="80" rx="6"/>
+    <rect x="550" y="260" width="200" height="70" rx="6"/>
+    <rect x="40" y="400" width="200" height="85" rx="6"/><rect x="320" y="400" width="200" height="85" rx="6"/><rect x="580" y="400" width="200" height="85" rx="6" fill="#3a251c"/>
+    <rect x="40" y="595" width="200" height="85" rx="6"/><rect x="320" y="595" width="200" height="85" rx="6"/><rect x="650" y="595" width="180" height="85" rx="6"/><rect x="870" y="595" width="180" height="85" rx="6"/>
+  </g>
+  <g font-family="monospace" text-anchor="middle" fill="#eee4d4" font-size="16">
+    <text x="140" y="147">Analyst UI</text><text x="390" y="147">API gateway</text><text x="650" y="147">Transactions</text><text x="970" y="147">Kafka</text>
+    <text x="650" y="288">PostgreSQL</text><text x="140" y="434">Alert service</text><text x="420" y="434">Fraud analysis</text><text x="680" y="434">Redis</text>
+    <text x="140" y="629">Reporting</text><text x="420" y="629">PostgreSQL</text><text x="740" y="629">Archive consumer</text><text x="960" y="629">S3 archive</text>
+  </g>
+  <g font-family="monospace" text-anchor="middle" fill="#b3a99e" font-size="11">
+    <text x="140" y="174">REST / WebSocket</text><text x="390" y="174">Auth / routing</text><text x="650" y="174">Validate / publish</text><text x="970" y="174">Transactions / results</text>
+    <text x="650" y="310">Transaction records</text><text x="140" y="461">Push high-risk results</text><text x="420" y="461">Python / ML inference</text><text x="680" y="461">Customer features</text>
+    <text x="140" y="657">Searchable results</text><text x="420" y="657">Reporting records</text><text x="740" y="657">Long-term retention</text><text x="960" y="657">Audit / recovery</text>
+    <text x="680" y="360">Events to independent consumers</text>
+  </g>
+  <path d="M40 721H1080" stroke="#413b36"/><text x="40" y="751" font-family="monospace" font-size="11" fill="#b3a99e">Cross-cutting: OpenTelemetry traces / retries / idempotent consumers / dead-letter handling</text>
+</svg>

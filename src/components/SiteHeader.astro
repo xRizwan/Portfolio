@@ -1,0 +1,42 @@
+---
+import { mainNav, site } from '../data/site';
+import Icon from './Icon.astro';
+---
+
+<header class="site-nav frame">
+  <div class="identity-block">
+    <a aria-label={`${site.name} home`} class="identity" href="/">
+      mr<span>↗</span>
+    </a>
+    <p class="micro identity-role">
+      {site.name} / {site.role}
+    </p>
+  </div>
+  <nav aria-label="Main navigation" class="main-nav">
+    {mainNav.map((link) => (
+      <a href={link.href}>{link.label}</a>
+    ))}
+  </nav>
+  <div class="nav-actions">
+    <button aria-pressed="false" class="motion-toggle" data-motion type="button">
+      Pause motion
+    </button>
+    <button aria-label="Switch to dark theme" class="theme-toggle" data-theme-toggle type="button">
+      <Icon name="sun" size={14} />
+      <Icon name="moon" size={14} />
+      <span data-theme-label>Dark</span>
+    </button>
+    <a class="contact-nav" href={`mailto:${site.email}`}>
+      Let’s talk ↗
+    </a>
+    <details class="mobile-nav">
+      <summary>Menu</summary>
+      <nav aria-label="Mobile navigation">
+        {mainNav.map((link) => (
+          <a href={link.href}>{link.label}</a>
+        ))}
+        <a href={`mailto:${site.email}`}>Contact</a>
+      </nav>
+    </details>
+  </div>
+</header>

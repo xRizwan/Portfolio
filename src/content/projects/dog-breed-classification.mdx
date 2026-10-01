@@ -1,0 +1,39 @@
+---
+title: 'Dog Breed Classification on AWS'
+headline: 'Dog Breed Classification on AWS'
+description: 'Training, tuning, profiling, and deploying a ResNet50 classifier for 133 dog breeds on Amazon SageMaker, with 80.6% documented test accuracy.'
+intro: 'Training and evaluating a ResNet50 classifier for 133 dog breeds, then deploying it to a SageMaker endpoint.'
+eyebrow: 'Computer vision / AWS SageMaker'
+status: 'completed'
+pubDate: 2026-09-26
+meta:
+  - 'Completed project'
+  - 'PyTorch / SageMaker / S3'
+toc:
+  - { id: 'model', label: 'The model' }
+  - { id: 'evaluation', label: 'Evaluation' }
+  - { id: 'deployment', label: 'Deployment' }
+backLink: { label: '← Blog & Work Samples', href: '/#work' }
+---
+
+import Callout from '../../components/Callout.astro';
+
+<h2 id="model">The model</h2>
+
+I used ResNet50 pretrained on ImageNet as a feature extractor, froze its convolutional layers, and trained a new classification head for the 133 breeds. Training images used random crops and horizontal flips; validation and test images used a consistent center crop.
+
+The SageMaker tuning job compared learning rate, batch size, and number of epochs. The final training run used the best validation configuration: a learning rate of 0.000428, a batch size of 32, and three epochs.
+
+<h2 id="evaluation">Evaluation</h2>
+
+<Callout>
+  <strong>80.6% test accuracy</strong> and 78.0% validation accuracy in the documented final run.
+</Callout>
+
+SageMaker Debugger recorded losses, while Profiler captured system metrics. An overtraining rule was triggered by variation between evaluation batches; the writeup examines that signal alongside the loss over complete epochs.
+
+These results describe the project’s dataset and evaluation setup. They are not a guarantee of accuracy on arbitrary photos or images outside the 133 supported breeds.
+
+<h2 id="deployment">Deployment</h2>
+
+The trained model was deployed to a SageMaker endpoint that accepted JPEG input and returned a breed prediction. The project included training, hyperparameter tuning, profiling, inference, and cleanup.

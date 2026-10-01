@@ -1,0 +1,61 @@
+---
+import { render } from 'astro:content';
+import EntryLayout from '../../layouts/EntryLayout.astro';
+import { getArticles } from '../../lib/collections';
+import { articleHref } from '../../lib/content';
+import { breadcrumbs, writing } from '../../lib/structured-data';
+
+export async function getStaticPaths() {
+  const articles = await getArticles();
+  return articles.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const { data } = entry;
+const origin = Astro.site ?? new URL('http://localhost:4321');
+const path = articleHref(entry.id);
+const tocLinks = data.source ? [{ label: `${data.source.label} ↗`, href: data.source.url }] : [];
+---
+
+<EntryLayout
+  title={data.title}
+  description={data.description}
+  type="article"
+  published={data.pubDate}
+  modified={data.updatedDate}
+  jsonLd={[
+    writing(origin, {
+      type: 'BlogPosting',
+      title: data.title,
+      description: data.description,
+      path,
+      published: data.pubDate,
+      modified: data.updatedDate,
+    }),
+    breadcrumbs(origin, [
+      { name: 'Home', path: '/' },
+      { name: 'Blog', path: '/blog/' },
+      { name: data.title, path },
+    ]),
+  ]}
+  headline={data.headline}
+  intro={data.intro}
+  eyebrow={data.eyebrow}
+  backLink={{ label: '← Back to blog', href: '/blog/' }}
+  meta={[
+    'Muhammad Rizwan',
+    data.pubDate.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'UTC',
+    }),
+    data.topics,
+  ]}
+  toc={data.toc}
+  tocLinks={tocLinks}
+  tocLabel="Article sections"
+>
+  <Content />
+</EntryLayout>

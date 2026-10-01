@@ -1,0 +1,179 @@
+---
+title: 'Skin Cancer Detection from 3D Total Body Photos'
+headline: "393 cancers\nin 401,059 lesions."
+description: 'My Udacity capstone on the ISIC 2024 Kaggle data: ranking skin lesions by cancer risk with LightGBM on the metadata and a small CNN on the images, trained and deployed on SageMaker.'
+intro: 'My capstone for the Udacity AWS Machine Learning Engineer Nanodegree. The task is to rank the skin lesions of a patient so a doctor can look at the most suspicious ones first.'
+eyebrow: 'Machine learning / Udacity capstone'
+status: 'completed'
+pubDate: 2026-10-02
+updatedDate: 2026-10-02
+meta:
+  - 'Capstone project'
+  - 'LightGBM / PyTorch / SageMaker'
+toc:
+  - { id: 'problem', label: '01 / The problem' }
+  - { id: 'approach', label: '02 / What I built' }
+  - { id: 'results', label: '03 / Results' }
+  - { id: 'questions', label: '04 / What the score hides' }
+  - { id: 'limits', label: '05 / What I would change' }
+tocLinks:
+  - { label: 'Source code ↗', href: 'https://github.com/xRizwan/Capstone-ISIC-Kaggle-2024' }
+  - { label: 'Report PDF ↗', href: '/documents/isic-skin-cancer-report.pdf' }
+  - { label: 'Proposal PDF ↗', href: '/documents/isic-skin-cancer-proposal.pdf' }
+backLink: { label: '← Blog & Work Samples', href: '/#work' }
+blog:
+  category: 'ml'
+  label: 'Machine learning / Capstone'
+  title: '393 cancers in 401,059 lesions.'
+  summary: 'Ranking skin lesions with LightGBM and a small CNN, and what the Kaggle test set said about it.'
+  art: 'pauc'
+---
+
+import Callout from '../../components/Callout.astro';
+
+**The short version:** a blend of LightGBM on the metadata and a small CNN on the images reached a partial AUC of 0.169 out of 0.2 in cross-validation. The feature that helped most was comparing a lesion to the other lesions of the same patient.
+
+<h2 id="problem">The problem</h2>
+
+The data is from the Kaggle competition ISIC 2024. It has 401,059 small crops of skin lesions, cut out of 3D total body photos, with a table of measurements for each one (size, color, shape, body location). Only 393 of them are malignant. That is about 1 in 1,000.
+
+With so few positives, accuracy is useless: a model that says "benign" every time is 99.9% accurate. The competition uses the partial AUC above 80% true positive rate instead. It only scores the part of the ROC curve where the model already finds at least 80% of the cancers, and the maximum is 0.2.
+
+The lesions come from 1,042 patients, and one patient has hundreds of them. So I split the 5 validation folds by patient. If lesions of the same patient end up in both training and validation, the score looks better than it really is.
+
+I also had to drop some columns. A few exist only in the training data and are filled in after the biopsy, so they give away the answer.
+
+<h2 id="approach">What I built</h2>
+
+I started with two simple benchmarks: one color feature on its own, and a logistic regression. Then I built two models and combined them.
+
+- **LightGBM on the metadata.** My first run was worse than the benchmark (0.036). The model had memorized the few malignant lesions. Training on all malignant lesions but only 1% of the benign ones fixed it.
+- **Patient-normalized features.** Dermatologists look for the "ugly duckling", the mole that looks different from the others on the same person. I added features that compare each lesion to the patient's own average. The hue version became the most important feature of the whole model.
+- **A CNN on the images.** A pretrained ResNet18 on the 128-pixel crops, trained for 5 epochs on my laptop GPU. It is weaker than LightGBM on its own.
+- **The blend.** The two models make different mistakes (rank correlation 0.46), so I averaged their ranks with 70% LightGBM and 30% CNN.
+
+After that I ran everything again on SageMaker: training jobs for both models, a hyperparameter tuning job with 12 runs, and an endpoint that takes all lesions of one patient and returns them ranked. The tuning did not beat my defaults, so I kept them. The training jobs cost about $0.18.
+
+<h2 id="results">Results</h2>
+
+<div class="table-scroll">
+  <table>
+    <caption class="sr-only">
+      Partial AUC above 80% true positive rate in 5-fold cross-validation, by model
+    </caption>
+    <thead>
+      <tr>
+        <th>Model</th>
+        <th>pAUC (mean ± std)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Benchmark: one color feature</td>
+        <td>0.0809 ± 0.0247</td>
+      </tr>
+      <tr>
+        <td>Benchmark: logistic regression</td>
+        <td>0.1116 ± 0.0205</td>
+      </tr>
+      <tr>
+        <td>LightGBM on the metadata</td>
+        <td>0.1644 ± 0.0079</td>
+      </tr>
+      <tr>
+        <td>CNN on the images</td>
+        <td>0.1432 ± 0.0134</td>
+      </tr>
+      <tr>
+        <td>Blend (70% LightGBM, 30% CNN)</td>
+        <td>0.1691 ± 0.0067</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+The blend beats the logistic regression on all 5 folds. At the point where it finds 80% of the cancers, it wrongly flags about 5% of the benign lesions.
+
+<Callout>
+  <strong>On Kaggle's hidden test set</strong> the blend scored 0.1706 on the public part and 0.1590
+  on the private part (late submission).
+</Callout>
+
+The top of the leaderboard is very close together: a silver medal on the private part starts at about 0.1705. So my model is a good step above the benchmarks, but it is not close to the best solutions.
+
+I also tried stacking, where the CNN score is a feature for LightGBM. It was slightly higher on average (0.1703) but less stable between folds, so I kept the simpler blend.
+
+Later I added XGBoost, CatBoost, more features and more seeds. In cross-validation the gain was inside the noise (0.1705 against 0.1691). On Kaggle it moved to 0.1745 public and 0.1604 private. The three boosting libraries turned out to be nearly the same model on this data.
+
+<h2 id="questions">What the score hides</h2>
+
+After the project was reviewed I went back and asked what the 0.169 doesn't tell me. I used a bootstrap over patients to get an interval for every number.
+
+<div class="table-scroll">
+  <table>
+    <caption class="sr-only">Six questions about the model and the short answer to each</caption>
+    <thead>
+      <tr>
+        <th>Question</th>
+        <th>Short answer</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>How noisy is the score?</td>
+        <td>About ±0.004 (one std). Blend over LightGBM is real, stacking over blend is not.</td>
+      </tr>
+      <tr>
+        <td>Cancer, or "looks suspicious"?</td>
+        <td>Against biopsied benign lesions the pAUC drops from 0.169 to 0.118.</td>
+      </tr>
+      <tr>
+        <td>A hospital it has never seen?</td>
+        <td>0.164 to 0.150 for LightGBM, and the drop is real.</td>
+      </tr>
+      <tr>
+        <td>Ugly duckling and lesion count?</td>
+        <td>The gain only shows for patients with more than about 680 lesions.</td>
+      </tr>
+      <tr>
+        <td>Skin tone, age, sex?</td>
+        <td>No clear differences, but the groups are too small to be sure.</td>
+      </tr>
+      <tr>
+        <td>Cancer types?</td>
+        <td>The CNN adds about 8% everywhere. Melanoma is missed most often.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+The second row surprised me most. Every malignant lesion in the data was biopsied, but 95% of the benign ones never were, because nobody found them suspicious. The model ranks the biopsied benign lesions high too. So the headline score mostly measures how well it separates cancers from lesions nobody was worried about.
+
+<Callout>
+  <strong>What I take from this:</strong> the score is correct, but it describes an easier job than
+  it sounds like. The model is good at sorting out harmless lesions, at a hospital it knows, for
+  patients with a full-body scan.
+</Callout>
+
+On the hard cases it is still far better than guessing (AUC 0.88), which is enough for triage. It can't replace the decision to biopsy.
+
+<h2 id="limits">What I would change</h2>
+
+- The CNN is the weak part. On SageMaker it scored 0.1315 with the same code, so it changes a lot from run to run. Averaging several seeds or adding older ISIC images would help.
+- I compared many models on the same 5 folds. A group of patients kept out of all development would give a cleaner final number.
+- The best Kaggle solutions used stronger image models. After trying more boosting models myself, I think that is where most of the gap is.
+- Use the biopsied lesions as a second metric, and build a second model for the step from "suspicious" to "cancer".
+
+The report has the full details and the figures. The proposal is the plan I wrote before starting. The notebooks and scripts are [on GitHub](https://github.com/xRizwan/Capstone-ISIC-Kaggle-2024).
+
+<div style="display:flex;flex-wrap:wrap;gap:14px">
+  <a class="action" href="/documents/isic-skin-cancer-report.pdf">
+    Download the report <span aria-hidden="true">↗</span>
+  </a>
+  <a class="action" href="https://github.com/xRizwan/Capstone-ISIC-Kaggle-2024">
+    View the code <span aria-hidden="true">↗</span>
+  </a>
+  <a class="action" href="/documents/isic-skin-cancer-proposal.pdf">
+    Download the proposal <span aria-hidden="true">↗</span>
+  </a>
+</div>
