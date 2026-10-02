@@ -15,7 +15,7 @@ const { Content } = await render(entry);
 const { data } = entry;
 const origin = Astro.site ?? new URL('http://localhost:4321');
 const path = articleHref(entry.id);
-const tocLinks = data.source ? [{ label: `${data.source.label} ↗`, href: data.source.url }] : [];
+const tocLinks = data.source ? [{ label: data.source.label, href: data.source.url }] : [];
 ---
 
 <EntryLayout
@@ -42,7 +42,7 @@ const tocLinks = data.source ? [{ label: `${data.source.label} ↗`, href: data.
   headline={data.headline}
   intro={data.intro}
   eyebrow={data.eyebrow}
-  backLink={{ label: '← Back to blog', href: '/blog/' }}
+  backLink={{ label: 'Back to blog', href: '/blog/' }}
   meta={[
     'Muhammad Rizwan',
     data.pubDate.toLocaleDateString('en-GB', {

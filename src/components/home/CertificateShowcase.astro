@@ -75,7 +75,7 @@ const slotSpan = Math.max(...slots) - minSlot;
               loading="lazy"
             />
             <span>
-              {item.title} <span aria-hidden="true">↗</span>
+              {item.title} <span aria-hidden="true" class="arrow"></span>
             </span>
           </a>
         );
@@ -84,7 +84,7 @@ const slotSpan = Math.max(...slots) - minSlot;
   </div>
   <details class="all-certificates">
     <summary data-carousel-open>
-      See all certificates <span aria-hidden="true">↗</span>
+      See all certificates <span aria-hidden="true" class="arrow"></span>
     </summary>
     <section aria-label="Certificate documents" class="certificate-collection">
       {certificates.map((item) => (
@@ -160,11 +160,11 @@ const slotSpan = Math.max(...slots) - minSlot;
   </div>
   <div class="carousel-controls">
     <button aria-label="Previous certificate" data-carousel-prev type="button">
-      <span aria-hidden="true">←</span>
+      <span aria-hidden="true" class="arrow arrow-left"></span>
     </button>
     <span aria-live="polite" class="carousel-count" data-carousel-count></span>
     <button aria-label="Next certificate" data-carousel-next type="button">
-      <span aria-hidden="true">→</span>
+      <span aria-hidden="true" class="arrow arrow-right"></span>
     </button>
   </div>
 </dialog>

@@ -202,3 +202,16 @@ Date: 2026-10-01. Roles: planner, implementer, and reviewer performed by one age
 - Local Lighthouse, home: performance 67-69 before, 76-80 after; blocking time unchanged.
 - Live Lighthouse after the change, home: performance 87, 80, 79 over three runs (77 before);
   blocking time 460-500ms (930ms before). The user accepted this and removed the 95 target.
+
+## Follow-up: arrows as SVG icons
+
+- The arrows were text characters (↗ ↓ ← →). The site's fonts do not contain "↗", so each
+  device drew it with a system font (Segoe UI Symbol on Windows), and it looked different
+  elsewhere. They are now CSS-masked SVG icons (`.arrow` in `global.css`) that take the text
+  colour and scale with the font size.
+- The diagonal arrow is traced from the old glyph's measured outline, at the size the font
+  drew it (0.506em); the logo's is heavier. "Explore my toolkit" keeps its old height, arrow
+  position, and weight; "Start a conversation" has the arrow centred on the text.
+- Frontmatter labels no longer carry arrow characters; `EntryLayout` draws them.
+- Checks: `npm run verify` pass; 4x side-by-side captures against the live site for the logo,
+  a work row, the toolkit link, and the closing link (light theme, 1440px).

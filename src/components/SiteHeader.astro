@@ -6,7 +6,7 @@ import Icon from './Icon.astro';
 <header class="site-nav frame">
   <div class="identity-block">
     <a aria-label={`${site.name} home`} class="identity" href="/">
-      mr<span>↗</span>
+      mr<span aria-hidden="true" class="arrow"></span>
     </a>
     <p class="micro identity-role">
       {site.name} / {site.role}
@@ -35,7 +35,7 @@ import Icon from './Icon.astro';
       <span data-theme-label>Dark</span>
     </button>
     <a class="contact-nav" href={`mailto:${site.email}`}>
-      Let’s talk ↗
+      Let’s talk <span aria-hidden="true" class="arrow"></span>
     </a>
     <details class="mobile-nav">
       <summary>Menu</summary>

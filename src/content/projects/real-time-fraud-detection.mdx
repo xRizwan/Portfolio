@@ -13,8 +13,8 @@ toc:
   - { id: 'failures', label: '04 / Failure handling' }
   - { id: 'targets', label: '05 / Design targets' }
 tocLinks:
-  - { label: 'Original PDF ↗', href: '/documents/fraud-detection-architecture.pdf' }
-backLink: { label: '← Back to projects', href: '/#work' }
+  - { label: 'Original PDF', href: '/documents/fraud-detection-architecture.pdf' }
+backLink: { label: 'Back to projects', href: '/#work' }
 diagram:
   src: '/diagrams/fraud-detection-system.svg'
   alt: 'Fraud detection system architecture: API, transactions, Kafka, fraud analysis with Redis, alerts, reporting, PostgreSQL and S3'
@@ -156,5 +156,5 @@ The brief only gives the 1,000 transactions per second. The rest are starting ta
 If I built this, the first thing I would do is load test it and watch consumer lag and model time, not only the API response time. A fast API tells you nothing if the fraud results are falling behind.
 
 <a class="action" href="/documents/fraud-detection-architecture.pdf">
-  Read my architecture document <span aria-hidden="true">↗</span>
+  Read my architecture document <span aria-hidden="true" class="arrow"></span>
 </a>

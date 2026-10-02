@@ -33,7 +33,9 @@ const origin = Astro.site ?? new URL('http://localhost:4321');
         </h1>
         <p class="intro">{experienceIntro.intro}</p>
         <a class="pill-link" href={site.resume} style="margin-top:25px">
-          Download my resume ↗
+          <span>
+            Download my resume <span aria-hidden="true" class="arrow"></span>
+          </span>
         </a>
       </div>
       <Image src={portrait} alt={site.name} width={460} />

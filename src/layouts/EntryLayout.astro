@@ -35,6 +35,7 @@ const lines = headlineLines(headline);
   <main class="wrap" id="main">
     <section class="detail-top">
       <a class="back-link" href={backLink.href}>
+        <span aria-hidden="true" class="arrow arrow-left" />
         {backLink.label}
       </a>
       <p class="label">{eyebrow}</p>
@@ -69,7 +70,9 @@ const lines = headlineLines(headline);
           <a href={`#${item.id}`}>{item.label}</a>
         ))}
         {tocLinks.map((link) => (
-          <a href={link.href}>{link.label}</a>
+          <a href={link.href}>
+            {link.label} <span aria-hidden="true" class="arrow" />
+          </a>
         ))}
       </nav>
       <article class="prose">
