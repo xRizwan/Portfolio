@@ -1,4 +1,5 @@
 ---
+import nameFont from '@fontsource/bricolage-grotesque/files/bricolage-grotesque-latin-800-normal.woff2?url';
 import CertificateShowcase from '../components/home/CertificateShowcase.astro';
 import Hero from '../components/home/Hero.astro';
 import SkillNotes from '../components/home/SkillNotes.astro';
@@ -19,6 +20,9 @@ const bodyClass =
   type="profile"
   jsonLd={[profilePage(origin, '/')]}
 >
+  <!-- The big name uses this font; preloading it stops the name from first drawing in a wider
+       fallback font and then shrinking when the real one arrives. -->
+  <link slot="head" rel="preload" as="font" type="font/woff2" href={nameFont} crossorigin />
   <main id="main">
     <Hero />
     <SkillNotes />

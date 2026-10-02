@@ -4341,3 +4341,25 @@ html:has(body.notes-pending) {
     margin-top: 8px;
   }
 }
+
+/* The photo placeholder shown until the 3D frame starts: same place as the 3D frame, no stand,
+   so the swap is barely noticeable. */
+.variation-frame .fallback-base {
+  display: none;
+}
+.variation-frame .room-fallback {
+  translate: 0 7.3%;
+}
+.variation-frame .fallback-monitor {
+  width: 222px;
+  transform: none;
+  box-shadow: none;
+}
+@media (max-width: 650px) {
+  .variation-frame .room-fallback {
+    translate: 0 14%;
+  }
+  .variation-frame .fallback-monitor {
+    width: 172px;
+  }
+}

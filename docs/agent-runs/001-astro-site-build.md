@@ -188,3 +188,15 @@ Date: 2026-10-01. Roles: planner, implementer, and reviewer performed by one age
   unknown URLs and the hidden XOR article return 404, canonical and sitemap use the
   production domain, `robots.txt` allows crawling.
 - Still not run: Lighthouse and a structured-data validator. No custom domain yet.
+
+## Follow-up: Lighthouse, structured data, home performance
+
+- Lighthouse (mobile, live): blog and the skin-cancer case study 100/100/100/100; home
+  77 performance (blocking time from the 3D scenes), 100 for the other three categories.
+- schema.org validator on six live pages: 0 errors, 0 warnings.
+- Home changes: the 3D scenes start after load when the browser is idle
+  (`src/scripts/hero-start.ts`) and compile shaders asynchronously; the photo placeholder
+  matches the 3D frame's position and size; the name's font is preloaded so it no longer
+  draws in a wider fallback font first (865px then 703px on a slow connection before the fix).
+- Phone header: "Pause motion" sits under the name; the header grows instead of overflowing.
+- Local Lighthouse, home: performance 67-69 before, 76-80 after; blocking time unchanged.

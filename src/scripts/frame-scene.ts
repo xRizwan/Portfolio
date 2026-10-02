@@ -145,8 +145,11 @@ function startScene(
       photoCanvas.height,
     );
     photoTexture.needsUpdate = true;
-    viewport.classList.add('is-ready');
-    renderOnce();
+    photoLoaded = true;
+    if (compiled) {
+      viewport.classList.add('is-ready');
+      renderOnce();
+    }
   };
   portrait.onerror = () => viewport.classList.remove('is-ready');
   portrait.src = viewport.dataset.portrait ?? '';
@@ -323,6 +326,10 @@ function startScene(
 
   let active = true;
   let frameRequest = 0;
+  // Shaders compile off the main thread where the browser supports it; nothing is drawn (and
+  // the HTML fallback stays visible) until they are ready.
+  let compiled = false;
+  let photoLoaded = false;
   let last = 0;
   let elapsed = 0;
   let distance = 9.9;
@@ -342,6 +349,7 @@ function startScene(
     renderOnce();
   }
   function renderOnce(): void {
+    if (!compiled) return;
     camera.position.set(0, 0.75, distance);
     camera.lookAt(target);
     renderer.render(scene, camera);
@@ -388,6 +396,11 @@ function startScene(
     viewport.classList.add('is-ready');
     sync();
   });
-  resize();
-  sync();
+  const begin = (): void => {
+    compiled = true;
+    resize();
+    sync();
+    if (photoLoaded) viewport.classList.add('is-ready');
+  };
+  renderer.compileAsync(scene, camera).then(begin, begin);
 }

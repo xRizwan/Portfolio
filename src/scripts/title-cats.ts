@@ -171,7 +171,11 @@ function startTitleCats(title: HTMLElement, text: HTMLElement): void {
       moving ? 0.15 + napper.callBlend * 0.2 : 0,
     );
   }
-  const render = (): void => renderer.render(scene, camera);
+  // Shaders compile off the main thread where supported; drawing starts once they are ready.
+  let compiled = false;
+  const render = (): void => {
+    if (compiled) renderer.render(scene, camera);
+  };
 
   // Hovering the napper wakes it; a click makes either cat react.
   const raycaster = new THREE.Raycaster();
@@ -271,5 +275,9 @@ function startTitleCats(title: HTMLElement, text: HTMLElement): void {
   onMotionChange(sync);
   small.addEventListener('change', sync);
   void document.fonts.ready.then(sync);
-  sync();
+  const begin = (): void => {
+    compiled = true;
+    sync();
+  };
+  renderer.compileAsync(scene, camera).then(begin, begin);
 }
