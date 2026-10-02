@@ -8,6 +8,7 @@
 - **Discovery:** `/sitemap-index.xml` lists only published pages, `/robots.txt` points to it,
   and unknown URLs return a real 404.
 - **Performance:** run mobile Lighthouse on `/`, one article, and one case study against a
-  production build. Targets: performance 95+, accessibility and SEO 100. Record the scores and
-  revision. Three.js must load only on the home page, after the content.
+  production build. Targets: accessibility and SEO 100. There is no fixed performance score
+  target; the home page's 3D scenes are an accepted cost (about 80-87 on mobile). Record the
+  scores and revision. Three.js must load only on the home page, after the content.
 - Rankings, rich results, and AI citations cannot be promised; never report them as achieved.

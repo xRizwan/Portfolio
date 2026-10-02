@@ -44,7 +44,7 @@ Date: 2026-10-01. Roles: planner, implementer, and reviewer performed by one age
 ## Review findings
 
 - Three.js chunk is 578 kB (144 kB gzipped), loaded only on the home page after content.
-  Accepted; revisit if Lighthouse performance falls below target.
+  Accepted.
 - `tabindex="0"` on skill notes is intentional (overlapping notes come to the front on
   focus); allowed for `<article>` in that component only, with the reason in the ESLint config.
 
@@ -200,3 +200,5 @@ Date: 2026-10-01. Roles: planner, implementer, and reviewer performed by one age
   draws in a wider fallback font first (865px then 703px on a slow connection before the fix).
 - Phone header: "Pause motion" sits under the name; the header grows instead of overflowing.
 - Local Lighthouse, home: performance 67-69 before, 76-80 after; blocking time unchanged.
+- Live Lighthouse after the change, home: performance 87, 80, 79 over three runs (77 before);
+  blocking time 460-500ms (930ms before). The user accepted this and removed the 95 target.
