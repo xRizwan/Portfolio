@@ -4520,6 +4520,13 @@ html:has(body.notes-pending) {
 .about-traits .cat-fill {
   fill: var(--note-paper);
 }
+/* The whiskers reach past the note onto the page, so they take the page's text colour. */
+.about-traits {
+  --page-ink: var(--ink);
+}
+.about-traits .cat-whiskers {
+  stroke: var(--page-ink);
+}
 @media (max-width: 900px) {
   .experience-intro {
     grid-template-areas: 'head' 'body' 'portrait';

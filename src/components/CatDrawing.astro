@@ -26,7 +26,11 @@ const { pose, size = 96 } = Astro.props;
   <circle cx="41" cy="37" fill="currentColor" r="1.6" stroke="none" />
   <circle cx="55" cy="37" fill="currentColor" r="1.6" stroke="none" />
   <path d="M46 43 48 45 50 43M48 45V47Q45 50 43 48M48 47Q51 50 53 48" stroke-width="1.6" />
-  <path d="M33 43 22 41M33 46 23 49M63 43 74 41M63 46 73 49" stroke-width="1.4" />
+  <path
+    class="cat-whiskers"
+    d="M33 43 22 41M33 46 23 49M63 43 74 41M63 46 73 49"
+    stroke-width="1.4"
+  />
   {pose === 'peek' && (
     <>
       <rect class="cat-fill" height="12" rx="5" width="11" x="29" y="46" />
