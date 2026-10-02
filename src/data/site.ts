@@ -6,7 +6,7 @@ export const site = {
   jobTitle: 'Full-Stack Software Engineer',
   /** Short introduction under the name in the home hero. */
   intro: {
-    role: 'Full-Stack Software Engineer / Applied AI',
+    role: 'Software Engineer / Applied AI',
     summary:
       'Five-plus years building web products end to end. Now building the machine learning that makes them smarter.',
   },

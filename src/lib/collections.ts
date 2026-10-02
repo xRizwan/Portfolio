@@ -19,7 +19,10 @@ export interface BlogListing {
   card: NonNullable<CollectionEntry<'projects'>['data']['blog']>;
 }
 
-/** Articles plus the case studies that are written up as blog entries, newest first. */
+/**
+ * Articles plus the case studies that are written up as blog entries, newest first. Entries
+ * marked `last` go after the rest.
+ */
 export async function getBlogListings(): Promise<BlogListing[]> {
   const articles = (await getArticles()).map((entry) => ({
     href: articleHref(entry.id),
@@ -32,5 +35,9 @@ export async function getBlogListings(): Promise<BlogListing[]> {
       : [],
   );
   // Keep the article first when dates tie, matching the selected design's order.
-  return [...articles, ...projects].sort((a, b) => b.pubDate.getTime() - a.pubDate.getTime());
+  return [...articles, ...projects].sort(
+    (a, b) =>
+      Number(a.card.last ?? false) - Number(b.card.last ?? false) ||
+      b.pubDate.getTime() - a.pubDate.getTime(),
+  );
 }

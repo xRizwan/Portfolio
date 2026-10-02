@@ -4817,3 +4817,36 @@ html:has(body.notes-pending) {
   stroke-width: 7.6;
   stroke-linecap: round;
 }
+
+/* Blog heading: a kitten deep in thought sits to the right of the title. */
+.blog-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 30px;
+}
+.cat-scene.blog-cat {
+  flex: 0 0 auto;
+  overflow: visible;
+  margin-bottom: 22px;
+}
+.cat-scene.blog-cat svg {
+  width: 250px;
+  height: auto;
+}
+.blog-cat .bubble {
+  fill: #fffaf0;
+}
+.blog-cat .bulb {
+  fill: #f6d564;
+}
+@media (max-width: 900px) {
+  .blog-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+  }
+  .cat-scene.blog-cat svg {
+    width: 180px;
+  }
+}

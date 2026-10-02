@@ -11,7 +11,9 @@ const blogCard = z.object({
   label: z.string().min(1),
   title: z.string().min(1),
   summary: z.string().min(1),
-  art: z.enum(['formula', 'fraud-diagram', 'pauc']),
+  art: z.enum(['formula', 'fraud-diagram', 'pauc', 'accuracy']),
+  /** Lists the entry after the dated ones, whatever its date. */
+  last: z.boolean().optional(),
 });
 
 const articles = defineCollection({

@@ -1,0 +1,26 @@
+---
+// Decorative drawing beside the blog heading: a kitten deep in thought, with an idea on the way.
+import KittenSit from './home/KittenSit.astro';
+---
+
+<div aria-hidden="true" class="cat-scene blog-cat">
+  <svg focusable="false" viewBox="0 0 230 172">
+    <path class="yarn-thread" d="M2 158C50 148 110 166 228 155" />
+    <circle class="kit-line bubble" cx="140" cy="70" r="3.6" />
+    <circle class="kit-line bubble" cx="151" cy="58" r="5.6" />
+    <path
+      class="kit-line bubble"
+      d="M160 46a14 14 0 0 1 5-27 19 19 0 0 1 34-5 15 15 0 0 1 19 17 12 12 0 0 1-7 21h-45a10 10 0 0 1-6-6z"
+    />
+    <path class="kit-line bulb" d="M183 34a10 10 0 1 1 12 0v4h-12z" />
+    <path class="kit-line kit-none" d="M184 42h10M186 45.5h6" stroke-width="1.6" />
+    <g transform="translate(46 58) scale(1.4)">
+      <g transform="rotate(-5 32 46)">
+        <KittenSit eyes="up" paws={false} tail="left">
+          <ellipse class="kit-line kit-fur" cx="27" cy="62" rx="4.4" ry="4" />
+          <ellipse class="kit-line kit-fur" cx="40" cy="47" rx="4.8" ry="4.3" />
+        </KittenSit>
+      </g>
+    </g>
+  </svg>
+</div>

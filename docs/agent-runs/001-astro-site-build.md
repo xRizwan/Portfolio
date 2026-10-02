@@ -236,3 +236,14 @@ Date: 2026-10-01. Roles: planner, implementer, and reviewer performed by one age
   trial page, `src/pages/home-2.astro`, which is gitignored.
 - Checked: `npm run verify`; screenshots in light mode at 1440px. Dark mode and phone width not
   checked (self-review).
+
+## Follow-up: blog card for the dog breed project, blog drawing, role line
+
+- The dog breed project has a blog card (art `accuracy`, the 80.6% figure) and is marked
+  `last`, so the blog lists it after the dated entries, matching the home page order.
+- The skin cancer card summary is reworded at the user's choice.
+- The blog heading has a kitten drawing (`BlogCat.astro`, built on `KittenSit.astro`). Two
+  other drawings were tried on temporary pages and removed.
+- The hero role line is now "Software Engineer / Applied AI". Job titles on the Experience page
+  are unchanged.
+- Checked: `npm run verify`; the blog page in light and dark mode at desktop and phone width.

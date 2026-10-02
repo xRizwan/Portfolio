@@ -1,0 +1,29 @@
+---
+// A sitting kitten for the illustrations (64 units wide, 72 tall). Anything passed as children
+// is drawn in front of it, for example something it holds.
+import KittenHead from './KittenHead.astro';
+
+interface Props {
+  eyes?: 'open' | 'asleep' | 'happy' | 'up';
+  tail?: 'left' | 'right';
+  /** Draws the two front paws resting on the body. */
+  paws?: boolean;
+}
+
+const { eyes = 'open', tail = 'right', paws = true } = Astro.props;
+const tailPath = tail === 'right' ? 'M44 57Q59 58 56 43' : 'M20 57Q5 58 8 43';
+---
+
+<path class="kit-tail-edge" d={tailPath}></path>
+<path class="kit-tail" d={tailPath}></path>
+<ellipse class="kit-line kit-fur" cx="24" cy="67" rx="5.4" ry="4.2"></ellipse>
+<ellipse class="kit-line kit-fur" cx="40" cy="67" rx="5.4" ry="4.2"></ellipse>
+<ellipse class="kit-line kit-fur" cx="32" cy="55" rx="13.5" ry="12.5"></ellipse>
+{paws && (
+  <>
+    <ellipse class="kit-line kit-fur" cx="27" cy="62" rx="4.4" ry="4" />
+    <ellipse class="kit-line kit-fur" cx="37" cy="62" rx="4.4" ry="4" />
+  </>
+)}
+<KittenHead eyes={eyes} />
+<slot />
