@@ -1,0 +1,38 @@
+---
+// The kitten's head for the home page illustrations (drawn inside a 64-unit-wide box).
+interface Props {
+  eyes?: 'open' | 'asleep' | 'happy';
+}
+
+const { eyes = 'open' } = Astro.props;
+---
+
+<path class="kit-line kit-orange" d="M11 19 9 2 27 9Z"></path>
+<path class="kit-line kit-brown" d="M53 19 55 2 37 9Z"></path>
+<path class="kit-pink" d="M13.5 14 12.5 6.5 20.5 9.5Z"></path>
+<path class="kit-pink" d="M50.5 14 51.5 6.5 43.5 9.5Z"></path>
+<ellipse class="kit-line kit-fur" cx="32" cy="27" rx="24.5" ry="20"></ellipse>
+<path class="kit-orange" d="M9.5 21Q13 10 27 7.3 23 16 10 24.5Z"></path>
+<path class="kit-brown" d="M54.5 21Q51 10 37 7.3 41 16 54 24.5Z"></path>
+<ellipse class="kit-line kit-none" cx="32" cy="27" rx="24.5" ry="20"></ellipse>
+{eyes === 'open' && (
+  <g class="kit-eyes">
+    <ellipse class="kit-dark" cx="21.5" cy="28" rx="3.7" ry="4.5" />
+    <ellipse class="kit-dark" cx="42.5" cy="28" rx="3.7" ry="4.5" />
+    <circle class="kit-shine" cx="22.8" cy="26.2" r="1.4" />
+    <circle class="kit-shine" cx="43.8" cy="26.2" r="1.4" />
+  </g>
+)}
+{eyes === 'asleep' && (
+  <path class="kit-line kit-none" d="M17.5 28Q21.5 31.5 25.5 28M38.5 28Q42.5 31.5 46.5 28" />
+)}
+{eyes === 'happy' && (
+  <path
+    class="kit-line kit-none"
+    d="M17.5 29.5Q21.5 24.5 25.5 29.5M38.5 29.5Q42.5 24.5 46.5 29.5"
+  />
+)}
+<ellipse class="kit-blush" cx="14.5" cy="34" rx="4.2" ry="2.5"></ellipse>
+<ellipse class="kit-blush" cx="49.5" cy="34" rx="4.2" ry="2.5"></ellipse>
+<path class="kit-pink" d="M30.3 32.5h3.4L32 34.5Z"></path>
+<path class="kit-line kit-none" d="M28 36Q30 38.5 32 35.5 34 38.5 36 36" stroke-width="1.4"></path>

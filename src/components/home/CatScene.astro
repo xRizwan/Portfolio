@@ -1,0 +1,94 @@
+---
+// Illustrated dividers for the home page: a kitten and a thread of yarn between sections.
+// Decorative only. The drawing is wider than most screens and is cropped around its centre, so
+// the kitten always stays in view.
+import KittenHead from './KittenHead.astro';
+
+interface Props {
+  scene: 'chase' | 'nap' | 'tangle';
+}
+
+const { scene } = Astro.props;
+---
+
+<div aria-hidden="true" class="cat-scene">
+  <svg focusable="false" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1200 130">
+    {scene === 'chase' && (
+      <>
+        <path class="yarn-thread" d="M-10 98C140 72 300 120 450 98S620 84 692 100" />
+        <g transform="translate(505 22) scale(1.2)">
+          <g class="kit-tail-group">
+            <path class="kit-tail-edge" d="M20 57Q5 58 8 43" />
+            <path class="kit-tail" d="M20 57Q5 58 8 43" />
+          </g>
+          <ellipse class="kit-line kit-fur" cx="24" cy="67" rx="5.4" ry="4.2" />
+          <ellipse class="kit-line kit-fur" cx="40" cy="67" rx="5.4" ry="4.2" />
+          <ellipse class="kit-line kit-fur" cx="32" cy="55" rx="13.5" ry="12.5" />
+          <ellipse class="kit-line kit-fur" cx="28" cy="62" rx="4.4" ry="4" />
+          <ellipse class="kit-line kit-fur" cx="43" cy="55" rx="4.6" ry="4" />
+          <g transform="rotate(9 32 46)">
+            <KittenHead />
+          </g>
+        </g>
+        <circle class="kit-line kit-yarn" cx="708" cy="88" r="21" />
+        <path
+          class="kit-line kit-none"
+          d="M691 80Q708 70 725 82M689 93Q708 82 727 95M699 71Q714 88 703 107"
+          stroke-width="1.6"
+        />
+        <path class="scene-mark" d="M742 74l13-5M746 88h15M742 102l13 5" />
+      </>
+    )}
+    {scene === 'nap' && (
+      <>
+        <path
+          class="yarn-thread"
+          d="M-10 104C160 84 330 118 520 106H660C720 100 740 60 780 62S820 112 770 108 760 64 810 74 850 116 900 106 1100 92 1210 104"
+        />
+        <g transform="translate(528 28) scale(1.2)">
+          <ellipse class="kit-line kit-fur" cx="50" cy="50" rx="28" ry="15" />
+          <path class="kit-orange" d="M52 36.500Q64 34 73 42 62 46 52 36.500Z" />
+          <ellipse class="kit-line kit-none" cx="50" cy="50" rx="28" ry="15" />
+          <path class="kit-tail-edge" d="M76 56Q64 68 44 63" />
+          <path class="kit-tail" d="M76 56Q64 68 44 63" />
+          <g transform="translate(-9 18) scale(0.92)">
+            <KittenHead eyes="asleep" />
+          </g>
+          <ellipse class="kit-line kit-fur" cx="14" cy="62" rx="5" ry="3.6" />
+          <ellipse class="kit-line kit-fur" cx="27" cy="62.5" rx="5" ry="3.6" />
+        </g>
+        <text class="scene-zzz" x="634" y="52">
+          z
+        </text>
+        <text class="scene-zzz" font-size="30" x="650" y="36">
+          z
+        </text>
+      </>
+    )}
+    {scene === 'tangle' && (
+      <>
+        <path class="yarn-thread" d="M-10 98C150 78 350 116 480 96S560 82 577 87" />
+        <path class="yarn-thread" d="M619 93C680 110 800 76 960 98S1150 110 1210 92" />
+        <g class="scene-paws">
+          <path d="M300 78a5 4 0 1 0 .1 0M292 70a2 2 0 1 0 .1 0M299 67a2 2 0 1 0 .1 0M306 70a2 2 0 1 0 .1 0" />
+          <path d="M360 70a5 4 0 1 0 .1 0M352 62a2 2 0 1 0 .1 0M359 59a2 2 0 1 0 .1 0M366 62a2 2 0 1 0 .1 0" />
+          <path d="M420 80a5 4 0 1 0 .1 0M412 72a2 2 0 1 0 .1 0M419 69a2 2 0 1 0 .1 0M426 72a2 2 0 1 0 .1 0" />
+          <path d="M478 68a5 4 0 1 0 .1 0M470 60a2 2 0 1 0 .1 0M477 57a2 2 0 1 0 .1 0M484 60a2 2 0 1 0 .1 0" />
+        </g>
+        <g transform="translate(560 24) scale(1.2)">
+          <g class="kit-tail-group">
+            <path class="kit-tail-edge" d="M44 57Q59 58 56 43" />
+            <path class="kit-tail" d="M44 57Q59 58 56 43" />
+          </g>
+          <ellipse class="kit-line kit-fur" cx="24" cy="67" rx="5.4" ry="4.2" />
+          <ellipse class="kit-line kit-fur" cx="40" cy="67" rx="5.4" ry="4.2" />
+          <ellipse class="kit-line kit-fur" cx="32" cy="55" rx="13.5" ry="12.5" />
+          <path class="yarn-thread" d="M14 52Q32 63 50 51M15 58Q32 69 49 57" stroke-width="2.5" />
+          <ellipse class="kit-line kit-fur" cx="26" cy="63" rx="4.4" ry="4" />
+          <ellipse class="kit-line kit-fur" cx="38" cy="63" rx="4.4" ry="4" />
+          <KittenHead eyes="happy" />
+        </g>
+      </>
+    )}
+  </svg>
+</div>

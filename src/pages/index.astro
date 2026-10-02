@@ -1,5 +1,6 @@
 ---
 import nameFont from '@fontsource/bricolage-grotesque/files/bricolage-grotesque-latin-800-normal.woff2?url';
+import CatScene from '../components/home/CatScene.astro';
 import CertificateShowcase from '../components/home/CertificateShowcase.astro';
 import Hero from '../components/home/Hero.astro';
 import SkillNotes from '../components/home/SkillNotes.astro';
@@ -25,8 +26,11 @@ const bodyClass =
   <link slot="head" rel="preload" as="font" type="font/woff2" href={nameFont} crossorigin />
   <main id="main">
     <Hero />
+    <CatScene scene="chase" />
     <SkillNotes />
+    <CatScene scene="nap" />
     <WorkList />
+    <CatScene scene="tangle" />
     <CertificateShowcase />
   </main>
 </BaseLayout>

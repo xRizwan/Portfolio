@@ -4547,3 +4547,273 @@ html:has(body.notes-pending) {
     margin-top: 34px;
   }
 }
+
+/* Scroll cat (tablets and up): a kitten hangs from a rope on the right edge and slides down it
+   as the page scrolls. At the end of the page it lets go and stands on the bottom. */
+.scroll-cat {
+  display: none;
+}
+@media (min-width: 651px) {
+  .scroll-cat.is-ready {
+    --progress: 0;
+    --size: 66px;
+    --start: 92px;
+    /* The drawing is 88 units tall for 64 wide. */
+    --height: calc(var(--size) * 1.375);
+    --travel: calc((100% - var(--start) - var(--height) - 4px) * var(--progress));
+    display: block;
+    position: fixed;
+    inset: 0 10px 0 auto;
+    width: var(--size);
+    z-index: 40;
+    pointer-events: none;
+  }
+  .scroll-cat-rope {
+    position: absolute;
+    top: 0;
+    left: calc(50% - 2.5px);
+    width: 5px;
+    height: calc(var(--start) + var(--size) * 0.16 + var(--travel));
+    border-radius: 0 0 3px 3px;
+    background: repeating-linear-gradient(135deg, #d9b27c 0 4px, #b98d55 4px 6px);
+    box-shadow: 0 0 0 1px #3a2e2a66;
+  }
+  .scroll-cat.is-landed .scroll-cat-rope {
+    height: calc(var(--start) + var(--travel) - 12px);
+  }
+  .scroll-cat-runner {
+    position: absolute;
+    top: calc(var(--start) + var(--travel));
+    left: 0;
+    width: var(--size);
+    /* Swings from the point where the paws hold the rope. */
+    transform-origin: 50% 10%;
+    animation: scroll-cat-sway 2.4s ease-in-out infinite alternate;
+  }
+  .scroll-cat.is-running .scroll-cat-runner {
+    animation: scroll-cat-swing 0.34s ease-in-out infinite alternate;
+  }
+  .scroll-cat.is-landed .scroll-cat-runner {
+    transform-origin: 50% 100%;
+    animation: scroll-cat-land 0.42s ease-out;
+  }
+  .scroll-cat svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .scroll-cat .kit-stand,
+  .scroll-cat.is-landed .kit-hang {
+    display: none;
+  }
+  .scroll-cat.is-landed .kit-stand {
+    display: inline;
+  }
+  .scroll-cat .kit-line {
+    stroke: #3a2e2a;
+    stroke-width: 1.8;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+  }
+  .scroll-cat .kit-fur {
+    fill: #fffaf0;
+  }
+  .scroll-cat .kit-orange {
+    fill: #f4a65a;
+  }
+  .scroll-cat .kit-brown {
+    fill: #8a6a5a;
+  }
+  .scroll-cat .kit-pink {
+    fill: #f29aa9;
+  }
+  .scroll-cat .kit-dark {
+    fill: #3a2e2a;
+  }
+  .scroll-cat .kit-shine {
+    fill: #fff;
+  }
+  .scroll-cat .kit-none {
+    fill: none;
+  }
+  .scroll-cat .kit-blush {
+    fill: #f58a9c;
+    opacity: 0.55;
+  }
+  .scroll-cat .kit-tail {
+    fill: none;
+    stroke: #fffaf0;
+    stroke-width: 4.2;
+    stroke-linecap: round;
+  }
+  .scroll-cat .kit-tail-edge {
+    fill: none;
+    stroke: #3a2e2a;
+    stroke-width: 7.6;
+    stroke-linecap: round;
+  }
+  .scroll-cat .kit-tail-group {
+    transform-origin: 43px 71px;
+    animation: scroll-cat-tail 1.6s ease-in-out infinite alternate;
+  }
+  .scroll-cat .kit-eyes {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: scroll-cat-blink 4.6s infinite;
+  }
+  .scroll-cat.is-running:not(.is-landed) .kit-a {
+    animation: scroll-cat-paw 0.2s ease-in-out infinite alternate;
+  }
+  .scroll-cat.is-running:not(.is-landed) .kit-b {
+    animation: scroll-cat-paw 0.2s ease-in-out infinite alternate-reverse;
+  }
+  .scroll-cat.is-running .kit-tail-group {
+    animation-duration: 0.3s;
+  }
+  .motion-off .scroll-cat * {
+    animation: none !important;
+  }
+}
+@media (min-width: 651px) and (max-width: 1100px) {
+  .scroll-cat.is-ready {
+    --size: 50px;
+    right: 3px;
+  }
+}
+@keyframes scroll-cat-paw {
+  from {
+    transform: translateY(-2.4px);
+  }
+  to {
+    transform: translateY(2.4px);
+  }
+}
+@keyframes scroll-cat-sway {
+  from {
+    transform: rotate(-2deg);
+  }
+  to {
+    transform: rotate(2deg);
+  }
+}
+@keyframes scroll-cat-swing {
+  from {
+    transform: rotate(-8deg);
+  }
+  to {
+    transform: rotate(8deg);
+  }
+}
+@keyframes scroll-cat-land {
+  0% {
+    transform: translateY(-16px);
+  }
+  55% {
+    transform: scale(1.1, 0.86);
+  }
+  100% {
+    transform: none;
+  }
+}
+@keyframes scroll-cat-tail {
+  from {
+    transform: rotate(-9deg);
+  }
+  to {
+    transform: rotate(12deg);
+  }
+}
+@keyframes scroll-cat-blink {
+  0%,
+  94%,
+  100% {
+    transform: scaleY(1);
+  }
+  97% {
+    transform: scaleY(0.1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-cat * {
+    animation: none !important;
+  }
+}
+
+/* Illustrated dividers on the home page: a kitten and a thread of yarn between sections. */
+.cat-scene {
+  overflow: hidden;
+  pointer-events: none;
+}
+.cat-scene svg {
+  display: block;
+  width: 100%;
+  height: 130px;
+}
+.cat-scene .yarn-thread {
+  fill: none;
+  stroke: #e8839b;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.cat-scene .scene-mark {
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.cat-scene .scene-paws {
+  fill: var(--muted);
+  opacity: 0.55;
+}
+.cat-scene .scene-zzz {
+  font: 700 22px var(--hand);
+  fill: var(--muted);
+}
+.cat-scene .kit-line {
+  stroke: #3a2e2a;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.cat-scene .kit-fur {
+  fill: #fffaf0;
+}
+.cat-scene .kit-orange {
+  fill: #f4a65a;
+}
+.cat-scene .kit-brown {
+  fill: #8a6a5a;
+}
+.cat-scene .kit-pink {
+  fill: #f29aa9;
+}
+.cat-scene .kit-yarn {
+  fill: #ee8fa5;
+}
+.cat-scene .kit-dark {
+  fill: #3a2e2a;
+}
+.cat-scene .kit-shine {
+  fill: #fff;
+}
+.cat-scene .kit-none {
+  fill: none;
+}
+.cat-scene .kit-blush {
+  fill: #f58a9c;
+  opacity: 0.55;
+}
+.cat-scene .kit-tail {
+  fill: none;
+  stroke: #fffaf0;
+  stroke-width: 4.2;
+  stroke-linecap: round;
+}
+.cat-scene .kit-tail-edge {
+  fill: none;
+  stroke: #3a2e2a;
+  stroke-width: 7.6;
+  stroke-linecap: round;
+}

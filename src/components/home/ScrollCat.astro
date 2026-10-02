@@ -1,0 +1,40 @@
+---
+// Tablets and up: a kitten hangs from a rope on the right edge and slides down it as the page
+// scrolls. At the end of the page it lets go and stands on the bottom. Decorative, so it is
+// hidden from assistive technology and ignores clicks.
+import KittenHead from './KittenHead.astro';
+---
+
+<div aria-hidden="true" class="scroll-cat" data-scroll-cat>
+  <span class="scroll-cat-rope"></span>
+  <span class="scroll-cat-runner">
+    <svg focusable="false" viewBox="0 0 64 88">
+      <g class="kit-tail-group">
+        <path class="kit-tail-edge" d="M43 71Q58 72 55 57" />
+        <path class="kit-tail" d="M43 71Q58 72 55 57" />
+      </g>
+      <ellipse class="kit-line kit-fur kit-a" cx="25.5" cy="81" rx="5" ry="4.4" />
+      <ellipse class="kit-line kit-fur kit-b" cx="38.5" cy="81" rx="5" ry="4.4" />
+      <ellipse class="kit-line kit-fur" cx="32" cy="68" rx="13" ry="12.5" />
+      <g class="kit-hang">
+        <ellipse class="kit-line kit-fur" cx="27" cy="16" rx="4.4" ry="8" />
+        <ellipse class="kit-line kit-fur" cx="37" cy="16" rx="4.4" ry="8" />
+      </g>
+      <g transform="translate(0 13)">
+        <KittenHead />
+      </g>
+      <g class="kit-hang">
+        <ellipse class="kit-line kit-fur" cx="27.5" cy="9" rx="4.8" ry="4.2" />
+        <ellipse class="kit-line kit-fur" cx="36.5" cy="9" rx="4.8" ry="4.2" />
+      </g>
+      <g class="kit-stand">
+        <ellipse class="kit-line kit-fur" cx="26.5" cy="72" rx="4.4" ry="4" />
+        <ellipse class="kit-line kit-fur" cx="37.5" cy="72" rx="4.4" ry="4" />
+      </g>
+    </svg>
+  </span>
+</div>
+
+<script>
+  import '../../scripts/scroll-cat';
+</script>

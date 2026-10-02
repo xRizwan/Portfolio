@@ -14,3 +14,6 @@ prototypes/
 
 # Drafts of social posts
 posts/
+
+# Local trial copy of the home page (rope cat)
+/src/pages/home-2.astro

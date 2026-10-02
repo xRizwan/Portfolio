@@ -226,3 +226,13 @@ Date: 2026-10-01. Roles: planner, implementer, and reviewer performed by one age
 - `posts/` (social post drafts) is gitignored.
 - Checked: `npm run verify`; screenshots in light mode at desktop and phone width. Dark mode not
   checked (self-review).
+
+## Follow-up: kitten illustrations on the home page
+
+- Three decorative drawings (`CatScene.astro`, `KittenHead.astro`) sit between the home page
+  sections: a kitten chasing a ball of yarn, asleep on the thread, and wrapped in it.
+- `ScrollCat.astro` and `scroll-cat.ts` (a kitten sliding down a rope as the page scrolls, on
+  tablets and up) are kept but not used on any committed page. They are only used by a local
+  trial page, `src/pages/home-2.astro`, which is gitignored.
+- Checked: `npm run verify`; screenshots in light mode at 1440px. Dark mode and phone width not
+  checked (self-review).
