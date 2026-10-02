@@ -4415,3 +4415,128 @@ html:has(body.notes-pending) {
   align-self: center;
   translate: 0 0.03em;
 }
+
+/* Experience intro layout: heading, About me, portrait. */
+.experience-intro {
+  grid-template-areas:
+    'head portrait'
+    'body portrait';
+  row-gap: 0;
+}
+.intro-head {
+  grid-area: head;
+}
+.intro-body {
+  grid-area: body;
+}
+.intro-portrait {
+  grid-area: portrait;
+}
+.cat-drawing {
+  display: block;
+}
+.cat-fill {
+  fill: var(--paper);
+}
+
+/* About me: a lead line, a paragraph, and three traits as sticky notes with a cat looking
+   over the middle one. */
+.about {
+  margin-top: 34px;
+}
+.about > .micro {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+.about > .micro .cat-drawing {
+  color: var(--ink);
+  stroke-width: 3.4;
+  margin: -8px 0 0 -8px;
+}
+.about-lead {
+  font: 600 clamp(22px, 2.3vw, 29px) / 1.25 var(--display);
+  letter-spacing: -0.01em;
+  max-width: 640px;
+  margin: 0 0 14px;
+}
+.about-traits {
+  list-style: none;
+  padding: 0;
+  margin: 62px 0 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  max-width: 800px;
+}
+.about-traits li {
+  --note-paper: #eedfac;
+  background: var(--note-paper);
+  color: #303329;
+  border-radius: 2px 2px 16px 2px;
+  padding: 24px 20px 26px;
+  box-shadow: 4px 12px 25px #0003;
+  rotate: -2deg;
+  position: relative;
+}
+.about-traits li:nth-child(2) {
+  --note-paper: #cbd9c9;
+  rotate: 1.5deg;
+  translate: 0 -10px;
+}
+.about-traits li:nth-child(3) {
+  --note-paper: #d9d1e5;
+  rotate: -1deg;
+}
+.about-traits li:not(:nth-child(2))::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: calc(50% - 34px);
+  width: 68px;
+  height: 20px;
+  background: #f3e7bd99;
+  border-inline: 1px dashed #fff8;
+}
+.about-traits .micro,
+.about-traits p {
+  color: #4a4d42;
+}
+.about-traits h3 {
+  font: 700 30px/1 var(--hand);
+  margin: 10px 0 6px;
+}
+.about-traits p {
+  font-size: 14px;
+  line-height: 1.55;
+  margin: 0;
+}
+.about-traits .cat-peek {
+  position: absolute;
+  top: -49px;
+  right: 18px;
+}
+.about-traits .cat-fill {
+  fill: var(--note-paper);
+}
+@media (max-width: 900px) {
+  .experience-intro {
+    grid-template-areas: 'head' 'body' 'portrait';
+  }
+  .intro-portrait {
+    margin-top: 30px;
+  }
+  .about {
+    margin-top: 24px;
+  }
+  .about-traits {
+    grid-template-columns: 1fr;
+    margin-top: 58px;
+    gap: 26px;
+  }
+  .about-traits li:nth-child(2) {
+    translate: none;
+    margin-top: 34px;
+  }
+}

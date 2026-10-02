@@ -1,0 +1,134 @@
+---
+import { Image } from 'astro:assets';
+import portrait from '../assets/portrait.png';
+import CatDrawing from './CatDrawing.astro';
+import TechChip from './TechChip.astro';
+import { experienceIntro, roles, toolbox } from '../data/experience';
+import { site } from '../data/site';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { breadcrumbs, profilePage } from '../lib/structured-data';
+
+const origin = Astro.site ?? new URL('http://localhost:4321');
+
+const about = experienceIntro.about;
+---
+
+<BaseLayout
+  title="Experience"
+  description="Muhammad Rizwan's experience as a Full-Stack Software Engineer and Technical Team Lead: payroll, HR, and workforce products, client and open-source codebases, and mobile payments."
+  type="profile"
+  jsonLd={[
+    profilePage(origin, '/experience/'),
+    breadcrumbs(origin, [
+      { name: 'Home', path: '/' },
+      { name: 'Experience', path: '/experience/' },
+    ]),
+  ]}
+>
+  <main class="wrap" id="main">
+    <section class="detail-top experience-intro">
+      <div class="intro-head">
+        <p class="micro">{experienceIntro.eyebrow}</p>
+        <h1>
+          {experienceIntro.headline[0]}
+          <br />
+          {experienceIntro.headline[1]}
+        </h1>
+      </div>
+      <div class="intro-body">
+        <section class="about" id="about" aria-labelledby="about-title">
+          <h2 class="micro" id="about-title">
+            <CatDrawing pose="face" size={46} />
+            About me
+          </h2>
+          <p class="about-lead">{about.lead}</p>
+          <p class="intro">{about.body}</p>
+          <ul class="about-traits">
+            {about.traits.map((trait, index) => (
+              <li>
+                {index === 1 && <CatDrawing pose="peek" size={84} />}
+                <span class="micro">0{index + 1}</span>
+                <h3>{trait.title}</h3>
+                <p>{trait.text}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+        <a class="pill-link" href={site.resume} style="margin-top:25px">
+          <span>
+            Download my resume <span aria-hidden="true" class="arrow"></span>
+          </span>
+        </a>
+      </div>
+      <div class="intro-portrait">
+        <Image src={portrait} alt={site.name} width={460} />
+      </div>
+    </section>
+
+    <section class="roles" aria-labelledby="roles-title">
+      <h2 class="micro roles-label" id="roles-title">
+        Work experience
+      </h2>
+      {roles.map((role) => (
+        <article class="career role">
+          <div class="role-meta">
+            <p class="micro">{role.dates}</p>
+            <p class="role-kind">{role.kind}</p>
+          </div>
+          <div>
+            <h2>{role.company}</h2>
+            <ol class:list={['role-titles', { 'has-steps': role.titles.length > 1 }]}>
+              {role.titles.map((step) => (
+                <li>
+                  <span class="role-title">{step.title}</span>
+                  <span class="role-dates">{step.dates}</span>
+                </li>
+              ))}
+            </ol>
+            <p class="role-summary">{role.summary}</p>
+            <ul class="role-points">
+              {role.points.map((point) => (
+                <li>{point}</li>
+              ))}
+            </ul>
+            {role.contributed.length > 0 && (
+              <div class="role-block">
+                <p class="micro">Codebases contributed to</p>
+                <ul class="contributed">
+                  {role.contributed.map((name) => (
+                    <li>{name}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            <div class="role-block">
+              <p class="micro">Stack</p>
+              <ul class="tech-list">
+                {role.stack.map((name) => (
+                  <TechChip name={name} small />
+                ))}
+              </ul>
+            </div>
+          </div>
+        </article>
+      ))}
+    </section>
+
+    <section class="toolbox" aria-labelledby="toolbox-title">
+      <div class="toolbox-heading">
+        <p class="micro">Toolkit</p>
+        <h2 id="toolbox-title">Skills &amp; tools</h2>
+      </div>
+      {toolbox.map((row) => (
+        <div class="toolbox-row">
+          <h3 class="micro">{row.label}</h3>
+          <ul class="tech-list">
+            {row.items.map((name) => (
+              <TechChip name={name} />
+            ))}
+          </ul>
+        </div>
+      ))}
+    </section>
+  </main>
+</BaseLayout>

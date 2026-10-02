@@ -11,3 +11,6 @@ dist/
 # Local-only material: design prototypes and the original portrait source
 prototypes/
 /Image.png
+
+# Drafts of social posts
+posts/

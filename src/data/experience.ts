@@ -31,8 +31,25 @@ export interface ToolboxRow {
 export const experienceIntro = {
   eyebrow: 'Experience / Since 2020',
   headline: ['A few chapters', 'of building software.'],
-  intro:
-    'Five-plus years across payroll, HR, and workforce products, client and open-source codebases, and mobile payments — from shared UI libraries and scheduling systems to APIs and team leadership.',
+  // About me, in the user's own terms: always learning, likes hard problems.
+  about: {
+    lead: "I'm a software engineer who is always learning something new.",
+    body: 'For the past five-plus years I have built web products end to end, on payroll, HR and workforce products, client and open-source codebases, and mobile payments. Along the way I went from writing shared UI libraries and APIs to leading a team. Now I am learning machine learning the same way I learned everything else: by building things.',
+    traits: [
+      {
+        title: 'Always learning',
+        text: "I get restless when I'm not picking up something new.",
+      },
+      {
+        title: 'Hard problems',
+        text: "I enjoy a problem most when I don't know how to solve it yet.",
+      },
+      {
+        title: 'Digging for answers',
+        text: 'I search, read and try things until it makes sense, and I like to know why it works.',
+      },
+    ],
+  },
 };
 
 export const chips: Record<string, TechChip> = {

@@ -27,6 +27,7 @@ export interface NavLink {
 
 export const mainNav: NavLink[] = [
   { label: 'Skills', href: '/#skills' },
+  { label: 'About me', href: '/experience/#about' },
   { label: 'Blog', href: '/blog/' },
   { label: 'Experience', href: '/experience/' },
   { label: 'Certificates', href: '/#certificates' },

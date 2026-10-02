@@ -215,3 +215,14 @@ Date: 2026-10-01. Roles: planner, implementer, and reviewer performed by one age
 - Frontmatter labels no longer carry arrow characters; `EntryLayout` draws them.
 - Checks: `npm run verify` pass; 4x side-by-side captures against the live site for the logo,
   a work row, the toolkit link, and the closing link (light theme, 1440px).
+
+## Follow-up: About me on the Experience page
+
+- The Experience intro paragraph is replaced by an "About me" section: a lead line, a short
+  paragraph, and three traits as sticky notes with a line-drawn cat (`CatDrawing.astro`). The
+  page markup moved to `ExperienceView.astro`. "Scheduling systems" is no longer mentioned.
+- The header menu has an "About me" link to `/experience/#about`.
+- Three other layouts were tried on temporary pages and removed after the user chose this one.
+- `posts/` (social post drafts) is gitignored.
+- Checked: `npm run verify`; screenshots in light mode at desktop and phone width. Dark mode not
+  checked (self-review).

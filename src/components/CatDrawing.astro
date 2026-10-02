@@ -1,0 +1,36 @@
+---
+// Small line drawings of a cat, in the current text colour. Decorative only.
+interface Props {
+  /** `peek` adds paws resting on an edge; `face` is the head alone. */
+  pose: 'peek' | 'face';
+  size?: number;
+}
+
+const { pose, size = 96 } = Astro.props;
+---
+
+<svg
+  aria-hidden="true"
+  class:list={['cat-drawing', `cat-${pose}`]}
+  fill="none"
+  focusable="false"
+  height={(size * 60) / 96}
+  stroke="currentColor"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  stroke-width="2.2"
+  viewBox="0 0 96 60"
+  width={size}
+>
+  <path class="cat-fill" d="M30 34 27 14 41 24Q48 22 55 24L69 14 66 34Q70 52 48 54 26 52 30 34Z" />
+  <circle cx="41" cy="37" fill="currentColor" r="1.6" stroke="none" />
+  <circle cx="55" cy="37" fill="currentColor" r="1.6" stroke="none" />
+  <path d="M46 43 48 45 50 43M48 45V47Q45 50 43 48M48 47Q51 50 53 48" stroke-width="1.6" />
+  <path d="M33 43 22 41M33 46 23 49M63 43 74 41M63 46 73 49" stroke-width="1.4" />
+  {pose === 'peek' && (
+    <>
+      <rect class="cat-fill" height="12" rx="5" width="11" x="29" y="46" />
+      <rect class="cat-fill" height="12" rx="5" width="11" x="56" y="46" />
+    </>
+  )}
+</svg>
