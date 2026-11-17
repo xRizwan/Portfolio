@@ -66,8 +66,11 @@ const mats = ['var(--pb-sun)', 'var(--pb-blue)', 'var(--pb-red)', 'var(--pb-gree
     <ul class="pb-strip" data-pb-strip>
       {items.map(({ credential, full }, index) => (
         <li class="pb-frame" style={`--mat:${mats[index % mats.length]}`}>
+          <!-- Named here because a pleated frame hides its contents while staying focusable
+               (focusing it pulls it open, see parts.ts). -->
           <a
             href={full.src}
+            aria-label={`${credential.title}, ${credential.issuer}: see it full size`}
             data-pb-cert
             data-title={credential.title}
             data-issuer={credential.issuer}

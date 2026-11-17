@@ -26,6 +26,8 @@ const origin = Astro.site ?? new URL('http://localhost:4321');
   <!-- Pick the presentation before first paint so the flat fallback does not flash:
        pb-m-book = the pinned 3D book, pb-m-fx = flat pages whose pieces stand up as they
        scroll in. With neither class the page is static. main.ts keeps these in sync later. -->
+  <!-- The cover's painted cloth is the largest thing on first view; fetch it with the page. -->
+  <link slot="head" rel="preload" as="image" href="/book/cover.webp" fetchpriority="high" />
   <script is:inline slot="head">
     (function () {
       var root = document.documentElement;

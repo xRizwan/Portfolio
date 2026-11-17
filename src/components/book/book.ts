@@ -143,6 +143,12 @@ export function initBook(): { mode: () => Mode; velocity: () => number } {
   let current = 0;
   let catClock = 0;
   let frameId = 0;
+  // fx mode: the scroll position and cover angle last drawn, so unchanged frames are skipped.
+  let fxLastY = -1;
+  let fxLastTime = 0;
+  let fxLastOpen = '';
+  // book mode: an element that took focus in a closed spread, to focus again once it is open.
+  let pendingFocus: { el: HTMLElement; index: number; until: number } | null = null;
 
   // ---------- shadows (book only; the CSS hides them elsewhere) ----------
   let shadowsMade = false;
@@ -187,6 +193,8 @@ export function initBook(): { mode: () => Mode; velocity: () => number } {
   };
 
   const clearAll = (): void => {
+    fxLastY = -1;
+    fxLastOpen = '';
     for (const spread of spreads) {
       spread.el.classList.remove('is-on', 'is-up');
       spread.el.style.removeProperty('--open');
@@ -452,6 +460,12 @@ export function initBook(): { mode: () => Mode; velocity: () => number } {
   // ---------- fx ----------
   const frameFx = (time: number): void => {
     const y = scrollY;
+    // Nothing depends on time except the peeking cats, which change at most every 260 ms, so a
+    // still page does no work in between. Measuring after writing styles forces a layout, which
+    // is what made this loop costly on slow phones.
+    if (y === fxLastY && time - fxLastTime < 250) return;
+    fxLastY = y;
+    fxLastTime = time;
     let q = 1;
     if (opening) {
       const rect = opening.getBoundingClientRect();
@@ -459,9 +473,12 @@ export function initBook(): { mode: () => Mode; velocity: () => number } {
     }
     const cover = spreads[0];
     if (cover) {
-      const open = easeInOut(clamp01(q / 0.3));
-      cover.el.style.setProperty('--open', open.toFixed(3));
-      cover.el.style.visibility = open >= 0.999 ? 'hidden' : '';
+      const open = easeInOut(clamp01(q / 0.3)).toFixed(3);
+      if (open !== fxLastOpen) {
+        fxLastOpen = open;
+        cover.el.style.setProperty('--open', open);
+        cover.el.style.visibility = Number(open) >= 0.999 ? 'hidden' : '';
+      }
     }
     const hide = Math.abs(velocity) > 26;
     spreads.forEach((spread, index) => {
@@ -480,8 +497,24 @@ export function initBook(): { mode: () => Mode; velocity: () => number } {
     });
   };
 
+  const restoreFocus = (time: number): void => {
+    if (!pendingFocus) return;
+    const active = document.activeElement;
+    const lost = !active || active === document.body;
+    if (time > pendingFocus.until || (!lost && active !== pendingFocus.el)) {
+      // Timed out, or the visitor has moved on to something else.
+      pendingFocus = null;
+      return;
+    }
+    if (lost && spreads[pendingFocus.index]?.on) {
+      pendingFocus.el.focus({ preventScroll: true });
+      if (document.activeElement === pendingFocus.el) pendingFocus = null;
+    }
+  };
+
   const frame = (time: number): void => {
     frameId = requestAnimationFrame(frame);
+    restoreFocus(performance.now());
     const y = scrollY;
     velocity += (y - lastY - velocity) * 0.3;
     lastY = y;
@@ -531,11 +564,16 @@ export function initBook(): { mode: () => Mode; velocity: () => number } {
     history.replaceState(null, '', link.hash);
     goTo(index, true);
   });
-  // Keyboard focus landing in a spread that is not open brings that spread up.
+  // Keyboard focus landing in a spread that is not open brings that spread up. While the pages
+  // turn to it, the element's page is briefly hidden and the browser drops focus to the body,
+  // so the frame loop puts focus back once the spread is open (see restoreFocus).
   document.addEventListener('focusin', (event) => {
-    if (mode !== 'book' || !(event.target instanceof Element)) return;
+    if (mode !== 'book' || !(event.target instanceof HTMLElement)) return;
     const index = spreadIndexOf(event.target);
-    if (index >= 0 && index !== current) goTo(index, false);
+    if (index >= 0 && index !== current) {
+      goTo(index, false);
+      pendingFocus = { el: event.target, index, until: performance.now() + 2000 };
+    }
   });
 
   // Read through a function: setMode() changes `mode`, which TypeScript cannot see from here and

@@ -17,6 +17,32 @@ const shutterPaint = ['var(--pb-sun)', 'var(--pb-red)', 'var(--pb-green)'];
   data-rise="62"
   aria-labelledby="pb-about-title"
 >
+  <!-- The right page comes first in the markup so the About heading precedes the trait headings
+       on the house; CSS keeps the house on the left where the pages sit side by side. -->
+  <div class="pb-page pb-page--r">
+    <div
+      class="pb-pop pb-card pb-about"
+      style="--x:34;--y:486;--w:532;--h:420;--a:50;--z:2"
+      data-at="0.3"
+      data-dur="0.4"
+    >
+      <p class="pb-kicker">About me</p>
+      <h2 class="pb-h2" id="pb-about-title">
+        {about.lead}
+      </h2>
+      <p class="pb-about__body">{about.body}</p>
+    </div>
+    <div
+      class="pb-pop pb-sign"
+      style="--x:60;--y:604;--w:330;--h:64;--a:50;--z:4"
+      data-at="0.6"
+      data-dur="0.3"
+    >
+      <p class="pb-note">Lift the shutters on the house.</p>
+    </div>
+    <Piece name="cat" x={470} y={610} w={84} a={64} at={0.6} z={5} cat class="pb-flip" />
+  </div>
+
   <div class="pb-page pb-page--l">
     <Piece name="tree" x={18} y={300} w={120} a={70} at={0} />
     <div
@@ -57,33 +83,14 @@ const shutterPaint = ['var(--pb-sun)', 'var(--pb-red)', 'var(--pb-green)'];
     <Piece name="cat" x={470} y={560} w={92} a={64} at={0.5} z={4} cat />
     <Piece name="grass" x={20} y={585} w={400} a={72} at={0.45} z={5} />
   </div>
-
-  <div class="pb-page pb-page--r">
-    <div
-      class="pb-pop pb-card pb-about"
-      style="--x:34;--y:486;--w:532;--h:420;--a:50;--z:2"
-      data-at="0.3"
-      data-dur="0.4"
-    >
-      <p class="pb-kicker">About me</p>
-      <h2 class="pb-h2" id="pb-about-title">
-        {about.lead}
-      </h2>
-      <p class="pb-about__body">{about.body}</p>
-    </div>
-    <div
-      class="pb-pop pb-sign"
-      style="--x:60;--y:604;--w:330;--h:64;--a:50;--z:4"
-      data-at="0.6"
-      data-dur="0.3"
-    >
-      <p class="pb-note">Lift the shutters on the house.</p>
-    </div>
-    <Piece name="cat" x={470} y={610} w={84} a={64} at={0.6} z={5} cat class="pb-flip" />
-  </div>
 </section>
 
 <style is:global>
+  @media (min-width: 900px) {
+    .home-book .pb-spread--about > .pb-page--l {
+      order: -1;
+    }
+  }
   .home-book .pb-house {
     position: relative;
     container-type: inline-size;

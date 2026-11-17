@@ -32,7 +32,9 @@ const letters = [...site.shortName].map((char, index) => ({
       <div class="pb-page pb-page--r pb-cover">
         <div class="pb-cover__frame">
           <p class="pb-cover__kicker">A pop-up portfolio</p>
-          <p class="pb-cover__title" aria-label={site.shortName}>
+          <p class="pb-cover__title">
+            <!-- The letters are separate cut-outs; screen readers get the name in one piece. -->
+            <span class="pb-sr">{site.shortName}</span>
             {letters.map((letter) => (
               <span aria-hidden="true" style={`--paint:${letter.paint};--tilt:${letter.tilt}deg`}>
                 {letter.char}
@@ -208,7 +210,7 @@ const letters = [...site.shortName].map((char, index) => ({
   }
   /* Letters cut from painted paper: the colour sits on the glyph, the navy offset is its shadow
      on the cloth. */
-  .home-book .pb-cover__title span {
+  .home-book .pb-cover__title span:not(.pb-sr) {
     display: inline-block;
     color: var(--paint);
     rotate: var(--tilt);
