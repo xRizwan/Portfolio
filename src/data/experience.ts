@@ -360,7 +360,8 @@ export const chips: Record<string, TechChip> = {
   },
   AutoGluon: {
     badge: 'AG',
-    brand: '#1F8FA6',
+    // Lighter than the logo's #1F8FA6 so the badge text passes 4.5:1 on the dark tile.
+    brand: '#3AA9C0',
     text: '#5cc4d8',
     tile: '#10303a',
   },
@@ -402,7 +403,8 @@ export const chips: Record<string, TechChip> = {
     badge: '♥',
     brand: '#fff',
     text: '#ea60a5',
-    tile: '#E74A99',
+    // A shade darker than the logo's #E74A99 so the white badge text passes 4.5:1.
+    tile: '#C93582',
   },
   'Claude Code': {
     icon: 'claude',

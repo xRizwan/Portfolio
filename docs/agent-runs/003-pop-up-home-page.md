@@ -54,6 +54,18 @@ Date: 2026-11-17. Roles: planner / implementer / reviewer (self-review, same age
   spread opens as focus enters it, and the certificate viewer opens with Enter, takes focus,
   closes with Escape and returns focus to the certificate.
 
+- Deployed (commit `ec45184`, production `https://mrizzy.vercel.app`): `/`, `/experience/` and
+  `/blog/` return 200 with the new home and no Pause button; `/robots.txt` points to
+  `/sitemap-index.xml`; the sitemap lists the six published pages on the production origin;
+  `/lab/popup/` and an unknown URL return 404.
+- schema.org validator (validator.schema.org) on the six live pages: 0 errors, 0 warnings.
+  Types: ProfilePage and WebSite on `/`, plus BreadcrumbList on `/experience/`, BreadcrumbList
+  on `/blog/`, Article and BreadcrumbList on each case study.
+- Lighthouse 12.6 on the live site: home mobile 74 and 76 / 100 / 100 / 100 (two runs, LCP
+  6.2-6.4 s simulated), home desktop 99 / 100 / 100 / 100, blog mobile 100 / 100 / 100 / 100,
+  ISIC case study mobile 100 / 100 / 100 / 100, experience mobile 99 / 95 / 100 / 100 (colour
+  contrast of the AutoGluon badge, fixed below).
+
 ## Review findings
 
 - `/#skills` opened on the cover in the 3D book → re-open the spread after load (fixed).
@@ -70,10 +82,14 @@ Date: 2026-11-17. Roles: planner / implementer / reviewer (self-review, same age
   the first paint; the cover image is preloaded. Simulated mobile performance did not improve
   measurably; the remaining cost is the book's DOM and 3D styling.
 
+- Lighthouse on the live experience page: the AutoGluon badge text was 3.68:1 on its tile, and
+  the LÖVE badge (same test, not flagged) was 3.60:1 → AutoGluon `#3AA9C0` (5.06:1), LÖVE tile
+  `#C93582` (4.87:1) in `src/data/experience.ts`.
+
 ## Status and limitations
 
 - Not possible from this machine: testing on real phones (emulated mobile only).
-- Home mobile performance (about 70 in the simulation) is below the previous home page's
-  recorded 80-87 range; desktop is 84. Re-measure on the deployed site, which serves
-  compressed files.
+- Home mobile performance on the live site is 74-76, below the previous home page's recorded
+  80-87 range; desktop is 99. The simulated mobile LCP is held back by the 3D book's
+  main-thread work, not by downloads.
 - The previous home page's styles remain in `src/styles/global.css` (unused, harmless).
