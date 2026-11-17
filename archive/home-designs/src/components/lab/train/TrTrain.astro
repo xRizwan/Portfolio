@@ -1,0 +1,553 @@
+---
+// The train itself. One tall section whose pinned stage shows the inside of the carriages; as the
+// reader scrolls down, the row of carriages slides left, so the page travels sideways (journey.ts).
+// Behind the wall the night goes by in layers, the train runs into a tunnel between carriages and
+// stops at a station for each job. Without scripts or with reduced motion the carriages stack up
+// as an ordinary page.
+import { roles } from '../../../data/experience';
+import TrAbout from './TrAbout.astro';
+import TrCorridor from './TrCorridor.astro';
+import TrDining from './TrDining.astro';
+import TrGangway from './TrGangway.astro';
+import TrLine from './TrLine.astro';
+import TrOutside from './TrOutside.astro';
+import TrSkills from './TrSkills.astro';
+import { art } from './art';
+
+// The line is travelled in the order it happened: oldest stop first.
+const stops = [...roles].reverse();
+---
+
+<section class="tr-train" data-tr-train>
+  <div class="tr-stage" data-tr-stage>
+    <TrOutside>
+      <div class="tr-halts" data-tr-halts>
+        {stops.map((role) => (
+          <div class="tr-halt" data-tr-halt>
+            <img
+              src={art.station.src}
+              width={art.station.width}
+              height={art.station.height}
+              loading="lazy"
+              alt=""
+            />
+            <span class="tr-halt-sign">{role.company}</span>
+          </div>
+        ))}
+      </div>
+      <div class="tr-tunnel" slot="front">
+        <i></i>
+      </div>
+    </TrOutside>
+
+    <div class="tr-track" data-tr-track>
+      <TrAbout />
+      <TrGangway next="Luggage van" />
+      <TrSkills />
+      <TrGangway next="The line" />
+      <TrLine />
+      <TrGangway next="Dining car" />
+      <TrDining />
+      <TrGangway next="Corridor" />
+      <TrCorridor />
+      <TrGangway next="Last stop" end />
+      <div class="tr-moths" data-tr-train-moths aria-hidden="true"></div>
+    </div>
+
+    <div class="tr-lit" aria-hidden="true"></div>
+    <div class="tr-sweep" data-tr-sweep aria-hidden="true"></div>
+
+    <div class="tr-route" data-tr-route aria-hidden="true">
+      <span class="tr-route-line">
+        <i></i>
+      </span>
+      <ol>
+        {stops.map((role) => (
+          <li data-tr-route-stop>
+            <i />
+            <span>{role.company}</span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </div>
+
+  <dialog class="tr-viewer" data-tr-viewer aria-labelledby="tr-viewer-title">
+    <div class="tr-viewer-card tr-paper">
+      <div class="tr-viewer-pic">
+        <img data-tr-viewer-img src="" alt="" />
+      </div>
+      <p class="tr-viewer-cap">
+        <strong id="tr-viewer-title" data-tr-viewer-title></strong>
+        <span data-tr-viewer-issuer></span>
+      </p>
+      <div class="tr-viewer-controls">
+        <button type="button" class="tr-btn" data-tr-viewer-prev>
+          Previous
+        </button>
+        <button type="button" class="tr-btn" data-tr-viewer-close>
+          Close
+        </button>
+        <button type="button" class="tr-btn" data-tr-viewer-next>
+          Next
+        </button>
+      </div>
+    </div>
+  </dialog>
+</section>
+
+<style is:global>
+  .lab-train .tr-train {
+    position: relative;
+    z-index: 1;
+    background: var(--tr-wood-dark);
+  }
+  .lab-train .tr-stage {
+    position: relative;
+  }
+  .lab-train .tr-stage > .tr-out,
+  .lab-train .tr-lit,
+  .lab-train .tr-sweep,
+  .lab-train .tr-route,
+  .lab-train .tr-car-wall,
+  .lab-train .tr-car-frames,
+  .lab-train .tr-moths {
+    display: none;
+  }
+
+  /* Stacked (no scripts, or reduced motion): each carriage is a plain panelled section. */
+  .lab-train .tr-car {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 40px 36px;
+    padding: 96px 22px 64px;
+    background:
+      var(--tr-grain), repeating-linear-gradient(90deg, #0000 0 54px, rgb(0 0 0 / 20%) 54px 56px),
+      var(--tr-wood);
+    border-bottom: 3px solid var(--tr-brass);
+    scroll-margin-top: 58px;
+  }
+
+  /* Pinned: the stage fills the screen and the carriages form one long row. The section starts
+     two screens early so that it is already in place underneath the opening when that fades. */
+  html.tr-pin .lab-train .tr-train {
+    margin-top: calc(var(--tr-vh) * -200);
+  }
+  html.tr-pin .lab-train .tr-stage {
+    position: sticky;
+    top: 0;
+    height: calc(var(--tr-vh) * 100);
+    overflow: hidden;
+  }
+  html.tr-pin .lab-train .tr-stage > .tr-out {
+    display: block;
+    inset: 0 0 auto;
+    height: calc(var(--tr-win-top) + var(--tr-win-h) + 6px);
+    --tr-far-bottom: 33%;
+    --tr-far-h: 26%;
+    --tr-hills-bottom: 0%;
+    --tr-hills-h: 44%;
+    --tr-near-bottom: -3%;
+    --tr-near-h: 50%;
+  }
+  html.tr-pin .lab-train .tr-stage .tr-moon {
+    top: calc(var(--tr-win-top) + 22px);
+    right: 22%;
+  }
+  html.tr-pin .lab-train .tr-track {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    width: max-content;
+    height: 100%;
+    will-change: transform;
+  }
+  html.tr-pin .lab-train .tr-car {
+    flex: none;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--tr-gap);
+    height: 100%;
+    padding: var(--tr-top) var(--tr-pad) var(--tr-bottom);
+    background: none;
+    border: 0;
+  }
+  html.tr-pin .lab-train .tr-car > :not(.tr-car-wall, .tr-car-frames) {
+    position: relative;
+    z-index: 2;
+    flex: none;
+  }
+  html.tr-pin .lab-train .tr-car > .tr-plate {
+    align-self: flex-start;
+    margin-top: 18px;
+    --tr-reach: 0.45deg;
+    --tr-pace: 3.8s;
+  }
+
+  /* The wall: wood above and below, and a row of windows cut out of it with a mask. */
+  html.tr-pin .lab-train .tr-car-wall {
+    --tr-sill: calc(var(--tr-win-top) + var(--tr-win-h));
+    position: absolute;
+    inset: 0;
+    display: block;
+    background:
+      var(--tr-grain),
+      /* The carpet. */
+      repeating-linear-gradient(90deg, #0000 0 22px, rgb(242 182 90 / 16%) 22px 24px) 0 100% / 100%
+        58px no-repeat,
+      linear-gradient(180deg, var(--tr-brass) 0 3px, #101d38 3px) 0 100% / 100% 70px no-repeat,
+      /* Planks. */ repeating-linear-gradient(90deg, #0000 0 54px, rgb(0 0 0 / 22%) 54px 56px),
+      linear-gradient(
+        180deg,
+        #23140b 0,
+        #23140b calc(var(--tr-win-top) - 16px),
+        var(--tr-brass) calc(var(--tr-win-top) - 16px),
+        var(--tr-brass) calc(var(--tr-win-top) - 13px),
+        var(--tr-wood) calc(var(--tr-win-top) - 13px),
+        var(--tr-wood) calc(var(--tr-sill) + 14px),
+        #1c0f08 calc(var(--tr-sill) + 14px),
+        #1c0f08 calc(var(--tr-sill) + 22px),
+        #3b2215 calc(var(--tr-sill) + 22px)
+      );
+    -webkit-mask:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 350' preserveAspectRatio='none'%3E%3Cpath fill-rule='evenodd' d='M0 0h560v350H0z M58 8h444a18 18 0 0 1 18 18v298a18 18 0 0 1-18 18H58a18 18 0 0 1-18-18V26a18 18 0 0 1 18-18z'/%3E%3C/svg%3E")
+        0 var(--tr-win-top) / var(--tr-tile) var(--tr-win-h) repeat-x,
+      linear-gradient(#000 0 0) top / 100% calc(var(--tr-win-top) + 1px) no-repeat,
+      linear-gradient(#000 0 0) bottom / 100% calc(100% - var(--tr-sill) + 1px) no-repeat;
+    mask:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 350' preserveAspectRatio='none'%3E%3Cpath fill-rule='evenodd' d='M0 0h560v350H0z M58 8h444a18 18 0 0 1 18 18v298a18 18 0 0 1-18 18H58a18 18 0 0 1-18-18V26a18 18 0 0 1 18-18z'/%3E%3C/svg%3E")
+        0 var(--tr-win-top) / var(--tr-tile) var(--tr-win-h) repeat-x,
+      linear-gradient(#000 0 0) top / 100% calc(var(--tr-win-top) + 1px) no-repeat,
+      linear-gradient(#000 0 0) bottom / 100% calc(100% - var(--tr-sill) + 1px) no-repeat;
+  }
+  /* Window frames, a rolled blind in each, and a lamp over every pillar with its light printed
+     as two flat rings. */
+  html.tr-pin .lab-train .tr-car-frames {
+    position: absolute;
+    inset: 0;
+    display: block;
+    pointer-events: none;
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 56' preserveAspectRatio='none'%3E%3Cpath d='M280 0v16' stroke='%23c99a4e' stroke-width='4'/%3E%3Cpath d='M258 16h44l12 24h-68z' fill='%23f6e7c8'/%3E%3Cpath d='M268 40h24v4a12 10 0 0 1-24 0z' fill='%23f2b65a'/%3E%3C/svg%3E")
+        calc(var(--tr-tile) / -2) calc(var(--tr-win-top) - 64px) / var(--tr-tile) 56px repeat-x,
+      radial-gradient(
+          ellipse 50% 100% at 50% 0,
+          rgb(246 231 200 / 15%) 0 34%,
+          rgb(246 231 200 / 8%) 34% 64%,
+          rgb(246 231 200 / 3.5%) 64% 99%,
+          #0000 100%
+        )
+        calc(var(--tr-tile) / -2) calc(var(--tr-win-top) - 26px) / var(--tr-tile) 250px repeat-x,
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 350' preserveAspectRatio='none'%3E%3Cg fill='none'%3E%3Crect x='40' y='8' width='480' height='334' rx='18' stroke='%23160c06' stroke-width='12'/%3E%3Crect x='40' y='8' width='480' height='334' rx='18' stroke='%23a8743f' stroke-width='3'/%3E%3Cpath d='M46 96h468' stroke='%23160c06' stroke-width='8'/%3E%3Cpath d='M46 94h468' stroke='%23a8743f' stroke-width='2'/%3E%3C/g%3E%3Crect x='50' y='16' width='460' height='22' fill='%23d9c49a'/%3E%3Cpath d='M50 23h460M50 30h460' stroke='%23a8926a' stroke-width='1.5'/%3E%3Cpath d='M280 38v24' stroke='%23d9c49a' stroke-width='2'/%3E%3Ccircle cx='280' cy='67' r='5' fill='none' stroke='%23d9c49a' stroke-width='2'/%3E%3C/svg%3E")
+        0 var(--tr-win-top) / var(--tr-tile) var(--tr-win-h) repeat-x;
+  }
+
+  /* Stations: the platform outside the window at each stop on the line. */
+  .lab-train .tr-halts {
+    position: absolute;
+    inset: 0;
+    will-change: transform;
+  }
+  .lab-train .tr-halt {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: calc(var(--tr-win-h) + 6px);
+    aspect-ratio: 2.3;
+    -webkit-mask-image: linear-gradient(90deg, #0000, #000 9%, #000 91%, #0000);
+    mask-image: linear-gradient(90deg, #0000, #000 9%, #000 91%, #0000);
+  }
+  .lab-train .tr-halt img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 74%;
+  }
+  .lab-train .tr-halt-sign {
+    position: absolute;
+    top: 16%;
+    left: 50%;
+    padding: 0.28em 0.8em 0.34em;
+    border-radius: 4px;
+    background: var(--tr-cream);
+    box-shadow:
+      inset 0 0 0 2px var(--tr-cream),
+      inset 0 0 0 4px var(--tr-indigo);
+    color: var(--tr-indigo);
+    font: 600 clamp(20px, 2.4vw, 32px) / 1 var(--tr-serif);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transform: translateX(-50%);
+  }
+
+  /* The tunnel: slides across the windows from the front of the train and off the back. */
+  .lab-train .tr-tunnel {
+    position: absolute;
+    inset: 0 -2px;
+    background:
+      repeating-linear-gradient(90deg, #0000 0 170px, #0c1528 170px 178px), var(--tr-grain), #04070f;
+    transform: translate3d(var(--tr-tunnel-x, 110%), 0, 0);
+    will-change: transform;
+  }
+  /* The stone mouth at either end. */
+  .lab-train .tr-tunnel::before,
+  .lab-train .tr-tunnel::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 64px;
+    background:
+      repeating-linear-gradient(180deg, #0000 0 30px, #0a1326 30px 33px),
+      linear-gradient(90deg, #22344f, #31486a);
+  }
+  .lab-train .tr-tunnel::before {
+    right: 100%;
+  }
+  .lab-train .tr-tunnel::after {
+    left: 100%;
+  }
+  /* Tunnel lamps going by. */
+  .lab-train .tr-tunnel i {
+    position: absolute;
+    inset: calc(var(--tr-win-top) + 26px) 0 auto;
+    height: 9px;
+    background: radial-gradient(circle 4.5px at 4.5px 50%, var(--tr-amber) 0 98%, #0000 100%) 0 0 /
+      340px 100% repeat-x;
+    animation: tr-tunnel-lamps 0.9s linear infinite;
+  }
+  @keyframes tr-tunnel-lamps {
+    to {
+      background-position-x: -340px;
+    }
+  }
+
+  html.tr-pin .lab-train .tr-moths {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    display: block;
+    width: 0;
+    height: 0;
+  }
+  .lab-train .tr-moth {
+    position: absolute;
+    top: -11px;
+    left: -11px;
+    width: 22px;
+    height: 22px;
+    background: url('/lab/train/sprite-4.webp') center / contain no-repeat;
+    pointer-events: none;
+    will-change: transform;
+  }
+
+  /* When the windows go dark the lamps take over: a warm cast over the whole interior. */
+  html.tr-pin .lab-train .tr-lit {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: block;
+    background: var(--tr-amber);
+    mix-blend-mode: soft-light;
+    opacity: calc(var(--tr-lit, 0) * 0.42);
+    pointer-events: none;
+  }
+  /* A light outside passing down the carriage. */
+  html.tr-pin .lab-train .tr-sweep {
+    position: absolute;
+    inset: 0 auto 0 0;
+    z-index: 3;
+    display: block;
+    width: 34vw;
+    background: linear-gradient(
+      100deg,
+      #0000 0 12%,
+      rgb(246 231 200 / 7%) 12% 34%,
+      rgb(246 231 200 / 15%) 34% 60%,
+      rgb(246 231 200 / 7%) 60% 82%,
+      #0000 82%
+    );
+    mix-blend-mode: screen;
+    pointer-events: none;
+    transform: translate3d(110vw, 0, 0) skewX(-14deg);
+  }
+  html.tr-pin .lab-train .tr-sweep.is-go {
+    animation: tr-sweep 1.15s cubic-bezier(0.3, 0, 0.7, 1);
+  }
+  @keyframes tr-sweep {
+    from {
+      transform: translate3d(110vw, 0, 0) skewX(-14deg);
+    }
+    to {
+      transform: translate3d(-50vw, 0, 0) skewX(-14deg);
+    }
+  }
+
+  /* The route map over the windows of the experience carriage. */
+  html.tr-pin .lab-train .tr-route {
+    position: absolute;
+    top: 66px;
+    left: 50%;
+    z-index: 4;
+    display: block;
+    width: min(680px, 100vw - 24px);
+    height: 42px;
+    border-radius: 4px;
+    background: var(--tr-grain), var(--tr-indigo);
+    box-shadow:
+      inset 0 0 0 1.5px var(--tr-cream),
+      0 8px 0 -5px rgb(0 0 0 / 35%);
+    opacity: 0;
+    transform: translate(-50%, -14px);
+    transition:
+      opacity 0.35s ease,
+      transform 0.35s ease;
+  }
+  html.tr-pin .lab-train .tr-route.is-on {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  .lab-train .tr-route-line {
+    position: absolute;
+    inset: 13px 26px auto;
+    height: 3px;
+    background: repeating-linear-gradient(90deg, rgb(246 231 200 / 40%) 0 6px, #0000 6px 10px);
+  }
+  .lab-train .tr-route-line i {
+    position: absolute;
+    inset: 0;
+    background: var(--tr-amber);
+    transform: scaleX(var(--tr-route, 0));
+    transform-origin: 0 50%;
+  }
+  /* The train's tail lamp at the head of the filled line. */
+  .lab-train .tr-route-line::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: calc(var(--tr-route, 0) * 100% - 4px);
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--tr-red);
+  }
+  .lab-train .tr-route ol {
+    position: absolute;
+    inset: 8px 26px 0;
+    display: flex;
+    justify-content: space-around;
+  }
+  .lab-train .tr-route li {
+    display: grid;
+    justify-items: center;
+    gap: 4px;
+    color: rgb(246 231 200 / 55%);
+    font: 700 10px/1 var(--tr-mono);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    transition: color 0.3s ease;
+  }
+  .lab-train .tr-route li i {
+    width: 13px;
+    height: 13px;
+    border: 2px solid rgb(246 231 200 / 60%);
+    border-radius: 50%;
+    background: var(--tr-indigo);
+    transition:
+      background-color 0.3s ease,
+      border-color 0.3s ease;
+  }
+  .lab-train .tr-route li.is-reached {
+    color: var(--tr-cream);
+  }
+  .lab-train .tr-route li.is-reached i {
+    border-color: var(--tr-amber);
+    background: var(--tr-amber);
+  }
+
+  /* A certificate taken down from the wall. */
+  .lab-train .tr-viewer {
+    width: min(960px, 100vw - 20px);
+    max-height: calc(100dvh - 20px);
+    padding: 0;
+    border: 0;
+    background: transparent;
+    overflow: visible;
+  }
+  .lab-train .tr-viewer::backdrop {
+    background: rgb(6 11 24 / 86%);
+  }
+  .lab-train .tr-viewer[open] {
+    animation: tr-viewer-in 0.4s cubic-bezier(0.3, 1.25, 0.5, 1);
+  }
+  @keyframes tr-viewer-in {
+    from {
+      opacity: 0;
+      transform: translateY(26px) rotate(-2deg) scale(0.94);
+    }
+  }
+  .lab-train .tr-viewer-card {
+    display: grid;
+    gap: 12px;
+    padding: clamp(12px, 2vw, 22px);
+    border: 8px solid #160c06;
+    box-shadow: inset 0 0 0 2px var(--tr-brass);
+    max-height: calc(100dvh - 20px);
+  }
+  .lab-train .tr-viewer-pic {
+    display: grid;
+    place-items: center;
+    min-height: 0;
+  }
+  .lab-train .tr-viewer-pic img {
+    width: auto;
+    max-height: calc(100dvh - 210px);
+  }
+  .lab-train .tr-viewer-cap {
+    display: grid;
+    gap: 2px;
+    text-align: center;
+  }
+  .lab-train .tr-viewer-cap strong {
+    font: 600 clamp(18px, 2vw, 23px) / 1.2 var(--tr-serif);
+  }
+  .lab-train .tr-viewer-cap span {
+    color: var(--tr-ink-soft);
+    font: 400 12px/1.3 var(--tr-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .lab-train .tr-viewer-controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  @media (max-width: 700px) {
+    html.tr-pin .lab-train .tr-car > .tr-plate {
+      margin-top: 0;
+      width: min(310px, 100vw - 60px);
+    }
+    html.tr-pin .lab-train .tr-route {
+      top: 58px;
+      height: 38px;
+    }
+    .lab-train .tr-route ol {
+      inset: 6px 14px 0;
+    }
+    .lab-train .tr-route-line {
+      inset: 11px 14px auto;
+    }
+    .lab-train .tr-route li {
+      font-size: 9px;
+      letter-spacing: 0.08em;
+    }
+  }
+</style>

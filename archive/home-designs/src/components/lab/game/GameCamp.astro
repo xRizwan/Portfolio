@@ -1,0 +1,338 @@
+---
+// Skills, as the pack unpacked at the forest camp. Each skill group is an item in the pack;
+// choosing one lays everything it holds out on the blanket by the fire. Without scripts every
+// group is laid out one after the other and the items work as jump links.
+import { skillGroups } from '../../../data/skills';
+import { art, type ArtName } from './art';
+import Flag from './Flag.astro';
+
+// Which painted item stands for which skill group.
+const groupItems: Record<string, ArtName> = {
+  languages: 'item-book',
+  interfaces: 'item-brush',
+  backend: 'item-anvil',
+  data: 'item-chest',
+  cloud: 'item-bottle',
+  ml: 'item-orb',
+  quality: 'item-lens',
+  agents: 'item-lantern',
+  architecture: 'item-plan',
+  design: 'item-shield',
+  games: 'item-dice',
+};
+---
+
+<section
+  class="qg-place qg-dark qg-camp"
+  id="skills"
+  data-place="skills"
+  data-lane="gutter"
+  aria-labelledby="qg-skills-title"
+>
+  <span class="qg-tear" aria-hidden="true"></span>
+  <div class="qg-inner">
+    <header class="qg-head">
+      <p class="qg-head__place">
+        <Flag />
+        Forest camp
+      </p>
+      <h2 id="qg-skills-title">
+        What’s in my <em>pack</em>
+      </h2>
+      <p class="qg-head__note">Pick something up and I’ll lay out what goes with it.</p>
+    </header>
+
+    <div class="qg-pack" data-pack>
+      <ul class="qg-pack__slots" data-pack-slots aria-label="Skill groups">
+        {skillGroups.map((group, index) => (
+          <li style={{ '--i': index }} data-reveal>
+            <a class="qg-slot" href={`#pack-${group.id}`} data-slot={group.id}>
+              <img {...art(groupItems[group.id] ?? 'item-book')} alt="" loading="lazy" />
+              <span>{group.title}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <div class="qg-pack__mat">
+        {skillGroups.map((group) => (
+          <section
+            class="qg-pouch"
+            id={`pack-${group.id}`}
+            data-pouch={group.id}
+            aria-labelledby={`pack-${group.id}-title`}
+          >
+            <h3 id={`pack-${group.id}-title`}>{group.name}</h3>
+            <ul>
+              {group.items.map((item, index) => (
+                <li style={{ '--i': index, '--lean': `${((index * 37) % 7) - 3}deg` }}>{item}</li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <div class="qg-camp__scene" aria-hidden="true">
+    <div class="qg-camp__frame">
+      <img {...art('camp')} alt="" loading="lazy" />
+      <span class="qg-camp__glow"></span>
+      <span class="qg-camp__spark"></span>
+      <span class="qg-camp__spark"></span>
+      <span class="qg-camp__spark"></span>
+    </div>
+  </div>
+  <span class="qg-tear qg-tear--up" aria-hidden="true"></span>
+</section>
+
+<style is:global>
+  .lab-game section.qg-camp .qg-inner {
+    padding-bottom: 0;
+  }
+  .lab-game .qg-pack {
+    display: grid;
+    grid-template-columns: minmax(0, 468px) minmax(0, 1fr);
+    gap: clamp(22px, 3.4vw, 52px);
+    align-items: start;
+  }
+  .lab-game .qg-pack__slots {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+  }
+  /* An inventory slot: a square of dark leather with a stitched edge. */
+  .lab-game .qg-slot {
+    display: grid;
+    grid-template-rows: 62px auto;
+    justify-items: center;
+    align-content: start;
+    gap: 6px;
+    height: 100%;
+    min-height: 126px;
+    padding: 12px 6px 10px;
+    border: 1.5px solid rgb(217 164 65 / 34%);
+    border-radius: 5px 11px 6px 12px;
+    background: linear-gradient(160deg, rgb(92 62 38 / 46%), rgb(48 32 21 / 60%));
+    box-shadow: inset 0 0 0 4px rgb(27 20 15 / 40%);
+    color: rgb(239 226 196 / 82%);
+    font-size: 12.5px;
+    font-weight: 600;
+    line-height: 1.25;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      transform 0.25s cubic-bezier(0.3, 1.5, 0.5, 1),
+      border-color 0.2s ease,
+      background-color 0.2s ease,
+      color 0.2s ease;
+  }
+  .lab-game .qg-slot img {
+    width: 62px;
+    height: 62px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 4px rgb(0 0 0 / 45%));
+    transition: transform 0.3s cubic-bezier(0.3, 1.6, 0.5, 1);
+  }
+  .lab-game .qg-slot:hover {
+    transform: translateY(-3px);
+    border-color: rgb(217 164 65 / 80%);
+    color: var(--q-parch-light);
+  }
+  .lab-game .qg-slot:hover img {
+    transform: rotate(-7deg) scale(1.1);
+  }
+  .lab-game .qg-slot[aria-selected='true'] {
+    border-color: var(--q-gold);
+    background: linear-gradient(160deg, rgb(217 164 65 / 34%), rgb(184 50 42 / 22%));
+    box-shadow:
+      inset 0 0 0 4px rgb(27 20 15 / 30%),
+      0 0 26px rgb(217 164 65 / 22%);
+    color: var(--q-parch-light);
+  }
+  .lab-game .qg-slot[aria-selected='true'] img {
+    transform: translateY(-4px) scale(1.14);
+  }
+
+  /* The blanket the contents are laid out on. */
+  .lab-game .qg-pack__mat {
+    display: grid;
+    gap: 18px;
+  }
+  .lab-game .qg-pouch {
+    padding: clamp(20px, 2.6vw, 32px);
+    border-radius: 6px 16px 8px 18px;
+    background-color: #1c5350;
+    background-image:
+      var(--q-grain), linear-gradient(170deg, rgb(31 111 107 / 80%), rgb(20 70 68 / 90%));
+    /* A line of stitching just inside the edge. */
+    outline: 1.5px dashed rgb(217 164 65 / 60%);
+    outline-offset: -9px;
+    box-shadow: 0 16px 34px rgb(0 0 0 / 40%);
+    scroll-margin-top: 90px;
+  }
+  .lab-game .qg-pouch[hidden] {
+    display: none;
+  }
+  .lab-game .qg-pouch h3 {
+    font: 500 italic clamp(28px, 3vw, 40px) / 1.05 var(--q-display);
+    color: var(--q-parch-light);
+  }
+  .lab-game .qg-pouch ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 9px;
+    margin-top: 18px;
+  }
+  /* Each skill is a paper tag, tied on and lying at its own small angle. */
+  .lab-game .qg-pouch li {
+    position: relative;
+    padding: 7px 13px 7px 24px;
+    border-radius: 3px 8px 8px 3px;
+    background-color: var(--q-parch);
+    background-image: var(--q-grain);
+    color: var(--q-ink);
+    font-size: 14.5px;
+    font-weight: 700;
+    line-height: 1.2;
+    rotate: var(--lean);
+    box-shadow: 1px 3px 0 rgb(0 0 0 / 30%);
+  }
+  .lab-game .qg-pouch li::before {
+    content: '';
+    position: absolute;
+    left: 9px;
+    top: 50%;
+    width: 7px;
+    height: 7px;
+    translate: 0 -50%;
+    border-radius: 50%;
+    background: #1c5350;
+    box-shadow: inset 0 0 0 1.5px rgb(35 26 20 / 55%);
+  }
+  html:not(.qg-still) .lab-game .qg-pouch.is-laying li {
+    animation: qg-lay 0.5s cubic-bezier(0.25, 1.3, 0.5, 1) both;
+    animation-delay: calc(var(--i) * 32ms);
+  }
+  @keyframes qg-lay {
+    from {
+      opacity: 0;
+      translate: -22px -18px;
+      rotate: -14deg;
+      scale: 0.8;
+    }
+  }
+
+  /* The camp itself, at the foot of the section, with the fire flickering. */
+  .lab-game .qg-camp__scene {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    margin-top: clamp(-70px, -3vw, -20px);
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .lab-game .qg-camp__frame {
+    position: relative;
+    width: min(1180px, 170vw);
+    aspect-ratio: 1500 / 590;
+    flex: none;
+  }
+  .lab-game .qg-camp__frame img {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: none;
+    height: auto;
+    /* Fade every edge into the section so the painting has no visible rectangle. */
+    mask-image:
+      linear-gradient(transparent 36%, #000 62%),
+      linear-gradient(90deg, transparent, #000 14% 86%, transparent);
+    mask-composite: intersect;
+    -webkit-mask-image:
+      linear-gradient(transparent 36%, #000 62%),
+      linear-gradient(90deg, transparent, #000 14% 86%, transparent);
+    -webkit-mask-composite: source-in;
+  }
+  .lab-game .qg-camp__glow {
+    position: absolute;
+    /* Centred on the fire in the painting (bottom-aligned image, so 63% down the frame). */
+    left: 49%;
+    top: 63%;
+    width: 46%;
+    aspect-ratio: 1.5;
+    translate: -50% -50%;
+    background: radial-gradient(
+      closest-side,
+      rgb(255 190 90 / 34%),
+      rgb(217 120 50 / 12%) 50%,
+      transparent
+    );
+    mix-blend-mode: screen;
+  }
+  html:not(.qg-still) .lab-game .qg-camp__glow {
+    animation: qg-flicker 2.3s ease-in-out infinite;
+  }
+  .lab-game .qg-camp__spark {
+    position: absolute;
+    left: 49%;
+    top: 57%;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #ffc76a;
+    opacity: 0;
+  }
+  html:not(.qg-still) .lab-game .qg-camp__spark {
+    animation: qg-spark 3.1s ease-out infinite;
+  }
+  html:not(.qg-still) .lab-game .qg-camp__spark:nth-of-type(3) {
+    animation-duration: 2.4s;
+    animation-delay: -1.1s;
+    --drift: -34px;
+  }
+  html:not(.qg-still) .lab-game .qg-camp__spark:nth-of-type(4) {
+    animation-duration: 3.8s;
+    animation-delay: -2.2s;
+    --drift: 46px;
+  }
+  @keyframes qg-spark {
+    0% {
+      opacity: 0;
+      translate: 0 0;
+    }
+    12% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      translate: var(--drift, 18px) -150px;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .lab-game .qg-pack {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 520px) {
+    .lab-game .qg-pack__slots {
+      gap: 7px;
+    }
+    .lab-game .qg-slot {
+      grid-template-rows: 46px auto;
+      min-height: 108px;
+      padding: 9px 3px 8px;
+      font-size: 11px;
+    }
+    .lab-game .qg-slot img {
+      width: 46px;
+      height: 46px;
+    }
+    .lab-game .qg-pouch li {
+      font-size: 13.5px;
+    }
+  }
+</style>

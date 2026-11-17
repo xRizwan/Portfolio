@@ -1,0 +1,291 @@
+---
+// About: the reader's own compartment. A look in through the door (with the cat asleep on the
+// blanket), then the journal open on the fold-down table, a glass of tea steaming beside it.
+import { experienceIntro } from '../../../data/experience';
+import TrCar from './TrCar.astro';
+import { art } from './art';
+
+const { about } = experienceIntro;
+---
+
+<TrCar id="about">
+  <header class="tr-plate tr-sway">
+    <p class="tr-kicker">Compartment</p>
+    <h2 class="tr-h2" id="tr-about-title">
+      A bit <em>about me</em>
+    </h2>
+    <p class="tr-hint">This compartment is mine. The journal is open on the table.</p>
+  </header>
+
+  <figure class="tr-view">
+    <img
+      src={art.compartment.src}
+      width={art.compartment.width}
+      height={art.compartment.height}
+      loading="lazy"
+      alt="A sleeper compartment at night: a reading lamp on the fold-down table, a coat on its hook, the moon in the window."
+    />
+    <span class="tr-cat" data-tr-cat aria-hidden="true">
+      <img
+        class="tr-cat-asleep"
+        src={art.catAsleep.src}
+        width={art.catAsleep.width}
+        height={art.catAsleep.height}
+        loading="lazy"
+        alt=""
+      />
+      <img
+        class="tr-cat-awake"
+        src={art.catAwake.src}
+        width={art.catAwake.width}
+        height={art.catAwake.height}
+        loading="lazy"
+        alt=""
+      />
+    </span>
+    <span class="tr-lantern tr-sway" aria-hidden="true">
+      <img
+        src={art.lantern.src}
+        width={art.lantern.width}
+        height={art.lantern.height}
+        loading="lazy"
+        alt=""
+      />
+    </span>
+  </figure>
+
+  <div class="tr-desk">
+    <div class="tr-journal">
+      <div class="tr-page tr-paper">
+        <p class="tr-lead">{about.lead}</p>
+        <p class="tr-body">{about.body}</p>
+      </div>
+      <div class="tr-page tr-paper">
+        <ul class="tr-traits">
+          {about.traits.map((trait) => (
+            <li>
+              <h3>{trait.title}</h3>
+              <p>{trait.text}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+    <span class="tr-tea" aria-hidden="true">
+      <svg class="tr-tea-steam" viewBox="0 0 60 90">
+        <path d="M18 88c-9-14 9-22 0-36s8-22 1-34"></path>
+        <path d="M32 88c-8-16 10-24 1-40s7-20 0-32"></path>
+        <path d="M45 88c-8-13 8-20 0-33s6-18 1-28"></path>
+      </svg>
+      <img src={art.tea.src} width={art.tea.width} height={art.tea.height} loading="lazy" alt="" />
+    </span>
+    <span class="tr-desk-top" aria-hidden="true"></span>
+  </div>
+</TrCar>
+
+<style is:global>
+  /* The look into the compartment, framed like its doorway. */
+  .lab-train .tr-view {
+    position: relative;
+    flex: none;
+    width: min(100%, 560px);
+    border: 9px solid #160c06;
+    border-radius: 12px;
+    box-shadow:
+      inset 0 0 0 2px var(--tr-brass),
+      0 16px 0 -9px rgb(0 0 0 / 35%);
+    background: #160c06;
+  }
+  .lab-train .tr-view > img {
+    width: 100%;
+    border-radius: 4px;
+  }
+  html.tr-pin .lab-train .tr-view {
+    width: auto;
+    height: min(var(--tr-zone) - 30px, 430px);
+    aspect-ratio: 3 / 2;
+  }
+  html.tr-pin .lab-train .tr-view > img {
+    height: 100%;
+    object-fit: cover;
+  }
+  /* The cat, on the folded blanket. Two drawings, one over the other. */
+  .lab-train .tr-cat {
+    position: absolute;
+    left: 6.5%;
+    bottom: 21.5%;
+    width: 25%;
+    aspect-ratio: 420 / 328;
+  }
+  .lab-train .tr-cat img {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    transition: opacity 0.22s ease;
+  }
+  .lab-train .tr-cat-awake,
+  .lab-train .tr-cat.is-awake .tr-cat-asleep {
+    opacity: 0;
+  }
+  .lab-train .tr-cat.is-awake .tr-cat-awake {
+    opacity: 1;
+  }
+  .lab-train .tr-lantern {
+    position: absolute;
+    top: -4px;
+    right: -46px;
+    width: clamp(46px, 5vw, 66px);
+    --tr-reach: 2.2deg;
+    --tr-pace: 2.9s;
+  }
+  /* Its cord, up to the ceiling. */
+  .lab-train .tr-lantern::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% - 3px);
+    left: 50%;
+    width: 2px;
+    height: 300px;
+    background: #160c06;
+  }
+
+  /* The journal on the fold-down table. */
+  .lab-train .tr-desk {
+    position: relative;
+    padding: 0 104px 20px 18px;
+    max-width: 100%;
+  }
+  .lab-train .tr-journal {
+    display: flex;
+    flex-wrap: wrap;
+    transform: rotate(-0.8deg);
+    box-shadow: 0 10px 0 -5px rgb(0 0 0 / 35%);
+  }
+  html.tr-pin .lab-train .tr-journal {
+    flex-wrap: nowrap;
+  }
+  .lab-train .tr-page {
+    width: clamp(280px, 25vw, 350px);
+    min-height: 100%;
+    padding: 26px 28px 28px;
+  }
+  .lab-train .tr-page:first-child {
+    border-radius: 6px 0 0 6px;
+    box-shadow: inset -14px 0 14px -12px rgb(42 33 24 / 45%);
+  }
+  .lab-train .tr-page:last-child {
+    border-radius: 0 6px 6px 0;
+    box-shadow: inset 14px 0 14px -12px rgb(42 33 24 / 45%);
+  }
+  .lab-train .tr-lead {
+    font: 500 italic clamp(21px, 1.9vw, 27px) / 1.22 var(--tr-serif);
+    letter-spacing: -0.01em;
+  }
+  .lab-train .tr-body {
+    margin-top: 14px;
+    font-size: clamp(14px, 1.05vw, 15.5px);
+    line-height: 1.58;
+    color: #3b2f22;
+  }
+  .lab-train .tr-traits {
+    display: grid;
+    gap: 18px;
+  }
+  .lab-train .tr-traits li {
+    padding-bottom: 16px;
+    border-bottom: 1.5px dashed rgb(42 33 24 / 30%);
+  }
+  .lab-train .tr-traits li:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+  .lab-train .tr-traits h3 {
+    font: 600 clamp(19px, 1.6vw, 23px) / 1.15 var(--tr-serif);
+  }
+  .lab-train .tr-traits h3::before {
+    content: '';
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    margin-right: 9px;
+    border-radius: 50%;
+    background: var(--tr-red);
+    vertical-align: 0.1em;
+  }
+  .lab-train .tr-traits p {
+    margin-top: 5px;
+    font-size: clamp(14px, 1.05vw, 15.5px);
+    line-height: 1.5;
+    color: #3b2f22;
+  }
+  .lab-train .tr-desk-top {
+    position: absolute;
+    inset: auto 0 0;
+    height: 16px;
+    border-radius: 3px 3px 8px 8px;
+    background: var(--tr-grain), linear-gradient(180deg, #a8743f 0 4px, #6d4424 4px);
+    box-shadow: 0 8px 0 -4px rgb(0 0 0 / 35%);
+  }
+  .lab-train .tr-tea {
+    position: absolute;
+    right: 20px;
+    bottom: 15px;
+    width: 66px;
+  }
+  .lab-train .tr-tea-steam {
+    position: absolute;
+    bottom: 96%;
+    left: 4%;
+    width: 66%;
+    fill: none;
+    stroke: rgb(223 233 243 / 75%);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    overflow: visible;
+  }
+  .lab-train .tr-tea-steam path {
+    stroke-dasharray: 26 90;
+    animation: tr-steam 3.4s linear infinite;
+  }
+  .lab-train .tr-tea-steam path:nth-child(2) {
+    animation-delay: -1.2s;
+    animation-duration: 4.1s;
+  }
+  .lab-train .tr-tea-steam path:nth-child(3) {
+    animation-delay: -2.3s;
+  }
+  @keyframes tr-steam {
+    from {
+      stroke-dashoffset: 0;
+      opacity: 0;
+    }
+    25% {
+      opacity: 1;
+    }
+    to {
+      stroke-dashoffset: -116;
+      opacity: 0;
+    }
+  }
+
+  @media (max-width: 700px) {
+    html.tr-pin .lab-train .tr-view {
+      height: min(var(--tr-zone) - 60px, 250px);
+    }
+    .lab-train .tr-lantern {
+      right: -30px;
+    }
+    .lab-train .tr-desk {
+      padding: 0 84px 18px 8px;
+    }
+    .lab-train .tr-page {
+      width: min(300px, 100vw - 64px);
+      padding: 18px 20px 20px;
+    }
+    .lab-train .tr-tea {
+      right: 12px;
+      width: 54px;
+    }
+  }
+</style>

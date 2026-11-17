@@ -1,0 +1,331 @@
+---
+// The parts of the world that stay with you down the page: the road drawn through the sections,
+// the traveller walking it, the dragon overhead, and a small map card with a compass that
+// shows where on the map you are and how many places you have found. All of it is decoration
+// added by scripts; none of it carries content.
+import { art } from './art';
+import { MAP_HEIGHT, MAP_WIDTH, places, roadPath, roadSegments } from './places';
+
+const road = roadPath(roadSegments());
+---
+
+<div class="qg-trail" data-trail aria-hidden="true">
+  <svg data-trail-svg>
+    <defs>
+      <clipPath id="qg-trail-walked" clipPathUnits="userSpaceOnUse">
+        <rect x="0" y="0" width="100000" height="0" data-trail-clip></rect>
+      </clipPath>
+    </defs>
+    <path class="qg-trail__faint" data-trail-path></path>
+    <path class="qg-trail__walked" data-trail-path clip-path="url(#qg-trail-walked)"></path>
+  </svg>
+</div>
+<img class="qg-walker" {...art('traveller')} alt="" aria-hidden="true" data-walker />
+<div class="qg-dragon" data-dragon aria-hidden="true">
+  <div class="qg-dragon__body">
+    <img {...art('dragon-up')} alt="" />
+    <img {...art('dragon-down')} alt="" />
+  </div>
+</div>
+
+<aside class="qg-hud" data-hud aria-label="Where you are on the map">
+  <button
+    class="qg-compass"
+    type="button"
+    data-compass
+    aria-expanded="false"
+    aria-controls="qg-hud-card"
+  >
+    <img {...art('compass')} alt="" />
+    <span class="qg-compass__needle" data-needle aria-hidden="true"></span>
+    <span class="qg-sr">Show or hide the map</span>
+  </button>
+  <div class="qg-hud__card" id="qg-hud-card">
+    <div class="qg-mini" aria-hidden="true">
+      <img {...art('map')} alt="" loading="lazy" />
+      <svg viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`} preserveAspectRatio="none">
+        <path d={road}></path>
+        {places.map((place) => (
+          <circle cx={place.stop[0]} cy={place.stop[1]} r="26" data-mini-stop={place.id} />
+        ))}
+      </svg>
+      <span class="qg-mini__token" data-mini-token></span>
+    </div>
+    <p class="qg-hud__place" data-hud-place>
+      {places[0]?.name}
+    </p>
+    <p class="qg-hud__count">
+      <span data-hud-count>0</span> of {places.length} places found
+    </p>
+  </div>
+</aside>
+
+<style is:global>
+  /* The road down the page. It is positioned against the document, so its coordinates are page
+     coordinates; scripts size it and write the path. */
+  .lab-game .qg-trail {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+    width: 100%;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .lab-game .qg-trail svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .lab-game .qg-trail path {
+    fill: none;
+    stroke-linecap: round;
+  }
+  .lab-game .qg-trail__faint {
+    stroke: #a98d62;
+    stroke-width: 3;
+    stroke-dasharray: 2 13;
+    opacity: 0.8;
+  }
+  /* The stretch already walked: the red dashes of a route marked on a map. */
+  .lab-game .qg-trail__walked {
+    stroke: var(--q-crimson);
+    stroke-width: 4.5;
+    stroke-dasharray: 15 13;
+  }
+  .lab-game .qg-walker {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 2;
+    width: auto;
+    height: clamp(58px, 9vh, 84px);
+    max-width: none;
+    opacity: 0;
+    pointer-events: none;
+    filter: drop-shadow(0 4px 3px rgb(30 18 8 / 35%));
+    transition: opacity 0.3s ease;
+    will-change: transform;
+  }
+  .lab-game .qg-walker.is-on {
+    opacity: 1;
+  }
+  .lab-game .qg-dragon {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 2;
+    width: clamp(92px, 12vw, 170px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease;
+    will-change: transform;
+  }
+  .lab-game .qg-dragon.is-on {
+    opacity: 1;
+  }
+  /* Over text or a card the dragon fades almost away, so it never competes with reading. */
+  .lab-game .qg-dragon.is-on.is-faint {
+    opacity: 0.12;
+    transition-duration: 0.35s;
+  }
+  .lab-game .qg-dragon__body {
+    position: relative;
+    aspect-ratio: 340 / 356;
+    filter: drop-shadow(0 16px 10px rgb(30 18 8 / 22%));
+  }
+  .lab-game .qg-dragon img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  /* Two painted poses, swapped to beat the wings. */
+  .lab-game .qg-dragon img:last-child,
+  .lab-game .qg-dragon.is-down img:first-child {
+    visibility: hidden;
+  }
+  .lab-game .qg-dragon.is-down img:last-child {
+    visibility: visible;
+  }
+  html:not(.qg-js) .lab-game :is(.qg-trail, .qg-walker, .qg-dragon, .qg-hud),
+  html.qg-still .lab-game :is(.qg-walker, .qg-dragon) {
+    display: none;
+  }
+
+  /* Map card with compass. */
+  .lab-game .qg-hud {
+    position: fixed;
+    right: 12px;
+    bottom: 68px;
+    z-index: 120;
+    display: grid;
+    justify-items: end;
+    gap: 8px;
+    opacity: 0;
+    visibility: hidden;
+    translate: 0 16px;
+    transition:
+      opacity 0.35s ease,
+      translate 0.35s ease,
+      visibility 0s 0.35s;
+    font-family: var(--q-ui);
+  }
+  .lab-game .qg-hud.is-on {
+    opacity: 1;
+    visibility: visible;
+    translate: 0 0;
+    transition-delay: 0s;
+  }
+  .lab-game .qg-compass {
+    position: relative;
+    order: 2;
+    width: 58px;
+    height: 58px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--q-parch-light);
+    box-shadow:
+      0 0 0 2px var(--q-ink),
+      0 6px 14px rgb(0 0 0 / 35%);
+    cursor: pointer;
+  }
+  .lab-game .qg-compass img {
+    position: absolute;
+    inset: 2px;
+    width: calc(100% - 4px);
+    height: calc(100% - 4px);
+    object-fit: contain;
+  }
+  /* The needle: a two-coloured sliver that turns towards the cursor. */
+  .lab-game .qg-compass__needle {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 9px;
+    height: 44px;
+    translate: -50% -50%;
+    rotate: var(--needle, 20deg);
+    background: linear-gradient(var(--q-crimson) 0 50%, var(--q-ink) 50% 100%);
+    clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+    transition: rotate 0.25s ease-out;
+  }
+  .lab-game .qg-compass::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 7px;
+    height: 7px;
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: var(--q-gold);
+    box-shadow: 0 0 0 1.5px var(--q-ink);
+  }
+  .lab-game .qg-hud__card {
+    display: none;
+    width: 168px;
+    padding: 6px 6px 8px;
+    border: 2px solid var(--q-ink);
+    border-radius: 4px 10px 5px 11px;
+    background-color: var(--q-parch-light);
+    background-image: var(--q-grain);
+    color: var(--q-ink);
+    box-shadow: 4px 6px 0 rgb(0 0 0 / 28%);
+  }
+  .lab-game .qg-hud.is-open .qg-hud__card {
+    display: block;
+  }
+  .lab-game .qg-mini {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border: 1px solid rgb(35 26 20 / 45%);
+  }
+  .lab-game .qg-mini img,
+  .lab-game .qg-mini svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .lab-game .qg-mini path {
+    fill: none;
+    stroke: #4a2f1c;
+    stroke-width: 12;
+    stroke-dasharray: 30 26;
+    stroke-linecap: round;
+  }
+  .lab-game .qg-mini circle {
+    fill: var(--q-parch-light);
+    stroke: #4a2f1c;
+    stroke-width: 9;
+  }
+  .lab-game .qg-mini circle.is-found {
+    fill: var(--q-gold);
+  }
+  .lab-game .qg-mini__token {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 13px;
+    height: 13px;
+    margin: -6.5px 0 0 -6.5px;
+    border: 2px solid var(--q-parch-light);
+    border-radius: 50%;
+    background: var(--q-crimson);
+    box-shadow: 0 0 0 1.5px var(--q-ink);
+  }
+  .lab-game .qg-hud__place {
+    margin-top: 6px;
+    font: 700 21px/1 var(--q-hand);
+  }
+  .lab-game .qg-hud__count {
+    margin-top: 2px;
+    color: var(--q-ink-soft);
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+  @media (max-width: 820px) {
+    /* On phones the compass sits in the header bar, between the name and the resume link, so it
+       never covers text; the map card drops down from it. */
+    .lab-game .qg-hud {
+      top: 7px;
+      right: 108px;
+      bottom: auto;
+      z-index: 131;
+      translate: 0 -10px;
+    }
+    .lab-game .qg-compass {
+      order: 0;
+      width: 40px;
+      height: 40px;
+    }
+    .lab-game .qg-compass__needle {
+      height: 30px;
+      width: 7px;
+    }
+  }
+  @media (min-width: 1100px) {
+    /* Wide screens have a free gutter on the left: the card lives there. */
+    .lab-game .qg-hud {
+      right: auto;
+      left: 12px;
+      bottom: 16px;
+      justify-items: start;
+      gap: 0;
+    }
+    .lab-game .qg-compass {
+      order: 0;
+      z-index: 1;
+      margin: 0 0 -22px -4px;
+    }
+    .lab-game .qg-hud__card {
+      padding-top: 6px;
+    }
+    .lab-game .qg-mini {
+      margin-top: 0;
+    }
+  }
+</style>

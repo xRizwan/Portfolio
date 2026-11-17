@@ -1,0 +1,121 @@
+---
+// The back cover, which is also the footer: the last page turns and the book lies shut.
+import { site } from '../../../data/site';
+
+const year = new Date().getFullYear();
+---
+
+<section
+  class="pb-spread pb-spread--back"
+  data-spread="back"
+  data-len="70"
+  data-rise="0"
+  data-fold="0"
+  data-turn="0"
+  aria-label="Back cover"
+>
+  <div class="pb-page pb-page--l pb-backcover">
+    <footer class="pb-backcover__in">
+      <p class="pb-backcover__end">The end</p>
+      <p class="pb-backcover__thanks">Thanks for reading to the last page.</p>
+      <ul class="pb-backcover__links">
+        <li>
+          <a href="#top">Open it again</a>
+        </li>
+        <li>
+          <a href="/experience/">Experience</a>
+        </li>
+        <li>
+          <a href="/blog/">Blog</a>
+        </li>
+        <li>
+          <a href={site.resume}>Resume</a>
+        </li>
+        <li>
+          <a href={`mailto:${site.email}`}>{site.email}</a>
+        </li>
+      </ul>
+      <p class="pb-backcover__small">
+        &copy; {year} {site.name}
+      </p>
+    </footer>
+  </div>
+</section>
+
+<style is:global>
+  .lab-popup .pb-spread--back {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0;
+    background: none;
+    box-shadow: none;
+  }
+  .lab-popup .pb-spread--back::before {
+    content: none;
+  }
+  .lab-popup .pb-backcover {
+    display: block;
+    padding: clamp(14px, 3vw, 26px);
+    border-radius: 6px;
+    background: var(--pb-red) url('/lab/popup/cover.webp') center / cover;
+    color: var(--pb-card);
+    box-shadow:
+      0 0 0 1px rgb(28 37 64 / 30%),
+      0 8px 0 -1px #f3ecdb,
+      0 10px 0 -1px #b93a2c,
+      0 30px 44px -16px rgb(15 25 35 / 60%);
+  }
+  .lab-popup .pb-backcover__in {
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+    padding: clamp(30px, 6vw, 60px) 20px;
+    text-align: center;
+  }
+  .lab-popup .pb-backcover__end {
+    font: 800 clamp(44px, 9vw, 76px) / 1 var(--pb-display);
+    letter-spacing: -0.02em;
+    color: var(--pb-sun);
+    text-shadow: 3px 4px 0 rgb(28 37 64 / 50%);
+  }
+  .lab-popup .pb-backcover__thanks {
+    font: 700 28px/1.1 var(--pb-hand);
+  }
+  .lab-popup .pb-backcover__links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px 20px;
+    margin-top: 8px;
+    font: 600 16px/1.3 var(--pb-display);
+  }
+  .lab-popup .pb-backcover__links a {
+    text-decoration-color: var(--pb-sun);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+  .lab-popup .pb-backcover :where(a):focus-visible {
+    outline-color: #fffdf6;
+  }
+  .lab-popup .pb-backcover__small {
+    margin-top: 6px;
+    font: 400 12.5px/1.3 var(--pb-mono);
+    opacity: 0.9;
+  }
+  html.pb-m-book .lab-popup {
+    .pb-page.pb-backcover {
+      left: -18px;
+      top: -16px;
+      width: 618px;
+      height: 672px;
+      border-radius: 6px 0 0 6px;
+      background: var(--pb-red) url('/lab/popup/cover.webp') center / 108% 108%;
+      box-shadow:
+        0 0 0 1px rgb(28 37 64 / 30%),
+        -3px 3px 0 #b93a2c;
+    }
+    .pb-backcover__in {
+      height: 100%;
+      align-content: center;
+    }
+  }
+</style>

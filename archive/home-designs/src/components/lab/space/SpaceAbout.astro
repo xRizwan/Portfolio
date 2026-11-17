@@ -1,0 +1,199 @@
+---
+// First stop: a small green world with three moons, one for each of the three traits. Pointing
+// at a trait stops the moons and picks out its own. With motion on, the top of this section
+// slides up into the end of the pinned launch, so the planet arrives while the rocket is still
+// turning into its lane.
+import { experienceIntro } from '../../../data/experience';
+import { art, type ArtName } from './art';
+
+const { lead, body, traits } = experienceIntro.about;
+const moons: ArtName[] = ['desert', 'ice', 'moon'];
+---
+
+<section class="sp-section sp-about" id="about" data-sp-stop aria-labelledby="sp-about-title">
+  <div class="sp-wrap sp-about-grid">
+    <div class="sp-about-world" aria-hidden="true" data-drift="-70">
+      <span class="sp-about-ring"></span>
+      <span class="sp-about-ring"></span>
+      <span class="sp-about-ring"></span>
+      <img class="sp-about-planet sp-spin" {...art('green')} alt="" loading="lazy" />
+      {moons.map((moon) => (
+        <span class="sp-about-arm">
+          <img {...art(moon)} alt="" loading="lazy" />
+        </span>
+      ))}
+    </div>
+    <div class="sp-about-text">
+      <p class="sp-label" data-rise>
+        About me
+      </p>
+      <h2 class="sp-about-lead" id="sp-about-title" data-rise>
+        {lead}
+      </h2>
+      <p class="sp-about-body" data-rise>
+        {body}
+      </p>
+      <ul class="sp-traits">
+        {traits.map((trait, index) => (
+          <li class="sp-trait" data-rise style={{ '--rise-i': index + 1 }}>
+            <img {...art(moons[index] ?? 'moon')} alt="" loading="lazy" />
+            <h3>{trait.title}</h3>
+            <p>{trait.text}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .lab-space .sp-about {
+    z-index: 2;
+  }
+  .sp-motion .lab-space .sp-about {
+    margin-top: calc(var(--sp-vh) * -42);
+  }
+  .lab-space .sp-about-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(28px, 5vw, 80px);
+  }
+  .lab-space .sp-about-world {
+    position: relative;
+    aspect-ratio: 1;
+    width: 100%;
+    max-width: 520px;
+    justify-self: center;
+  }
+  .lab-space .sp-about-planet {
+    position: absolute;
+    inset: 22%;
+    width: 56%;
+    --spin: 120s;
+  }
+  /* Three orbits, drawn as dotted circles, each with one moon on a turning arm. */
+  .lab-space .sp-about-ring,
+  .lab-space .sp-about-arm {
+    position: absolute;
+    inset: 10%;
+    border-radius: 50%;
+  }
+  .lab-space .sp-about-ring {
+    border: 2px dotted rgb(246 236 215 / 34%);
+  }
+  .lab-space .sp-about-ring:nth-child(2),
+  .lab-space .sp-about-arm:nth-of-type(5) {
+    inset: 4%;
+  }
+  .lab-space .sp-about-ring:nth-child(3),
+  .lab-space .sp-about-arm:nth-of-type(6) {
+    inset: -2%;
+  }
+  .lab-space .sp-about-arm {
+    animation: sp-spin 26s linear infinite;
+  }
+  .lab-space .sp-about-arm:nth-of-type(5) {
+    animation-duration: 41s;
+    animation-delay: -17s;
+  }
+  .lab-space .sp-about-arm:nth-of-type(6) {
+    animation-duration: 63s;
+    animation-delay: -38s;
+  }
+  .lab-space .sp-about-arm img {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 11%;
+    translate: -50% -50%;
+    transition: scale 0.35s cubic-bezier(0.3, 1.6, 0.5, 1);
+  }
+  .lab-space .sp-about-arm:nth-of-type(5) img {
+    width: 9%;
+  }
+  .lab-space .sp-about-arm:nth-of-type(6) img {
+    width: 13%;
+  }
+  /* Pointing at a trait holds the moons still and makes its own moon bigger. */
+  .lab-space .sp-about:has(.sp-trait:hover) .sp-about-arm {
+    animation-play-state: paused;
+  }
+  .lab-space .sp-about:has(.sp-trait:nth-child(1):hover) .sp-about-arm:nth-of-type(4) img,
+  .lab-space .sp-about:has(.sp-trait:nth-child(2):hover) .sp-about-arm:nth-of-type(5) img,
+  .lab-space .sp-about:has(.sp-trait:nth-child(3):hover) .sp-about-arm:nth-of-type(6) img {
+    scale: 2.1;
+  }
+
+  .lab-space .sp-about-lead {
+    margin-top: 14px;
+    font: 800 clamp(32px, 4.2vw, 60px) / 1.02 var(--sp-display);
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+  .lab-space .sp-about-body {
+    max-width: 58ch;
+    margin-top: 22px;
+    font-size: clamp(16px, 1.25vw, 18px);
+    color: rgb(246 236 215 / 90%);
+  }
+  .lab-space .sp-traits {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 34px;
+  }
+  .lab-space .sp-trait {
+    position: relative;
+    padding: 18px 16px 18px;
+    border: 2px solid rgb(246 236 215 / 30%);
+    border-radius: 18px;
+    background: rgb(39 34 96 / 72%);
+    transition:
+      border-color 0.25s ease,
+      translate 0.25s ease,
+      box-shadow 0.25s ease;
+  }
+  .lab-space .sp-trait:hover {
+    border-color: var(--sp-mustard);
+    box-shadow: 5px 5px 0 var(--sp-tomato);
+    translate: -2px -3px;
+  }
+  .lab-space .sp-trait img {
+    width: 38px;
+    margin-bottom: 12px;
+  }
+  .lab-space .sp-trait h3 {
+    font: 800 19px/1.15 var(--sp-display);
+    letter-spacing: -0.01em;
+  }
+  .lab-space .sp-trait p {
+    margin-top: 6px;
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: rgb(246 236 215 / 86%);
+  }
+
+  @media (max-width: 900px) {
+    .lab-space .sp-about-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .lab-space .sp-about-world {
+      width: min(74%, 340px);
+      justify-self: start;
+      margin-left: 6%;
+    }
+    .lab-space .sp-traits {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .lab-space .sp-trait {
+      display: grid;
+      grid-template-columns: 38px minmax(0, 1fr);
+      column-gap: 14px;
+    }
+    .lab-space .sp-trait img {
+      grid-row: span 2;
+      margin: 2px 0 0;
+    }
+  }
+</style>

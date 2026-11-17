@@ -1,0 +1,563 @@
+---
+// The opening, pinned while the reader scrolls: a wet platform at night with the train waiting,
+// the whistle, the train pulling out as the station slides away, the town thinning into dark
+// country, and the camera moving in through a lit window. opening.ts drives it; without scripts
+// or with reduced motion it is the still platform scene, one screen tall.
+import { Image } from 'astro:assets';
+import portrait from '../../../assets/portrait.png';
+import { site } from '../../../data/site';
+import TrOutside from './TrOutside.astro';
+import { art } from './art';
+
+const puffs = Array.from({ length: 9 }, (_, index) => index);
+---
+
+<section class="tr-opening" id="top" data-tr-opening aria-labelledby="tr-hello">
+  <div class="tr-op-pin" data-tr-op-pin>
+    <div class="tr-op-scene" data-tr-op-scene>
+      <TrOutside city>
+        <div class="tr-op-bank" slot="front">
+          <div class="tr-layer tr-op-sleepers" data-tr-layer data-depth="1.3" data-ratio="5"></div>
+        </div>
+      </TrOutside>
+
+      <div class="tr-op-world" data-tr-op-world aria-hidden="true">
+        <img
+          class="tr-op-station"
+          src={art.station.src}
+          width={art.station.width}
+          height={art.station.height}
+          alt=""
+        />
+      </div>
+
+      <div class="tr-op-train" data-tr-op-train aria-hidden="true">
+        <img
+          class="tr-op-car"
+          src={art.carriage.src}
+          width={art.carriage.width}
+          height={art.carriage.height}
+          alt=""
+        />
+        <span class="tr-op-car tr-op-car--diner">
+          <img src={art.diner.src} width={art.diner.width} height={art.diner.height} alt="" />
+          <i class="tr-op-target" data-tr-op-target></i>
+        </span>
+        <img
+          class="tr-op-car"
+          src={art.carriage.src}
+          width={art.carriage.width}
+          height={art.carriage.height}
+          alt=""
+        />
+        <span class="tr-op-car tr-op-car--loco">
+          <img src={art.loco.src} width={art.loco.width} height={art.loco.height} alt="" />
+          <span class="tr-op-steam" data-tr-steam>
+            {puffs.map(() => (
+              <i />
+            ))}
+          </span>
+        </span>
+      </div>
+
+      <div class="tr-op-platform" data-tr-op-platform aria-hidden="true">
+        <span class="tr-op-glints"></span>
+        <span class="tr-op-streak" style="--x:14%;--d:0s"></span>
+        <span class="tr-op-streak" style="--x:41%;--d:-1.3s"></span>
+        <span class="tr-op-streak" style="--x:67%;--d:-0.6s"></span>
+        <span class="tr-op-streak" style="--x:88%;--d:-2.1s"></span>
+      </div>
+    </div>
+
+    <div class="tr-op-canopy" data-tr-op-canopy>
+      <span class="tr-op-valance" aria-hidden="true"></span>
+      <span class="tr-op-lamp" data-tr-moths="2" aria-hidden="true">
+        <i data-tr-lamp></i>
+      </span>
+      <div class="tr-op-board tr-sway">
+        <p class="tr-op-status">
+          <i aria-hidden="true"></i>Now boarding
+        </p>
+        <h1 id="tr-hello">
+          <span>Hi, I'm</span>
+          {site.shortName}
+        </h1>
+        <p class="tr-op-role">{site.intro.role}</p>
+      </div>
+    </div>
+
+    <div class="tr-op-ticket" data-tr-op-ticket>
+      <div class="tr-op-ticket-card tr-paper">
+        <figure class="tr-op-photo">
+          <Image src={portrait} alt={`Portrait of ${site.name}`} width={260} loading="eager" />
+        </figure>
+        <div class="tr-op-ticket-body">
+          <p class="tr-op-ticket-kicker">Passenger</p>
+          <p class="tr-op-ticket-name">{site.name}</p>
+          <p class="tr-op-ticket-text">{site.intro.summary}</p>
+          <p class="tr-op-cue">
+            Scroll to leave the station
+            <svg viewBox="0 0 12 22" aria-hidden="true">
+              <path d="M6 1v19M1 15l5 5 5-5"></path>
+            </svg>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tr-op-wash" data-tr-op-wash aria-hidden="true"></div>
+  </div>
+</section>
+
+<style is:global>
+  .lab-train .tr-opening {
+    position: relative;
+    z-index: 3;
+    height: calc(var(--tr-vh) * 100);
+    min-height: 560px;
+  }
+  .lab-train .tr-op-pin {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    background: var(--tr-indigo);
+    /* The rail line, in hundredths of the height, and the height of the station picture. The
+       train and the land are all placed from these two. */
+    --tr-rail: 80;
+    --tr-st-h: max(calc(var(--tr-vh) * 78), 56.3vw);
+    --tr-car-h: calc(var(--tr-st-h) * 0.2);
+    --tr-rail-y: calc(var(--tr-rail) * 1%);
+  }
+  html.tr-pin .lab-train .tr-opening {
+    height: calc(var(--tr-vh) * 560);
+  }
+  html.tr-pin .lab-train .tr-op-pin {
+    position: sticky;
+    top: 0;
+    height: calc(var(--tr-vh) * 100);
+  }
+  @media (max-width: 700px) {
+    .lab-train .tr-op-pin {
+      --tr-rail: 64;
+    }
+  }
+  .lab-train .tr-op-scene {
+    position: absolute;
+    inset: 0;
+    will-change: transform;
+  }
+  .lab-train .tr-op-scene .tr-out {
+    --tr-far-bottom: calc((100 - var(--tr-rail)) * 1% + 15%);
+    --tr-far-h: 20%;
+    --tr-hills-bottom: calc((100 - var(--tr-rail)) * 1% - 1%);
+    --tr-hills-h: 32%;
+    --tr-near-bottom: calc((100 - var(--tr-rail)) * 1% - 2%);
+    --tr-near-h: 40%;
+  }
+  .lab-train .tr-op-scene .tr-moon {
+    top: 13%;
+    right: 12%;
+  }
+
+  /* The track bed the train runs on once the platform has gone. */
+  .lab-train .tr-op-bank {
+    position: absolute;
+    inset: calc(var(--tr-rail-y) - 4px) 0 0;
+    background:
+      var(--tr-grain), linear-gradient(180deg, #32507a 0 3px, #091122 3px 12px, #0b162c 12px);
+  }
+  .lab-train .tr-op-bank .tr-op-sleepers {
+    top: 5px;
+    height: 9px;
+    background-image: repeating-linear-gradient(90deg, #223a5e 0 16px, transparent 16px 45px);
+    background-size: auto;
+  }
+
+  .lab-train .tr-op-world {
+    position: absolute;
+    inset: 0;
+    will-change: transform;
+  }
+  .lab-train .tr-op-station {
+    position: absolute;
+    top: calc(var(--tr-rail-y) - var(--tr-st-h) * 0.87);
+    left: calc((100vw - var(--tr-st-h) * 1.7768) * 0.62);
+    width: calc(var(--tr-st-h) * 1.7768);
+    max-width: none;
+    height: var(--tr-st-h);
+    /* The picture has its own sky, so its top and ends are faded into ours. */
+    -webkit-mask-image:
+      linear-gradient(90deg, #0000, #000 4%, #000 94%, #0000),
+      linear-gradient(180deg, #0000 2%, #000 16%);
+    mask-image:
+      linear-gradient(90deg, #0000, #000 4%, #000 94%, #0000),
+      linear-gradient(180deg, #0000 2%, #000 16%);
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+  }
+
+  .lab-train .tr-op-train {
+    position: absolute;
+    top: calc(var(--tr-rail-y) - var(--tr-car-h) * 1.1);
+    right: 3vw;
+    display: flex;
+    align-items: flex-end;
+    height: calc(var(--tr-car-h) * 1.1);
+    will-change: transform;
+  }
+  .lab-train .tr-op-car {
+    position: relative;
+    flex: none;
+    display: block;
+    width: auto;
+    max-width: none;
+    height: var(--tr-car-h);
+    margin-left: calc(var(--tr-car-h) * -0.03);
+  }
+  .lab-train .tr-op-car img {
+    width: auto;
+    max-width: none;
+    height: 100%;
+  }
+  .lab-train .tr-op-car--diner {
+    height: calc(var(--tr-car-h) * 0.93);
+  }
+  .lab-train .tr-op-car--loco {
+    height: calc(var(--tr-car-h) * 1.08);
+  }
+  /* The lit window the camera goes in through. */
+  .lab-train .tr-op-target {
+    position: absolute;
+    left: 47%;
+    top: 44%;
+    width: 1px;
+    height: 1px;
+  }
+  .lab-train .tr-op-steam {
+    position: absolute;
+    left: 86.4%;
+    top: 3%;
+    width: 0;
+    height: 0;
+  }
+  /* A puff is three flat discs, the way a print would cut a cloud. */
+  .lab-train .tr-op-steam i {
+    position: absolute;
+    left: -22px;
+    top: -22px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #ccd9e6;
+    box-shadow:
+      17px 7px 0 -5px #ccd9e6,
+      -15px 9px 0 -7px #a9bcd1,
+      2px 13px 0 -9px #a9bcd1;
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+  html:not(.tr-pin) .lab-train .tr-op-steam i:nth-child(-n + 3) {
+    opacity: 0.8;
+    transform: translate(calc(var(--i, 0) * -14px), -40px);
+  }
+
+  /* Our own platform, wet with rain, in front of the train. */
+  .lab-train .tr-op-platform {
+    position: absolute;
+    inset: calc(var(--tr-rail-y) + 5px) -4vw 0;
+    background:
+      repeating-linear-gradient(90deg, #0000 0 118px, rgb(5 10 22 / 55%) 118px 120px) 0 0 / 100% 9px
+        no-repeat,
+      linear-gradient(180deg, #3b5c88 0 3px, #1b3050 3px 9px, #0000 9px),
+      repeating-linear-gradient(180deg, rgb(120 160 205 / 7%) 0 1px, #0000 1px 6px),
+      var(--tr-grain),
+      linear-gradient(180deg, #0f1d38, #091122);
+    will-change: transform;
+  }
+  /* Window light on the wet stone: amber dashes cut into short printed lines. */
+  .lab-train .tr-op-glints {
+    position: absolute;
+    inset: 12px 0 auto;
+    height: min(96px, 60%);
+    background: repeating-linear-gradient(
+      90deg,
+      rgb(242 182 90 / 75%) 0 34px,
+      #0000 34px 58px,
+      rgb(242 182 90 / 45%) 58px 80px,
+      #0000 80px 118px
+    );
+    -webkit-mask-image:
+      repeating-linear-gradient(180deg, #000 0 2px, #0000 2px 8px),
+      linear-gradient(180deg, #000, #0000);
+    mask-image:
+      repeating-linear-gradient(180deg, #000 0 2px, #0000 2px 8px),
+      linear-gradient(180deg, #000, #0000);
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+    animation: tr-glint 2.6s steps(3) infinite alternate;
+  }
+  @keyframes tr-glint {
+    to {
+      transform: translateX(7px);
+      opacity: 0.7;
+    }
+  }
+  /* A lamp's reflection: a tall broken streak that shivers. */
+  .lab-train .tr-op-streak {
+    position: absolute;
+    top: 10px;
+    left: var(--x);
+    width: 22px;
+    height: 78%;
+    background: repeating-linear-gradient(180deg, var(--tr-cream) 0 3px, #0000 3px 9px);
+    -webkit-mask-image: linear-gradient(180deg, #000, #0000);
+    mask-image: linear-gradient(180deg, #000, #0000);
+    opacity: 0.5;
+    transform-origin: 50% 0;
+    animation: tr-streak 3.2s ease-in-out var(--d) infinite alternate;
+  }
+  @keyframes tr-streak {
+    from {
+      transform: scaleX(0.55) scaleY(0.86);
+      opacity: 0.32;
+    }
+    to {
+      transform: scaleX(1.15) scaleY(1);
+      opacity: 0.6;
+    }
+  }
+
+  /* The edge of the roof we stand under, with the board hanging from it. */
+  .lab-train .tr-op-canopy {
+    position: absolute;
+    inset: 58px -6vw auto;
+    height: 0;
+    will-change: transform;
+  }
+  .lab-train .tr-op-valance {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 30px;
+    background:
+      radial-gradient(circle at 50% 0, #060c1a 0 13px, #0000 13.5px) 0 16px / 28px 14px repeat-x,
+      linear-gradient(180deg, #060c1a 0 17px, #0000 17px);
+  }
+  .lab-train .tr-op-lamp {
+    position: absolute;
+    top: 0;
+    left: calc(6vw + clamp(26px, 9vw, 150px));
+    width: 46px;
+    height: 78px;
+    background:
+      linear-gradient(#060c1a, #060c1a) 50% 0 / 3px 42px no-repeat,
+      radial-gradient(ellipse 23px 17px at 50% 100%, var(--tr-cream) 0 99%, #0000 100%) 50% 42px /
+        46px 17px no-repeat,
+      linear-gradient(var(--tr-amber), var(--tr-amber)) 50% 59px / 16px 7px no-repeat;
+  }
+  .lab-train .tr-op-lamp::after {
+    content: '';
+    position: absolute;
+    top: 52px;
+    left: 50%;
+    width: 220px;
+    height: 150px;
+    margin-left: -110px;
+    border-radius: 50%;
+    background: radial-gradient(
+      closest-side,
+      rgb(246 231 200 / 17%) 0 38%,
+      rgb(246 231 200 / 9%) 38% 68%,
+      rgb(246 231 200 / 4%) 68% 100%
+    );
+  }
+  .lab-train .tr-op-lamp [data-tr-lamp] {
+    position: absolute;
+    top: 62px;
+    left: 50%;
+  }
+  .lab-train .tr-op-board {
+    position: absolute;
+    top: 46px;
+    left: 50%;
+    width: min(600px, 100vw - 28px);
+    margin-left: calc(min(600px, 100vw - 28px) / -2);
+    padding: 16px 26px 18px;
+    border-radius: 5px;
+    background: var(--tr-grain), #0a1326;
+    box-shadow:
+      inset 0 0 0 2px #0a1326,
+      inset 0 0 0 4px var(--tr-cream),
+      0 12px 0 -6px rgb(0 0 0 / 35%);
+    text-align: center;
+    transform-origin: 50% -46px;
+    --tr-reach: 0.5deg;
+    --tr-pace: 4.2s;
+  }
+  .lab-train .tr-op-board::before,
+  .lab-train .tr-op-board::after {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    width: 3px;
+    height: 34px;
+    background: repeating-linear-gradient(180deg, var(--tr-brass) 0 5px, #6b4a22 5px 8px);
+  }
+  .lab-train .tr-op-board::before {
+    left: 34px;
+  }
+  .lab-train .tr-op-board::after {
+    right: 34px;
+  }
+  .lab-train .tr-op-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--tr-amber);
+    font: 700 11px/1 var(--tr-mono);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .lab-train .tr-op-status i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--tr-red);
+    animation: tr-blink 1.6s steps(2) infinite;
+  }
+  @keyframes tr-blink {
+    50% {
+      opacity: 0.25;
+    }
+  }
+  .lab-train .tr-op-board h1 {
+    margin-top: 6px;
+    font: 600 clamp(46px, 5.6vw, 84px) / 0.98 var(--tr-serif);
+    letter-spacing: 0.03em;
+  }
+  .lab-train .tr-op-board h1 span {
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: -0.01em;
+    color: var(--tr-amber);
+  }
+  .lab-train .tr-op-role {
+    margin-top: 10px;
+    padding-top: 9px;
+    border-top: 1px solid rgb(246 231 200 / 35%);
+    font: 400 clamp(11.5px, 1.1vw, 14px) / 1.3 var(--tr-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* The ticket, held up in the foreground. */
+  .lab-train .tr-op-ticket {
+    position: absolute;
+    left: clamp(14px, 5vw, 84px);
+    bottom: 78px;
+    width: min(500px, 100vw - 28px);
+    will-change: transform;
+  }
+  .lab-train .tr-op-ticket-card {
+    display: grid;
+    grid-template-columns: clamp(96px, 26%, 128px) 1fr;
+    border-radius: 6px;
+    box-shadow: 0 16px 0 -9px rgb(0 0 0 / 45%);
+    transform: rotate(-2.2deg);
+    /* Two punched notches where the stub tears off. */
+    -webkit-mask-image:
+      radial-gradient(circle 9px at clamp(96px, 26%, 128px) 0, #0000 98%, #000),
+      radial-gradient(circle 9px at clamp(96px, 26%, 128px) 100%, #0000 98%, #000);
+    mask-image:
+      radial-gradient(circle 9px at clamp(96px, 26%, 128px) 0, #0000 98%, #000),
+      radial-gradient(circle 9px at clamp(96px, 26%, 128px) 100%, #0000 98%, #000);
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+  }
+  .lab-train .tr-op-photo {
+    padding: 10px;
+    border-right: 2px dashed rgb(42 33 24 / 40%);
+  }
+  /* Taken out of the flow so the photograph fills the stub without setting the ticket's height. */
+  .lab-train .tr-op-photo {
+    position: relative;
+    min-height: 132px;
+  }
+  .lab-train .tr-op-photo img {
+    position: absolute;
+    inset: 10px;
+    width: calc(100% - 20px);
+    height: calc(100% - 20px);
+    object-fit: cover;
+    object-position: 50% 12%;
+    border-radius: 3px;
+    filter: sepia(0.28) saturate(0.9);
+  }
+  .lab-train .tr-op-ticket-body {
+    padding: 13px 16px 13px 16px;
+  }
+  .lab-train .tr-op-ticket-kicker {
+    color: #a1361f;
+    font: 700 10.5px/1 var(--tr-mono);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .lab-train .tr-op-ticket-name {
+    margin-top: 5px;
+    font: 600 clamp(20px, 2vw, 25px) / 1.1 var(--tr-serif);
+  }
+  .lab-train .tr-op-ticket-text {
+    margin-top: 6px;
+    font-size: clamp(13px, 1.05vw, 14.5px);
+    line-height: 1.45;
+    color: #3b2f22;
+  }
+  .lab-train .tr-op-cue {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    margin-top: 9px;
+    padding-top: 8px;
+    border-top: 1px solid rgb(42 33 24 / 25%);
+    font: 700 10.5px/1 var(--tr-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  html.tr-pin .lab-train .tr-op-cue {
+    display: flex;
+  }
+  .lab-train .tr-op-cue svg {
+    width: 9px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    animation: tr-cue 1.4s ease-in-out infinite alternate;
+  }
+  @keyframes tr-cue {
+    to {
+      transform: translateY(4px);
+    }
+  }
+
+  .lab-train .tr-op-wash {
+    position: absolute;
+    inset: 0;
+    background: var(--tr-grain-dark), var(--tr-amber);
+    opacity: 0;
+    pointer-events: none;
+  }
+  @media (max-width: 700px) {
+    .lab-train .tr-op-board {
+      top: 34px;
+      padding: 13px 16px 15px;
+    }
+    .lab-train .tr-op-board h1 {
+      font-size: clamp(40px, 12.5vw, 56px);
+    }
+    .lab-train .tr-op-lamp {
+      display: none;
+    }
+  }
+</style>

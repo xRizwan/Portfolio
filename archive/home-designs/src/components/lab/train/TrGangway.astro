@@ -1,0 +1,80 @@
+---
+// The door between two carriages. Outside, the train is in a tunnel whenever one of these is in
+// the middle of the screen (journey.ts), so the windows either side go black.
+interface Props {
+  /** Name of the carriage through the door. */
+  next: string;
+  /** The last door on the train: no tunnel, the plate only. */
+  end?: boolean;
+}
+const { next, end = false } = Astro.props;
+---
+
+<div class="tr-gangway" data-tr-gangway={end ? undefined : ''} aria-hidden="true">
+  <span class="tr-door">
+    <i></i>
+  </span>
+  <span class="tr-door-plate">{next}</span>
+</div>
+
+<style is:global>
+  .lab-train .tr-gangway {
+    display: none;
+  }
+  html.tr-pin .lab-train .tr-gangway {
+    position: relative;
+    flex: none;
+    display: block;
+    width: clamp(190px, 22vw, 300px);
+    height: 100%;
+    background:
+      var(--tr-grain),
+      /* The concertina either side of the door. */
+      repeating-linear-gradient(90deg, #0000 0 9px, rgb(0 0 0 / 45%) 9px 12px) 0 0 / 36px 100%
+        no-repeat,
+      repeating-linear-gradient(90deg, #0000 0 9px, rgb(0 0 0 / 45%) 9px 12px) 100% 0 / 36px 100%
+        no-repeat,
+      linear-gradient(180deg, #1d110a, #24150c 60%, #0a1326 calc(100% - 78px));
+    box-shadow:
+      inset 3px 0 0 var(--tr-brass),
+      inset -3px 0 0 var(--tr-brass);
+  }
+  .lab-train .tr-door {
+    position: absolute;
+    inset: 96px 22% 78px;
+    border: 5px solid #120a05;
+    border-bottom: 0;
+    border-radius: 14px 14px 0 0;
+    background:
+      linear-gradient(90deg, #0000 calc(50% - 1.5px), #120a05 0 calc(50% + 1.5px), #0000 0),
+      var(--tr-grain), var(--tr-wood);
+    box-shadow: inset 0 0 0 3px rgb(201 154 78 / 55%);
+  }
+  .lab-train .tr-door i {
+    position: absolute;
+    top: 14%;
+    left: 50%;
+    width: 46%;
+    aspect-ratio: 1;
+    border: 5px solid var(--tr-brass);
+    border-radius: 50%;
+    background: var(--tr-amber);
+    box-shadow: inset 0 0 0 8px rgb(246 231 200 / 55%);
+    transform: translateX(-50%);
+  }
+  .lab-train .tr-door-plate {
+    position: absolute;
+    top: 68px;
+    left: 50%;
+    padding: 6px 10px 7px;
+    border-radius: 3px;
+    background: var(--tr-indigo);
+    box-shadow: inset 0 0 0 1.5px var(--tr-cream);
+    color: var(--tr-cream);
+    font: 700 10.5px/1 var(--tr-mono);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transform: translateX(-50%);
+  }
+</style>

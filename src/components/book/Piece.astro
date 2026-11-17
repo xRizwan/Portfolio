@@ -1,0 +1,50 @@
+---
+// One flat painted piece of scenery. In the book it is hinged along its bottom edge at (x, y) on
+// the page and stands up to angle `a`; in a flat scene box the same numbers place it upright.
+import { art, artSrc, type ArtName } from './art';
+
+interface Props {
+  name: ArtName;
+  /** Left edge and hinge line, in design pixels on the page or spread. */
+  x: number;
+  y: number;
+  w: number;
+  /** Standing angle from the page, in degrees. */
+  a?: number;
+  /** When it starts to rise, as a share of the spread's rise (0 to 1), and for how long. */
+  at?: number;
+  dur?: number;
+  /** Stacking lift while folded flat, in pixels. */
+  z?: number;
+  /** How far it leans toward the pointer. */
+  lean?: number;
+  class?: string;
+  /** The cat hides and pops up again (book.ts). */
+  cat?: boolean;
+  /** Keeps turning slowly. */
+  spin?: boolean;
+}
+
+const { name, x, y, w, a = 68, at = 0, dur = 0.3, z = 1, lean = 2.4, cat = false } = Astro.props;
+const meta = art[name];
+const h = Math.round((w * meta.h) / meta.w);
+---
+
+<div
+  class:list={['pb-pop', 'pb-pop--art', Astro.props.class, Astro.props.spin && 'pb-spin']}
+  style={`--x:${x};--y:${y};--w:${w};--h:${h};--a:${a};--z:${z};--lean:${lean}`}
+  data-at={at}
+  data-dur={dur}
+  data-mask={artSrc(name)}
+  data-cat={cat ? '' : undefined}
+>
+  <img
+    src={artSrc(name)}
+    width={meta.w}
+    height={meta.h}
+    alt=""
+    loading="lazy"
+    decoding="async"
+    draggable="false"
+  />
+</div>

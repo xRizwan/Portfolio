@@ -1,0 +1,164 @@
+---
+// The night outside: sky, moon and the landscape strips that slide past at different depths.
+// Used twice, behind the opening scene and behind the carriage windows. outside.ts moves the
+// strips; without scripts they simply sit still.
+import { art, ratio } from './art';
+
+interface Props {
+  /** The opening also has the town the train leaves behind. */
+  city?: boolean;
+}
+const { city = false } = Astro.props;
+---
+
+<div class="tr-out" data-tr-out aria-hidden="true">
+  <div class="tr-sky"></div>
+  <div class="tr-sky tr-sky--dawn"></div>
+  <div class="tr-moon"></div>
+  <div
+    class="tr-layer tr-layer--far"
+    data-tr-layer
+    data-depth="0.035"
+    data-ratio={ratio(art.far)}
+    style={`background-image:url(${art.far.src})`}
+  ></div>
+  {city && (
+    <div
+      class="tr-layer tr-layer--city"
+      data-tr-layer
+      data-tr-city
+      data-depth="0.22"
+      data-ratio={ratio(art.city)}
+      style={`background-image:url(${art.city.src})`}
+    />
+  )}
+  <div
+    class="tr-layer tr-layer--hills"
+    data-tr-layer
+    data-tr-hills
+    data-depth="0.14"
+    data-ratio={ratio(art.hills)}
+    style={`background-image:url(${art.hills.src})`}
+  ></div>
+  <slot />
+  <div
+    class="tr-layer tr-layer--near"
+    data-tr-layer
+    data-tr-near
+    data-depth="0.62"
+    data-ratio={ratio(art.near)}
+    style={`background-image:url(${art.near.src})`}
+  ></div>
+  <canvas class="tr-weather" data-tr-weather></canvas>
+  <slot name="front" />
+</div>
+
+<style is:global>
+  .lab-train .tr-out {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background: var(--tr-indigo);
+    /* Where the land sits, as fractions of this box. Each use sets its own. */
+    --tr-far-bottom: 30%;
+    --tr-far-h: 24%;
+    --tr-hills-bottom: 14%;
+    --tr-hills-h: 30%;
+    --tr-near-bottom: 10%;
+    --tr-near-h: 30%;
+  }
+  /* Bokashi: the sky is printed in bands, darkest at the top, with a pale band over the ridge. */
+  .lab-train .tr-sky {
+    position: absolute;
+    inset: 0;
+    background:
+      var(--tr-grain),
+      linear-gradient(
+        180deg,
+        #070e1f 0%,
+        #0a1428 16%,
+        #0e1a33 30%,
+        #132443 44%,
+        #1a3157 56%,
+        #23426d 66%,
+        #2f5484 74%,
+        #3d669a 80%,
+        #23426d 100%
+      );
+  }
+  .lab-train .tr-sky--dawn {
+    opacity: var(--tr-dawn, 0);
+    background:
+      var(--tr-grain),
+      linear-gradient(
+        180deg,
+        #14284a 0%,
+        #1f3a5f 22%,
+        #3a5a80 40%,
+        #7d8fa3 54%,
+        #d3b39a 66%,
+        #f4c9a0 76%,
+        #f6dcb6 84%,
+        #f4c9a0 100%
+      );
+  }
+  .lab-train .tr-moon {
+    position: absolute;
+    top: 14%;
+    right: 16%;
+    width: clamp(34px, 5.2vw, 70px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--tr-moon);
+    /* Two printed rings stand in for a glow. */
+    box-shadow:
+      0 0 0 10px rgb(223 233 243 / 9%),
+      0 0 0 26px rgb(223 233 243 / 5%);
+    opacity: calc(1 - var(--tr-dawn, 0) * 0.75);
+  }
+  .lab-train .tr-layer {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    background-repeat: repeat-x;
+    background-size: auto 100%;
+    background-position: 0 100%;
+    will-change: transform;
+  }
+  .lab-train .tr-layer--far {
+    bottom: var(--tr-far-bottom);
+    height: var(--tr-far-h);
+  }
+  /* Below the far ridge the land is one dark field, so no sky shows between the strips. */
+  .lab-train .tr-layer--far::after {
+    content: '';
+    position: absolute;
+    inset: 99% 0 auto;
+    height: 400px;
+    background: #101f3a;
+  }
+  .lab-train .tr-layer--city,
+  .lab-train .tr-layer--hills {
+    bottom: var(--tr-hills-bottom);
+    height: var(--tr-hills-h);
+  }
+  .lab-train .tr-layer--city::after,
+  .lab-train .tr-layer--hills::after {
+    content: '';
+    position: absolute;
+    inset: 99% 0 auto;
+    height: 400px;
+    background: #0c1730;
+  }
+  .lab-train .tr-layer--near {
+    bottom: var(--tr-near-bottom);
+    height: var(--tr-near-h);
+  }
+  .lab-train .tr-weather {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+</style>

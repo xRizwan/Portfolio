@@ -1,0 +1,64 @@
+---
+// A strip of cream paper at the end of the trip: name, year, and the way back to the pad.
+import { site } from '../../../data/site';
+import { roughEdge } from './edge';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="sp-footer sp-paper" style={{ '--sp-edge': roughEdge(977, 13, 44) }}>
+  <div class="sp-wrap sp-footer-row">
+    <p class="sp-footer-name">{site.name}</p>
+    <p class="sp-footer-note">
+      &copy; {year}. {site.role}.
+    </p>
+    <nav class="sp-footer-links" aria-label="Footer">
+      <a href="/blog/">Blog</a>
+      <a href="/experience/">Experience</a>
+      <a href={site.resume}>Resume</a>
+      <a href="#main">Back to the launch pad</a>
+    </nav>
+  </div>
+</footer>
+
+<style is:global>
+  .lab-space .sp-footer {
+    position: relative;
+    z-index: 5;
+    /* Room at the bottom for the preview switcher. */
+    padding: 44px 0 86px;
+  }
+  .lab-space .sp-footer-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 10px 28px;
+  }
+  .lab-space .sp-footer-name {
+    font: 800 24px/1.1 var(--sp-display);
+    letter-spacing: -0.02em;
+  }
+  .lab-space .sp-footer-note {
+    font: 400 13px/1.4 var(--sp-mono);
+  }
+  .lab-space .sp-footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 20px;
+    margin-left: auto;
+    font: 700 13px/1.4 var(--sp-mono);
+  }
+  .lab-space .sp-footer-links a {
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+    text-decoration-color: var(--sp-tomato);
+  }
+  .lab-space .sp-footer-links a:hover {
+    color: #a8371a;
+  }
+  @media (max-width: 760px) {
+    .lab-space .sp-footer-links {
+      margin-left: 0;
+    }
+  }
+</style>

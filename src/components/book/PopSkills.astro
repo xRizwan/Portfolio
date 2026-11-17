@@ -1,0 +1,310 @@
+---
+// Skills: a volvelle. The wheel on the left page turns (drag it, use the two tabs under it, the
+// arrow keys, or pick a wedge) and the group that stops at the pointer is laid out as paper
+// tabs on the right page. Without scripts every group is simply listed.
+import { skillGroups } from '../../data/skills';
+import Piece from './Piece.astro';
+
+const step = 360 / skillGroups.length;
+// Wedge colours in an order where no two neighbours match, including across the join.
+const cycle = [
+  'red',
+  'sun',
+  'blue',
+  'green',
+  'card',
+  'red',
+  'sun',
+  'blue',
+  'green',
+  'card',
+  'blue',
+];
+const hex: Record<string, string> = {
+  red: '#e04b3a',
+  sun: '#f4c13d',
+  blue: '#4a9fd8',
+  green: '#5aa469',
+  card: '#faf5ea',
+};
+const wedges = skillGroups.map((group, index) => {
+  const tone = cycle[index % cycle.length] ?? 'card';
+  return { group, tone, colour: hex[tone] ?? '#faf5ea' };
+});
+// conic-gradient angles start at twelve o'clock; the first wedge is centred on three o'clock.
+const stops = wedges
+  .map(
+    (wedge, index) =>
+      `${wedge.colour} ${(index * step).toFixed(3)}deg ${((index + 1) * step).toFixed(3)}deg`,
+  )
+  .join(', ');
+const disc = `conic-gradient(from ${(90 - step / 2).toFixed(3)}deg, ${stops})`;
+---
+
+<section
+  class="pb-spread pb-spread--skills"
+  id="skills"
+  data-spread="skills"
+  data-len="200"
+  data-rise="60"
+  aria-labelledby="pb-skills-title"
+>
+  <div class="pb-page pb-page--l">
+    <div
+      class="pb-pop pb-wheelboard"
+      style="--x:60;--y:560;--w:480;--h:470;--a:50;--z:2"
+      data-at="0.1"
+      data-dur="0.45"
+    >
+      <div class="pb-wheel" data-pb-wheel style={`--step:${step}deg`}>
+        <div
+          class="pb-wheel__disc"
+          role="tablist"
+          aria-label="Skill groups"
+          style={`--disc:${disc}`}
+          data-pb-disc
+        >
+          {wedges.map((wedge, index) => (
+            <button
+              class={`pb-wheel__tab is-${wedge.tone}`}
+              type="button"
+              role="tab"
+              id={`pb-skilltab-${wedge.group.id}`}
+              aria-controls={`pb-skill-${wedge.group.id}`}
+              aria-selected={index === 0 ? 'true' : 'false'}
+              tabindex={index === 0 ? 0 : -1}
+              style={`--i:${index}`}
+            >
+              <span>{wedge.group.title}</span>
+            </button>
+          ))}
+        </div>
+        <span class="pb-wheel__hub" aria-hidden="true"></span>
+        <span class="pb-wheel__pointer" aria-hidden="true"></span>
+      </div>
+      <div class="pb-wheel__ctl">
+        <button class="pb-btn pb-btn--plain" type="button" data-pb-wheel-step="-1">
+          Turn back
+        </button>
+        <button class="pb-btn" type="button" data-pb-wheel-step="1">
+          Turn on
+        </button>
+      </div>
+    </div>
+    <Piece name="cat" x={10} y={470} w={88} a={64} at={0.5} z={1} cat />
+  </div>
+
+  <div class="pb-page pb-page--r">
+    <div
+      class="pb-pop pb-card pb-skills"
+      style="--x:24;--y:520;--w:552;--h:452;--a:50;--z:2"
+      data-at="0.3"
+      data-dur="0.4"
+    >
+      <p class="pb-kicker">Skills</p>
+      <h2 class="pb-h2" id="pb-skills-title">
+        What I work with
+      </h2>
+      <p class="pb-note pb-skills__hint">Turn the wheel to change the group.</p>
+      <div class="pb-skills__panels">
+        {wedges.map((wedge) => (
+          <div
+            class={`pb-skillset is-${wedge.tone}`}
+            role="tabpanel"
+            id={`pb-skill-${wedge.group.id}`}
+            aria-labelledby={`pb-skilltab-${wedge.group.id}`}
+            data-pb-skillset
+          >
+            <h3>{wedge.group.name}</h3>
+            <ul>
+              {wedge.group.items.map((item, index) => (
+                <li style={`--n:${index}`}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+    <Piece name="cat" x={480} y={610} w={84} a={64} at={0.6} z={4} cat class="pb-flip" />
+  </div>
+</section>
+
+<style is:global>
+  .home-book .pb-wheelboard {
+    display: none;
+  }
+  html.pb-js .home-book .pb-wheelboard {
+    display: grid;
+    justify-items: center;
+    gap: 14px;
+  }
+  .home-book .pb-wheel {
+    --d: min(400px, 74vw);
+    position: relative;
+    width: var(--d);
+    height: var(--d);
+    filter: drop-shadow(0 4px 0 rgb(28 37 64 / 22%));
+  }
+  .home-book .pb-wheel__disc {
+    position: absolute;
+    inset: 0;
+    border: 6px solid #fffdf6;
+    border-radius: 50%;
+    background-image: var(--pb-wash), var(--disc);
+    background-size:
+      380px auto,
+      auto;
+    background-blend-mode: multiply;
+    box-shadow:
+      0 0 0 1.5px rgb(28 37 64 / 50%),
+      0 0 0 2px rgb(28 37 64 / 30%) inset;
+    rotate: var(--rot, 0deg);
+    transition: rotate 0.8s cubic-bezier(0.3, 1.35, 0.5, 1);
+    touch-action: none;
+    cursor: grab;
+  }
+  .home-book .pb-wheel__disc.is-dragging {
+    transition: none;
+    cursor: grabbing;
+  }
+  /* Each label runs out along its wedge, so the one at the pointer reads level. */
+  .home-book .pb-wheel__tab {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 49%;
+    height: 44px;
+    margin-top: -22px;
+    padding: 0 8px 0 17%;
+    border: 0;
+    background: none;
+    color: var(--pb-ink);
+    font: 800 calc(var(--d) * 0.033) / 1.05 var(--pb-display);
+    text-align: left;
+    transform-origin: 0 50%;
+    transform: rotate(calc(var(--i) * var(--step)));
+    cursor: inherit;
+  }
+  .home-book .pb-wheel__tab.is-red {
+    color: #fffdf6;
+  }
+  .home-book .pb-wheel__tab span {
+    display: block;
+  }
+  .home-book .pb-wheel__tab[aria-selected='true'] span {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+  /* The paper fastener in the middle. */
+  .home-book .pb-wheel__hub {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 15%;
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    border: 3px solid var(--pb-ink);
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--pb-ink) 0 16%, transparent 17%), #fffdf6;
+    pointer-events: none;
+  }
+  .home-book .pb-wheel__pointer {
+    position: absolute;
+    right: -20px;
+    top: 50%;
+    width: 44px;
+    height: 34px;
+    translate: 0 -50%;
+    background: var(--pb-ink);
+    clip-path: polygon(0 50%, 100% 0, 78% 50%, 100% 100%);
+    pointer-events: none;
+  }
+  .home-book .pb-wheel__ctl {
+    display: flex;
+    gap: 14px;
+  }
+  .home-book .pb-skills {
+    display: grid;
+    gap: 10px;
+  }
+  .home-book .pb-skills__hint {
+    display: none;
+  }
+  html.pb-js .home-book .pb-skills__hint {
+    display: block;
+  }
+  .home-book .pb-skills__panels {
+    display: grid;
+    gap: 22px;
+  }
+  .home-book .pb-skillset {
+    --paint: var(--pb-card-2);
+  }
+  .home-book .pb-skillset.is-red {
+    --paint: #f6c9c1;
+  }
+  .home-book .pb-skillset.is-sun {
+    --paint: #fbe6a8;
+  }
+  .home-book .pb-skillset.is-blue {
+    --paint: #c4e0f3;
+  }
+  .home-book .pb-skillset.is-green {
+    --paint: #c9e3cd;
+  }
+  .home-book .pb-skillset h3 {
+    font: 800 23px/1.1 var(--pb-display);
+  }
+  .home-book .pb-skillset ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px 6px;
+    margin-top: 10px;
+  }
+  /* Each item is a small paper tab; alternate ones are nudged so the row looks hand-placed. */
+  .home-book .pb-skillset li {
+    padding: 4px 10px 5px;
+    border: 1.5px solid rgb(28 37 64 / 70%);
+    border-radius: 3px 8px 8px 3px;
+    background: var(--paint);
+    font: 600 14.5px/1.15 var(--pb-display);
+    rotate: -0.8deg;
+  }
+  .home-book .pb-skillset li:nth-child(3n + 1) {
+    rotate: 0.9deg;
+  }
+  .home-book .pb-skillset li:nth-child(3n + 2) {
+    translate: 0 1px;
+    rotate: 0deg;
+  }
+  @keyframes pb-tab-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px) rotate(-8deg) scale(0.8);
+    }
+  }
+  html:is(.pb-m-book, .pb-m-fx) .home-book .pb-skillset.is-fresh li {
+    animation: pb-tab-in 0.42s cubic-bezier(0.3, 1.5, 0.5, 1) backwards;
+    animation-delay: calc(var(--n) * 28ms);
+  }
+  html.pb-m-book .home-book {
+    .pb-wheelboard {
+      align-content: end;
+      padding-bottom: 6px;
+    }
+    .pb-wheel {
+      --d: 396px;
+    }
+    .pb-skills {
+      display: flex;
+      gap: 6px;
+    }
+    .pb-skillset {
+      margin-top: 6px;
+    }
+    .pb-skillset li {
+      font-size: 14px;
+    }
+  }
+</style>

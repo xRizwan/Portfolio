@@ -5,20 +5,22 @@ build time; interactive scenes are small browser modules that enhance it.
 
 ## Directories
 
-| Path                    | Responsibility                                                                                   |
-| ----------------------- | ------------------------------------------------------------------------------------------------ |
-| `src/pages/`            | Routes: `/`, `/blog/`, `/blog/[slug]/`, `/work/[slug]/`, `/experience/`, `/404`, `/robots.txt`   |
-| `src/layouts/`          | `BaseLayout` (head, header, footer, global script) and `EntryLayout` (articles and case studies) |
-| `src/components/`       | Shared pieces (`Seo`, `SiteHeader`, `SiteFooter`, `Callout`, `FlowExplorer`, `TechChip`)         |
-| `src/components/home/`  | Home sections: `Hero`, `SkillNotes`, `WorkList`, `CertificateShowcase`                           |
-| `src/content/`          | MDX articles and projects, validated by `src/content.config.ts`                                  |
-| `src/data/`             | Typed editorial data: site identity, skills, experience, certificates, work rows                 |
-| `src/lib/`              | Build-time logic: publication rules, collection helpers, structured data, validation             |
-| `src/scripts/`          | Browser modules (TypeScript), imported from component `<script>` tags                            |
-| `src/styles/global.css` | Global styles and design tokens (rule order matters)                                             |
-| `src/assets/`           | Images optimized by `astro:assets` (portrait, certificates)                                      |
-| `public/`               | Files served as-is: documents, diagrams, tech logos, favicon, social image                       |
-| `scripts/`              | Node scripts (content validation)                                                                |
+| Path                    | Responsibility                                                                                                                                                       |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/pages/`            | Routes: `/`, `/blog/`, `/blog/[slug]/`, `/work/[slug]/`, `/experience/`, `/404`, `/robots.txt`                                                                       |
+| `src/layouts/`          | `BaseLayout` (head, header, footer, global script), `EntryLayout` (articles and case studies) and `HomeLayout` (the home page's own shell)                           |
+| `src/components/`       | Shared pieces (`Seo`, `SiteHeader`, `SiteFooter`, `Callout`, `FlowExplorer`, `TechChip`)                                                                             |
+| `src/components/book/`  | The home page, a paper pop-up book: one component per spread, `book.ts` (the 3D book engine), `parts.ts` (shutters, wheel, doors, concertina), `life.ts` (desk life) |
+| `src/components/home/`  | `KittenHead` and `KittenSit`, used by the blog's heading                                                                                                             |
+| `archive/`              | Retired home-page designs, not built (see `archive/README.md`)                                                                                                       |
+| `src/content/`          | MDX articles and projects, validated by `src/content.config.ts`                                                                                                      |
+| `src/data/`             | Typed editorial data: site identity, skills, experience, certificates, work rows                                                                                     |
+| `src/lib/`              | Build-time logic: publication rules, collection helpers, structured data, validation                                                                                 |
+| `src/scripts/`          | Browser modules (TypeScript), imported from component `<script>` tags                                                                                                |
+| `src/styles/global.css` | Global styles and design tokens (rule order matters)                                                                                                                 |
+| `src/assets/`           | Images optimized by `astro:assets` (portrait, certificates)                                                                                                          |
+| `public/`               | Files served as-is: documents, diagrams, tech logos, favicon, social image                                                                                           |
+| `scripts/`              | Node scripts (content validation)                                                                                                                                    |
 
 ## Content model
 
@@ -35,19 +37,17 @@ build time; interactive scenes are small browser modules that enhance it.
 
 All interactive behaviour is decorative enhancement over complete HTML:
 
-| Module                                                | Behaviour                                                                   | Fallback                            |
-| ----------------------------------------------------- | --------------------------------------------------------------------------- | ----------------------------------- |
-| `site-chrome`                                         | Motion toggle, current-page nav, cursor label, magnetic links, progress bar | —                                   |
-| `hero-field`                                          | Particle field, pointer-lit RIZZY, project hover previews                   | Static text                         |
-| `frame-scene`                                         | Three.js framed portrait with napping and peeking cats                      | Framed `<img>`                      |
-| `title-cats`                                          | Three.js cats on RIZZY; chase the yarn                                      | `title-cat-fallback` (flat SVG cat) |
-| `yarn`                                                | Draggable ball of yarn (≥901px)                                             | Hidden                              |
-| `skill-notes`, `note-arrival`                         | Draggable notes, spread/stack, fly-in on first view                         | Plain grid                          |
-| `certificate-dialog`, `blog-filters`, `flow-explorer` | Viewer, filters, stage explainer                                            | Links / full list                   |
+| Module                          | Behaviour                                                                                          | Fallback                 |
+| ------------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------ |
+| `site-chrome`                   | Reduced-motion class, theme toggle, current-page nav, cursor label, magnetic links, progress bar   | —                        |
+| `components/book/book.ts`       | Home: pinned 3D pop-up book; scroll stands pieces up and turns the pages (≥1180×620)               | Flat stack of open pages |
+| `components/book/parts.ts`      | Home: lift-up shutters, skills wheel, theatre doors, certificate concertina and viewer, role notes | Everything open, links   |
+| `components/book/life.ts`       | Home: drifting clouds, balloon, peeking cat, paper scraps                                          | Hidden                   |
+| `blog-filters`, `flow-explorer` | Filters, stage explainer                                                                           | Full list                |
 
-`motion.ts` is the single source for "is motion allowed" (OS setting plus the Pause button).
-Scenes stop when offscreen or hidden and hold still when motion is off. Three.js loads only
-on the home page (one shared chunk).
+`motion.ts` is the single source for "is motion allowed" (the OS reduced-motion setting). Scenes stop when offscreen or hidden and hold still when
+motion is off. Below 1180×620 the home book becomes flat pages whose pieces stand up as they
+scroll in; with reduced motion or no scripts the pages are flat and fully open.
 
 ## Metadata and discovery
 

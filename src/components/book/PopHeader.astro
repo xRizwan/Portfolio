@@ -1,0 +1,133 @@
+---
+// Header: the name on a paper label and the sections as coloured index tabs, like the dividers
+// sticking out of a ring binder. Experience and Blog are their own pages, so those two tabs
+// leave the book; the rest turn to a spread.
+import { site } from '../../data/site';
+
+const links = [
+  { label: 'About', href: '#about', paint: 'var(--pb-sun)' },
+  { label: 'Skills', href: '#skills', paint: 'var(--pb-blue)' },
+  { label: 'Work', href: '#work', paint: 'var(--pb-red)' },
+  { label: 'Experience', href: '/experience/', paint: 'var(--pb-green)' },
+  { label: 'Blog', href: '/blog/', paint: 'var(--pb-sun)' },
+  { label: 'Certificates', href: '#certificates', paint: 'var(--pb-blue)' },
+  { label: 'Contact', href: '#contact', paint: 'var(--pb-red)' },
+];
+---
+
+<header class="pb-head">
+  <a class="pb-head__name" href="#top" aria-label={`${site.name}, back to the cover`}>
+    {site.shortName}
+  </a>
+  <nav class="pb-head__nav" aria-label="Sections">
+    <ul>
+      {links.map((link) => (
+        <li>
+          <a class="pb-paint" href={link.href} style={`--paint:${link.paint}`}>
+            {link.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+  <a class="pb-head__resume" href={site.resume}>
+    Resume
+  </a>
+</header>
+
+<style is:global>
+  .home-book .pb-head {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 100;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 0 clamp(10px, 2.4vw, 28px);
+    pointer-events: none;
+  }
+  .home-book .pb-head > * {
+    pointer-events: auto;
+  }
+  .home-book .pb-head__name {
+    padding: 15px 16px 9px;
+    border-radius: 0 0 7px 9px;
+    background-color: var(--pb-card);
+    background-image: var(--pb-grain);
+    font: 800 22px/1 var(--pb-display);
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    box-shadow:
+      0 3px 0 rgb(28 37 64 / 22%),
+      0 10px 16px -8px rgb(15 25 35 / 60%);
+    rotate: -1.2deg;
+  }
+  .home-book .pb-head__nav {
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 14px;
+  }
+  .home-book .pb-head__nav ul {
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+    width: max-content;
+    margin: 0 auto;
+  }
+  .home-book .pb-head__nav a {
+    display: block;
+    padding: 12px 13px 8px;
+    border-radius: 0 0 9px 9px;
+    color: var(--pb-ink);
+    font: 600 14.5px/1 var(--pb-display);
+    text-decoration: none;
+    box-shadow:
+      0 2px 0 rgb(28 37 64 / 26%),
+      0 8px 12px -8px rgb(15 25 35 / 60%);
+    transition: padding-top 0.2s;
+  }
+  .home-book .pb-head__nav li:nth-child(odd) a {
+    padding-top: 9px;
+  }
+  .home-book .pb-head__nav a:hover,
+  .home-book .pb-head__nav a[aria-current='true'] {
+    padding-top: 20px;
+  }
+  .home-book .pb-head__resume {
+    margin-top: 10px;
+    padding: 8px 14px 9px;
+    border: 2px solid var(--pb-ink);
+    border-radius: 6px 9px 7px 10px;
+    background: var(--pb-card);
+    font: 800 14.5px/1 var(--pb-display);
+    text-decoration: none;
+    box-shadow: 3px 3px 0 var(--pb-ink);
+    rotate: 1.5deg;
+  }
+  .home-book .pb-head__resume:hover {
+    background: var(--pb-sun);
+  }
+  @media (max-width: 640px) {
+    .home-book .pb-head {
+      gap: 8px;
+    }
+    .home-book .pb-head__name {
+      padding: 12px 11px 8px;
+      font-size: 18px;
+    }
+    .home-book .pb-head__nav ul {
+      justify-content: flex-start;
+      margin: 0;
+    }
+    .home-book .pb-head__nav a {
+      padding: 10px 10px 7px;
+      font-size: 13px;
+    }
+    .home-book .pb-head__resume {
+      padding: 7px 10px;
+      font-size: 13px;
+    }
+  }
+</style>

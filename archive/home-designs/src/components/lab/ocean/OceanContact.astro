@@ -1,0 +1,127 @@
+---
+// Contact as a message in a bottle.
+import { site } from '../../../data/site';
+import { art } from './art';
+import { cutPanel } from './paper';
+---
+
+<section
+  class="oc-section oc-contact"
+  id="contact"
+  data-tone="teal"
+  aria-labelledby="oc-contact-title"
+>
+  <div class="oc-clip" aria-hidden="true">
+    <img
+      class="oc-art oc-contact-reef"
+      {...art('reef-right')}
+      alt=""
+      loading="lazy"
+      data-drift="80"
+    />
+    <img class="oc-art oc-contact-weed oc-sway" {...art('seaweed')} alt="" loading="lazy" />
+  </div>
+  <div class="oc-wrap oc-contact-grid">
+    <div class="oc-contact-bottle" aria-hidden="true" data-drift="-90" data-drift-turn="-14">
+      <img class="oc-art oc-bob" {...art('bottle')} alt="" loading="lazy" />
+    </div>
+    <div class="oc-paper oc-contact-note" style={{ '--cut': cutPanel(151) }} data-rise>
+      <p class="oc-place">Message in a bottle</p>
+      <h2 class="oc-h2" id="oc-contact-title">
+        Say hello
+      </h2>
+      <p class="oc-contact-line">Email is the quickest way to reach me.</p>
+      <a class="oc-contact-mail" href={`mailto:${site.email}`}>
+        {site.email}
+      </a>
+      <ul class="oc-contact-links">
+        <li>
+          <a class="oc-btn" href={site.github} rel="me noopener">
+            GitHub
+          </a>
+        </li>
+        <li>
+          <a class="oc-btn" href={site.linkedin} rel="me noopener">
+            LinkedIn
+          </a>
+        </li>
+        <li>
+          <a class="oc-btn oc-btn--coral" href={site.resume}>
+            Resume
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .lab-ocean .oc-section.oc-contact {
+    padding-bottom: 150px;
+  }
+  .lab-ocean .oc-contact-reef {
+    right: -8vw;
+    bottom: -40px;
+    width: min(46vw, 600px);
+  }
+  .lab-ocean .oc-contact-weed {
+    left: 6vw;
+    bottom: -20px;
+    width: clamp(70px, 8vw, 120px);
+  }
+  .lab-ocean .oc-contact-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    align-items: center;
+    gap: clamp(20px, 5vw, 70px);
+  }
+  .lab-ocean .oc-contact-bottle img {
+    position: relative;
+    width: min(100%, 420px);
+    margin-inline: auto;
+  }
+  .lab-ocean .oc-contact-note {
+    padding: clamp(28px, 4.4vw, 56px);
+    --oc-paper-tint: var(--oc-foam);
+  }
+  .lab-ocean .oc-contact-note .oc-place {
+    background: var(--oc-sun);
+  }
+  .lab-ocean .oc-contact-line {
+    margin-top: 18px;
+    font-size: 18px;
+  }
+  .lab-ocean .oc-contact-mail {
+    display: inline-block;
+    margin-top: 8px;
+    font: 800 clamp(22px, 3.3vw, 44px) / 1.1 var(--oc-display);
+    letter-spacing: -0.03em;
+    overflow-wrap: anywhere;
+    text-decoration: none;
+    background: linear-gradient(var(--oc-coral), var(--oc-coral)) 0 100% / 100% 0.16em no-repeat;
+    transition: background-size 0.3s ease;
+  }
+  .lab-ocean .oc-contact-mail:hover {
+    background-size: 100% 100%;
+  }
+  .lab-ocean .oc-contact-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 28px;
+  }
+
+  @media (max-width: 860px) {
+    .lab-ocean .oc-contact-grid {
+      grid-template-columns: 1fr;
+    }
+    .lab-ocean .oc-contact-bottle img {
+      width: 190px;
+      margin: 0 0 -40px auto;
+    }
+    .lab-ocean .oc-contact-reef {
+      width: 70vw;
+      right: -22vw;
+    }
+  }
+</style>

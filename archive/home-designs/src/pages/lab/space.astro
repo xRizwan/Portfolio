@@ -1,0 +1,292 @@
+---
+// Trial home page "Space": a trip outward through a small hand-made solar system, painted like a
+// mid-century space-travel poster. The page starts on a launch pad at dusk, scrolling is the
+// launch, and every section after that is a stop on the way out.
+import SpaceAbout from '../../components/lab/space/SpaceAbout.astro';
+import SpaceContact from '../../components/lab/space/SpaceContact.astro';
+import SpaceFlight from '../../components/lab/space/SpaceFlight.astro';
+import SpaceFooter from '../../components/lab/space/SpaceFooter.astro';
+import SpaceHeader from '../../components/lab/space/SpaceHeader.astro';
+import SpaceLaunch from '../../components/lab/space/SpaceLaunch.astro';
+import SpaceSkills from '../../components/lab/space/SpaceSkills.astro';
+import SpaceSky from '../../components/lab/space/SpaceSky.astro';
+import SpaceStation from '../../components/lab/space/SpaceStation.astro';
+import SpaceWork from '../../components/lab/space/SpaceWork.astro';
+import LabLayout from '../../layouts/LabLayout.astro';
+---
+
+<LabLayout slug="space" themeColor="#1b1840">
+  <!-- `sp-js` marks the page as scripted and `sp-motion` as animated, both before first paint, so
+       the pinned opening and the orbit layout do not flash in after the static version. -->
+  <script is:inline slot="head">
+    document.documentElement.classList.add('sp-js');
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.documentElement.classList.add('sp-motion');
+    }
+  </script>
+  <SpaceSky />
+  <SpaceHeader />
+  <main id="main">
+    <SpaceLaunch />
+    <SpaceAbout />
+    <SpaceSkills />
+    <SpaceWork />
+    <SpaceFlight />
+    <SpaceStation />
+    <SpaceContact />
+  </main>
+  <SpaceFooter />
+</LabLayout>
+
+<script>
+  import '../../components/lab/space/main.ts';
+</script>
+
+<style is:global>
+  /* Layers, back to front: star canvas (0), page content (5), flight lane with the travelling
+     rocket (20), header (100). The lane sits in the right-hand gutter, which every section keeps
+     free of text. */
+  .lab-space {
+    --sp-space: #1b1840;
+    --sp-deep: #141133;
+    --sp-dusk: #211a48;
+    --sp-panel: #272260;
+    --sp-tomato: #e4572e;
+    --sp-mustard: #f2b134;
+    --sp-mint: #76c7b0;
+    --sp-cream: #f6ecd7;
+    --sp-paper: #f4e7cc;
+    --sp-ink: #1b1840;
+    --sp-display: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif;
+    --sp-mono: 'Space Mono', ui-monospace, 'Courier New', monospace;
+    --sp-body: Manrope, system-ui, sans-serif;
+    --sp-vh: 1vh;
+    /* Width of the gutter that belongs to the travelling rocket. */
+    --sp-lane: clamp(46px, 6.4vw, 96px);
+    /* Paper grain: SVG noise drawn once as a tile and multiplied over flat colour. */
+    --sp-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.11 0 0 0 0 0.09 0 0 0 0 0.25 0 0 0 -1.5 1.05'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23g)'/%3E%3C/svg%3E");
+    background: var(--sp-deep);
+    color: var(--sp-cream);
+    font-family: var(--sp-body);
+    font-size: 17px;
+    line-height: 1.6;
+  }
+  @supports (height: 1svh) {
+    .lab-space {
+      --sp-vh: 1svh;
+    }
+  }
+  html:has(.lab-space) {
+    scroll-padding-top: 84px;
+  }
+  .lab-space :where(h1, h2, h3, p, ul, ol, figure, dl, dd) {
+    margin: 0;
+    padding: 0;
+  }
+  .lab-space :where(ul, ol) {
+    list-style: none;
+  }
+  .lab-space :where(a) {
+    color: inherit;
+  }
+  .lab-space :where(img) {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+  .lab-space :where(button) {
+    font: inherit;
+    color: inherit;
+  }
+  .lab-space :focus-visible {
+    outline: 3px solid var(--sp-mustard);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  .lab-space .sp-paper :focus-visible {
+    outline-color: var(--sp-tomato);
+  }
+  .lab-space .sp-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .lab-space main {
+    position: relative;
+    z-index: 5;
+  }
+  .lab-space .sp-section {
+    position: relative;
+    overflow-x: clip;
+    padding: clamp(96px, 15vh, 160px) 0;
+  }
+  /* Content column. The right margin is wider than the left by the lane, on every screen size. */
+  .lab-space .sp-wrap {
+    position: relative;
+    width: min(1160px, 100% - clamp(20px, 5vw, 64px) - var(--sp-lane) - 8px);
+    margin-left: max(clamp(20px, 5vw, 64px), (100% - 1160px) / 2);
+  }
+
+  /* Cream "poster paper" sections: flat cream, grain, and a rough hand-cut top and bottom edge
+     (the polygon comes from edge.ts) with the stars showing through the nicks. */
+  .lab-space .sp-paper {
+    background: var(--sp-paper);
+    color: var(--sp-ink);
+    clip-path: var(--sp-edge, none);
+  }
+  .lab-space .sp-paper::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--sp-grain);
+    opacity: 0.2;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+  }
+
+  /* Small typed label above each heading. */
+  .lab-space .sp-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font: 700 13px/1.3 var(--sp-mono);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sp-mustard);
+  }
+  .lab-space .sp-label::before {
+    content: '';
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--sp-tomato);
+    box-shadow: 3px 2px 0 var(--sp-mint);
+  }
+  .lab-space .sp-paper .sp-label {
+    color: var(--sp-tomato);
+  }
+  .lab-space .sp-paper .sp-label::before {
+    background: var(--sp-ink);
+    box-shadow: 3px 2px 0 var(--sp-mustard);
+  }
+  /* Poster headline with a second colour printed slightly out of register behind it. */
+  .lab-space .sp-h2 {
+    margin-top: 12px;
+    font: 800 clamp(46px, 7vw, 104px) / 0.92 var(--sp-display);
+    letter-spacing: -0.04em;
+    text-shadow: 0.045em 0.04em 0 var(--sp-tomato);
+    text-wrap: balance;
+  }
+  .lab-space .sp-paper .sp-h2 {
+    text-shadow: 0.045em 0.04em 0 var(--sp-mint);
+  }
+  .lab-space .sp-hint {
+    margin-top: 16px;
+    max-width: 46ch;
+    font: 400 14px/1.6 var(--sp-mono);
+    opacity: 0.86;
+  }
+
+  .lab-space .sp-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 12px 20px;
+    border: 2px solid var(--sp-ink);
+    border-radius: 999px;
+    background: var(--sp-mustard);
+    color: var(--sp-ink);
+    box-shadow: 4px 4px 0 var(--sp-tomato);
+    font: 700 14px/1.1 var(--sp-mono);
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  .lab-space .sp-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 7px 7px 0 var(--sp-tomato);
+  }
+  .lab-space .sp-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 var(--sp-tomato);
+  }
+  .lab-space .sp-btn--cream {
+    background: var(--sp-cream);
+    box-shadow: 4px 4px 0 var(--sp-mint);
+  }
+  .lab-space .sp-btn--cream:hover {
+    box-shadow: 7px 7px 0 var(--sp-mint);
+  }
+  .lab-space .sp-btn--tomato {
+    background: var(--sp-tomato);
+    color: var(--sp-cream);
+    box-shadow: 4px 4px 0 var(--sp-mustard);
+  }
+  .lab-space .sp-btn--tomato:hover {
+    box-shadow: 7px 7px 0 var(--sp-mustard);
+  }
+  .lab-space .sp-btn:focus-visible {
+    border-radius: 999px;
+    outline-offset: 5px;
+  }
+
+  /* Decorative artwork never takes pointer events and never widens the page. */
+  .lab-space .sp-art {
+    position: absolute;
+    pointer-events: none;
+    user-select: none;
+  }
+  .lab-space .sp-clip {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .lab-space .sp-spin {
+    animation: sp-spin var(--spin, 90s) linear infinite;
+  }
+  .lab-space .sp-bob {
+    animation: sp-bob var(--bob, 6s) ease-in-out infinite alternate;
+  }
+  @keyframes sp-spin {
+    to {
+      rotate: 360deg;
+    }
+  }
+  @keyframes sp-bob {
+    from {
+      transform: translateY(-9px) rotate(-3deg);
+    }
+    to {
+      transform: translateY(9px) rotate(3deg);
+    }
+  }
+
+  /* Things that drift into place as they scroll into view. Only hidden when scripts and motion
+     are both on, so the content is always there without them. */
+  .sp-motion .lab-space [data-rise] {
+    opacity: 0;
+    transform: translateY(44px) rotate(var(--rise-tilt, 0deg));
+    transition:
+      opacity 0.7s ease,
+      transform 0.9s cubic-bezier(0.2, 0.9, 0.25, 1.12);
+    transition-delay: calc(var(--rise-i, 0) * 90ms);
+  }
+  .sp-motion .lab-space [data-rise].is-in {
+    opacity: 1;
+    transform: none;
+  }
+
+  html:not(.sp-motion) .lab-space *,
+  html:not(.sp-motion) .lab-space *::before,
+  html:not(.sp-motion) .lab-space *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+</style>

@@ -1,0 +1,311 @@
+---
+// Trial home page "Reef": a sunny coral reef in cut-paper collage. The page starts above the
+// water, tips under the surface and then travels along the reef, one place per section.
+import OceanAbout from '../../components/lab/ocean/OceanAbout.astro';
+import OceanContact from '../../components/lab/ocean/OceanContact.astro';
+import OceanCurrent from '../../components/lab/ocean/OceanCurrent.astro';
+import OceanFooter from '../../components/lab/ocean/OceanFooter.astro';
+import OceanHeader from '../../components/lab/ocean/OceanHeader.astro';
+import OceanIntro from '../../components/lab/ocean/OceanIntro.astro';
+import OceanLife from '../../components/lab/ocean/OceanLife.astro';
+import OceanPearls from '../../components/lab/ocean/OceanPearls.astro';
+import OceanSkills from '../../components/lab/ocean/OceanSkills.astro';
+import OceanWork from '../../components/lab/ocean/OceanWork.astro';
+import LabLayout from '../../layouts/LabLayout.astro';
+---
+
+<LabLayout slug="ocean" themeColor="#f3e3c3">
+  <!-- Marks the page as scripted before first paint, so scroll-driven layouts do not flash in. -->
+  <script is:inline slot="head">
+    document.documentElement.classList.add('oc-js');
+  </script>
+  <div class="oc-backdrop" aria-hidden="true">
+    <div class="oc-caustics"></div>
+  </div>
+  <OceanLife />
+  <OceanHeader />
+  <main id="main">
+    <OceanIntro />
+    <OceanAbout />
+    <OceanSkills />
+    <OceanWork />
+    <OceanCurrent />
+    <OceanPearls />
+    <OceanContact />
+  </main>
+  <OceanFooter />
+</LabLayout>
+
+<script>
+  import '../../components/lab/ocean/main.ts';
+</script>
+
+<style is:global>
+  /* Layers, back to front: painted water (0), fish canvas and turtle (3), octopus (4),
+     page content (5), header (100). Fish therefore always pass behind text and panels. */
+  .lab-ocean {
+    --oc-ink: #12263a;
+    --oc-sand: #f3e3c3;
+    --oc-foam: #fff7e6;
+    --oc-coral: #ff7a6b;
+    --oc-sun: #ffc94a;
+    --oc-aqua: #7fd6d0;
+    --oc-teal: #1f8fa3;
+    --oc-display: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif;
+    --oc-body: Manrope, system-ui, sans-serif;
+    --oc-hand: Caveat, 'Comic Sans MS', cursive;
+    --oc-vh: 1vh;
+    /* Caustic light: a vein pattern made from SVG turbulence, drawn once as a tile. */
+    --oc-caustic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='640'%3E%3Cfilter id='c' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.011 0.017' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.98 0 0 0 0 0.86 -7.5 0 0 0 0.92'/%3E%3C/filter%3E%3Crect width='640' height='640' filter='url(%23c)'/%3E%3C/svg%3E");
+    --oc-shadow: drop-shadow(0 4px 0 rgb(18 38 58 / 14%))
+      drop-shadow(0 14px 16px rgb(18 38 58 / 16%));
+    background: #4fbcc0;
+    color: var(--oc-ink);
+    font-family: var(--oc-body);
+    font-size: 17px;
+    line-height: 1.6;
+  }
+  @supports (height: 1svh) {
+    .lab-ocean {
+      --oc-vh: 1svh;
+    }
+  }
+  html:has(.lab-ocean) {
+    scroll-behavior: smooth;
+    scroll-padding-top: 84px;
+  }
+  .lab-ocean :where(h1, h2, h3, p, ul, ol, figure, dl, dd) {
+    margin: 0;
+    padding: 0;
+  }
+  .lab-ocean :where(ul, ol) {
+    list-style: none;
+  }
+  .lab-ocean :where(a) {
+    color: inherit;
+  }
+  .lab-ocean :where(img) {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+  .lab-ocean :where(button) {
+    font: inherit;
+    color: inherit;
+  }
+  .lab-ocean :focus-visible {
+    outline: 3px solid var(--oc-ink);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  .lab-ocean .oc-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* Painted water behind everything. The image is scaled past the viewport to hide the deckled
+     edge of the painted sheet. */
+  .lab-ocean .oc-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    background: #4fbcc0 url('/lab/ocean/water.webp') center / 112% 116% no-repeat;
+  }
+  /* Caustics: a vein pattern made from SVG turbulence, drawn once as a tile. Two copies slide
+     across each other, which is what makes the light seem to ripple. */
+  .lab-ocean .oc-caustics,
+  .lab-ocean .oc-caustics::after {
+    position: absolute;
+    inset: -640px;
+    background-image: var(--oc-caustic);
+    background-size: 640px 640px;
+    opacity: 0.5;
+    mix-blend-mode: soft-light;
+    animation: oc-caustic-a 46s linear infinite;
+    will-change: transform;
+  }
+  .lab-ocean .oc-caustics::after {
+    content: '';
+    inset: 0;
+    opacity: 0.9;
+    background-position: 310px 170px;
+    animation: oc-caustic-b 31s linear infinite;
+  }
+  @keyframes oc-caustic-a {
+    to {
+      transform: translate3d(640px, 640px, 0);
+    }
+  }
+  @keyframes oc-caustic-b {
+    to {
+      transform: translate3d(-1280px, -640px, 0);
+    }
+  }
+
+  /* The same light on every strip of sand (the strips are masked, which also clips this). */
+  .lab-ocean .oc-floor::after,
+  .lab-ocean .oc-bed::after {
+    content: '';
+    position: absolute;
+    inset: -640px;
+    background: var(--oc-caustic) 0 0 / 640px 640px;
+    opacity: 0.7;
+    animation: oc-caustic-a 38s linear infinite;
+  }
+
+  .lab-ocean main {
+    position: relative;
+    z-index: 5;
+  }
+  .lab-ocean .oc-section {
+    position: relative;
+    /* Leaning and drifting pieces may poke past the edge; clip them without making a scroller. */
+    overflow-x: clip;
+    padding: clamp(90px, 14vh, 150px) 0;
+  }
+  .lab-ocean .oc-wrap {
+    position: relative;
+    width: min(1180px, 100% - clamp(40px, 9vw, 112px));
+    margin-inline: auto;
+  }
+  .lab-ocean .oc-place {
+    display: inline-block;
+    padding: 2px 16px 4px;
+    background: var(--oc-foam);
+    font: 700 26px/1.2 var(--oc-hand);
+    transform: rotate(-2.5deg);
+    clip-path: polygon(1% 8%, 46% 0, 99% 6%, 100% 92%, 52% 100%, 0 94%);
+  }
+  .lab-ocean .oc-h2 {
+    margin-top: 14px;
+    font: 800 clamp(42px, 6.4vw, 88px) / 0.94 var(--oc-display);
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+  .lab-ocean .oc-note {
+    font: 700 clamp(22px, 2.2vw, 27px) / 1.2 var(--oc-hand);
+  }
+
+  /* Sand-coloured cut paper. The shape and texture sit on a pseudo-element so the drop shadow
+     follows the cut outline while the text stays unclipped. */
+  .lab-ocean .oc-paper {
+    position: relative;
+    filter: var(--oc-shadow);
+  }
+  .lab-ocean .oc-paper::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--oc-paper-tint, var(--oc-sand)) url('/lab/ocean/sand.webp') center / 620px;
+    background-blend-mode: soft-light;
+    clip-path: var(--cut, none);
+  }
+  .lab-ocean .oc-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 20px 12px;
+    background: var(--oc-ink);
+    color: var(--oc-foam);
+    font: 700 15px/1.1 var(--oc-body);
+    text-decoration: none;
+    clip-path: polygon(0 6%, 48% 0, 100% 5%, 99% 95%, 50% 100%, 1% 93%);
+    transition:
+      transform 0.25s ease,
+      background-color 0.25s ease;
+  }
+  .lab-ocean .oc-btn:hover {
+    transform: translateY(-3px) rotate(-1.5deg);
+    background: #1c3a57;
+  }
+  .lab-ocean .oc-btn--coral {
+    background: var(--oc-coral);
+    color: var(--oc-ink);
+  }
+  .lab-ocean .oc-btn--coral:hover {
+    background: #ff8f82;
+  }
+  .lab-ocean .oc-btn--sun {
+    background: var(--oc-sun);
+    color: var(--oc-ink);
+  }
+  .lab-ocean .oc-btn--sun:hover {
+    background: #ffd56e;
+  }
+  .lab-ocean .oc-btn:focus-visible {
+    outline-offset: 5px;
+  }
+
+  /* Decorative artwork never takes pointer events and never widens the page. */
+  .lab-ocean .oc-art {
+    position: absolute;
+    pointer-events: none;
+    user-select: none;
+    filter: var(--oc-shadow);
+  }
+  .lab-ocean .oc-clip {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .lab-ocean .oc-sway {
+    transform-origin: 50% 100%;
+    animation: oc-sway 5.5s ease-in-out infinite alternate;
+  }
+  .lab-ocean .oc-bob {
+    animation: oc-bob 4.2s ease-in-out infinite alternate;
+  }
+  @keyframes oc-sway {
+    from {
+      transform: rotate(-4deg) skewX(3deg);
+    }
+    to {
+      transform: rotate(4deg) skewX(-3deg);
+    }
+  }
+  @keyframes oc-bob {
+    from {
+      transform: translateY(-6px) rotate(-2deg);
+    }
+    to {
+      transform: translateY(6px) rotate(2deg);
+    }
+  }
+
+  /* Things that rise into place as they scroll into view. Only hidden when scripts run. */
+  .oc-js .lab-ocean [data-rise] {
+    opacity: 0;
+    transform: translateY(46px) rotate(var(--rise-tilt, -2deg));
+    transition:
+      opacity 0.7s ease,
+      transform 0.9s cubic-bezier(0.2, 0.9, 0.25, 1.15);
+    transition-delay: calc(var(--rise-i, 0) * 90ms);
+  }
+  .oc-js .lab-ocean [data-rise].is-in {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html:has(.lab-ocean) {
+      scroll-behavior: auto;
+    }
+    .lab-ocean *,
+    .lab-ocean *::before,
+    .lab-ocean *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+    .oc-js .lab-ocean [data-rise] {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>

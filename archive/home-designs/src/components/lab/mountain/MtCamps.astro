@@ -1,0 +1,436 @@
+---
+// Experience: one camp per role, in the order the data gives them (newest first). A pencilled
+// route links the camps and is inked in red as you scroll through (life.ts sets --draw); each
+// camp's flag goes up as its entry comes into view. Points open on demand with <details>.
+import { roles } from '../../../data/experience';
+import MtLedges from './MtLedges.astro';
+
+const camps = roles.map((role, index) => ({
+  ...role,
+  current: role.dates.includes('Present'),
+  side: index % 2 === 0 ? 'left' : 'right',
+}));
+---
+
+<section class="mt-section mt-camps" id="experience" aria-labelledby="mt-camps-title" data-mt-draw>
+  <MtLedges />
+  <div class="mt-wrap">
+    <p class="mt-place">Camps on the way</p>
+    <h2 class="mt-h2" id="mt-camps-title">
+      Where I've <em>pitched my tent</em>
+    </h2>
+    <p class="mt-pencil mt-camps-hint">Read it like a logbook: the latest entry comes first.</p>
+
+    <div class="mt-camps-trail">
+      <svg
+        class="mt-camps-path"
+        viewBox="0 0 100 1000"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <path
+          class="mt-camps-path-pencil"
+          d="M50 0C50 60 22 90 24 170S76 270 76 360 24 470 24 560 76 660 76 760 50 900 50 1000"
+        ></path>
+        <path
+          class="mt-camps-path-ink"
+          d="M50 0C50 60 22 90 24 170S76 270 76 360 24 470 24 560 76 660 76 760 50 900 50 1000"
+          pathLength="1"
+        ></path>
+      </svg>
+
+      <ol class="mt-camps-list">
+        {camps.map((camp) => (
+          <li class:list={['mt-camp', `mt-camp--${camp.side}`, camp.current && 'is-current']}>
+            <div class="mt-camp-marker" data-reveal aria-hidden="true">
+              <img
+                class="mt-camp-tent"
+                src="/lab/mountain/tent.webp"
+                width="520"
+                height="296"
+                alt=""
+                loading="lazy"
+              />
+              <svg class="mt-camp-flag" viewBox="0 0 40 60" width="40" height="60">
+                <path class="mt-camp-pole" d="M8 58V4" />
+                <path class="mt-camp-cloth" d="M9 5c9 3 17-2 27 2-7 5-17 2-27 8z" />
+              </svg>
+            </div>
+            <article class="mt-camp-entry mt-paper mt-tape" data-reveal>
+              <p class="mt-camp-when">
+                {camp.current ? (
+                  <span class="mt-camp-now">Current camp</span>
+                ) : (
+                  <span class="mt-camp-then">Earlier camp</span>
+                )}
+                <span>{camp.dates}</span>
+              </p>
+              <h3>{camp.company}</h3>
+              <p class="mt-camp-kind">{camp.kind}</p>
+              <ul class="mt-camp-titles">
+                {camp.titles.map((title) => (
+                  <li>
+                    <strong>{title.title}</strong>
+                    <span>{title.dates}</span>
+                  </li>
+                ))}
+              </ul>
+              <p class="mt-camp-summary">{camp.summary}</p>
+              <details class="mt-camp-notes">
+                <summary>
+                  <span class="mt-camp-open">Read my notes from this camp</span>
+                  <span class="mt-camp-close">Fold the notes away</span>
+                </summary>
+                <ul class="mt-camp-points">
+                  {camp.points.map((point) => (
+                    <li>{point}</li>
+                  ))}
+                </ul>
+                {camp.contributed.length > 0 && (
+                  <div class="mt-camp-tags">
+                    <p>Codebases I worked in</p>
+                    <ul>
+                      {camp.contributed.map((name) => (
+                        <li>{name}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                <div class="mt-camp-tags">
+                  <p>Stack</p>
+                  <ul>
+                    {camp.stack.map((name) => (
+                      <li>{name}</li>
+                    ))}
+                  </ul>
+                </div>
+              </details>
+            </article>
+          </li>
+        ))}
+      </ol>
+    </div>
+
+    <p class="mt-camps-more">
+      <a class="mt-btn" href="/experience/">
+        Read the whole logbook
+        <svg viewBox="0 0 22 12" aria-hidden="true">
+          <path d="M1 6h19m-5-5 5 5-5 5"></path>
+        </svg>
+      </a>
+    </p>
+
+    <figure class="mt-crossing" data-mt-parallax="-0.08">
+      <img
+        src="/lab/mountain/bridge.webp"
+        width="1228"
+        height="876"
+        alt="Watercolour sketch of a rope bridge across a gorge, with a waterfall behind it"
+        loading="lazy"
+      />
+      <figcaption class="mt-pencil">The crossing between camps. Don't look down.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<style is:global>
+  .lab-mountain .mt-camps-hint {
+    margin-top: 14px;
+  }
+  .lab-mountain .mt-camps-trail {
+    position: relative;
+    margin-top: clamp(40px, 6vh, 70px);
+  }
+  .lab-mountain .mt-camps-path {
+    position: absolute;
+    inset: 0 0 0 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    fill: none;
+    pointer-events: none;
+  }
+  .lab-mountain .mt-camps-path-pencil {
+    stroke: rgb(74 79 87 / 55%);
+    stroke-width: 2;
+    stroke-dasharray: 2 9;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .lab-mountain .mt-camps-path-ink {
+    --draw: 1;
+    stroke: var(--mt-red);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: calc(1 - var(--draw));
+    vector-effect: non-scaling-stroke;
+  }
+
+  .lab-mountain .mt-camps-list {
+    position: relative;
+    display: grid;
+    gap: clamp(60px, 10vh, 120px);
+  }
+  .lab-mountain .mt-camp {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: clamp(30px, 5vw, 80px);
+  }
+  .lab-mountain .mt-camp--right .mt-camp-marker {
+    order: 2;
+  }
+  .lab-mountain .mt-camp-marker {
+    position: relative;
+    justify-self: center;
+    width: min(320px, 90%);
+    --reveal-tilt: 0deg;
+  }
+  .lab-mountain .mt-camp-tent {
+    width: 100%;
+    transform-origin: 50% 100%;
+    animation: mt-tent 3.2s ease-in-out infinite alternate;
+  }
+  .lab-mountain .mt-camp:not(.is-current) .mt-camp-tent {
+    width: 74%;
+    margin-inline: auto;
+    filter: saturate(0.75);
+    animation-duration: 4.1s;
+  }
+  /* Wind on the canvas: a slow lean and a quick shiver. */
+  @keyframes mt-tent {
+    0% {
+      transform: skewX(0deg) scaleY(1);
+    }
+    60% {
+      transform: skewX(-1.6deg) scaleY(0.99);
+    }
+    80% {
+      transform: skewX(0.8deg) scaleY(1.005);
+    }
+    100% {
+      transform: skewX(-0.6deg) scaleY(1);
+    }
+  }
+  .lab-mountain .mt-camp-flag {
+    position: absolute;
+    bottom: 6%;
+    right: -2%;
+    overflow: visible;
+    fill: none;
+    transform-origin: 8px 58px;
+    transform: scaleY(0);
+    transition: transform 0.7s cubic-bezier(0.3, 1.6, 0.5, 1) 0.35s;
+  }
+  .lab-mountain .mt-camp-marker.is-in .mt-camp-flag,
+  .lab-mountain:not(.mt-alive) .mt-camp-flag {
+    transform: none;
+  }
+  .lab-mountain .mt-camp-pole {
+    stroke: var(--mt-ink);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+  }
+  .lab-mountain .mt-camp-cloth {
+    fill: var(--mt-red);
+    transform-origin: 9px 8px;
+    animation: mt-flutter 1.2s ease-in-out infinite alternate;
+  }
+
+  .lab-mountain .mt-camp-entry {
+    padding: clamp(24px, 2.8vw, 36px);
+    --reveal-tilt: 2deg;
+    --reveal-rest: -0.8deg;
+  }
+  .lab-mountain .mt-camp--right .mt-camp-entry {
+    --reveal-tilt: -2deg;
+    --reveal-rest: 0.8deg;
+  }
+  .lab-mountain .mt-camp-when {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    color: var(--mt-graphite);
+    font: 400 12px/1.2 var(--mt-mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .lab-mountain .mt-camp-now,
+  .lab-mountain .mt-camp-then {
+    padding: 4px 9px 3px;
+    border-radius: 999px;
+    font-weight: 700;
+  }
+  .lab-mountain .mt-camp-now {
+    background: var(--mt-red);
+    color: #fff8ef;
+  }
+  .lab-mountain .mt-camp-then {
+    border: 1.5px solid var(--mt-graphite);
+  }
+  .lab-mountain .mt-camp-entry h3 {
+    margin-top: 12px;
+    font: 500 clamp(40px, 4.2vw, 58px) / 1 var(--mt-serif);
+    letter-spacing: -0.02em;
+  }
+  .lab-mountain .mt-camp-kind {
+    margin-top: 4px;
+    color: var(--mt-graphite);
+    font: 700 clamp(21px, 1.9vw, 25px) / 1.15 var(--mt-hand);
+  }
+  .lab-mountain .mt-camp-titles {
+    display: grid;
+    gap: 4px;
+    margin-top: 16px;
+    padding: 12px 0;
+    border-block: 1.5px dashed rgb(74 79 87 / 40%);
+  }
+  .lab-mountain .mt-camp-titles li {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 2px 14px;
+  }
+  .lab-mountain .mt-camp-titles strong {
+    font-weight: 600;
+  }
+  .lab-mountain .mt-camp-titles span {
+    color: var(--mt-graphite);
+    font: 400 12px/1.9 var(--mt-mono);
+  }
+  .lab-mountain .mt-camp-summary {
+    margin-top: 14px;
+    font-style: italic;
+  }
+
+  .lab-mountain .mt-camp-notes {
+    margin-top: 16px;
+  }
+  .lab-mountain .mt-camp-notes summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    list-style: none;
+    color: var(--mt-red-ink);
+    font: 700 22px/1.1 var(--mt-hand);
+  }
+  .lab-mountain .mt-camp-notes summary::-webkit-details-marker {
+    display: none;
+  }
+  .lab-mountain .mt-camp-notes summary::before {
+    content: '+';
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border: 1.5px solid currentColor;
+    border-radius: 50%;
+    font: 700 15px/1 var(--mt-mono);
+    transition: transform 0.3s ease;
+  }
+  .lab-mountain .mt-camp-notes[open] summary::before {
+    transform: rotate(45deg);
+  }
+  .lab-mountain .mt-camp-close,
+  .lab-mountain .mt-camp-notes[open] .mt-camp-open {
+    display: none;
+  }
+  .lab-mountain .mt-camp-notes[open] .mt-camp-close {
+    display: inline;
+  }
+  .lab-mountain .mt-camp-points {
+    display: grid;
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .lab-mountain .mt-camp-points li {
+    position: relative;
+    padding-left: 22px;
+    font-size: 17px;
+    line-height: 1.5;
+    animation: mt-pack-in 0.4s ease-out both;
+  }
+  .lab-mountain .mt-camp-points li::before {
+    content: '';
+    position: absolute;
+    left: 2px;
+    top: 0.62em;
+    width: 10px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--mt-red);
+    transform: rotate(-12deg);
+  }
+  .lab-mountain .mt-camp-tags {
+    margin-top: 16px;
+  }
+  .lab-mountain .mt-camp-tags p {
+    color: var(--mt-graphite);
+    font: 400 11px/1.2 var(--mt-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .lab-mountain .mt-camp-tags ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .lab-mountain .mt-camp-tags li {
+    padding: 3px 10px 4px;
+    border: 1.3px solid rgb(74 79 87 / 55%);
+    border-radius: 3px 8px 4px 9px;
+    background: rgb(255 255 255 / 35%);
+    font-size: 15px;
+    line-height: 1.2;
+  }
+
+  .lab-mountain .mt-camps-more {
+    position: relative;
+    margin-top: clamp(44px, 7vh, 70px);
+    text-align: center;
+  }
+
+  .lab-mountain .mt-crossing {
+    width: min(820px, 100%);
+    margin: clamp(50px, 8vh, 90px) auto 0;
+  }
+  .lab-mountain .mt-crossing img {
+    width: 100%;
+  }
+  .lab-mountain .mt-crossing figcaption {
+    margin-top: -10px;
+    text-align: center;
+    transform: rotate(-1deg);
+  }
+
+  @media (max-width: 860px) {
+    /* One column: the route runs down the left of the entries. */
+    .lab-mountain .mt-camps-path {
+      left: -18px;
+      width: 36px;
+    }
+    .lab-mountain .mt-camps-path path {
+      d: path('M18 0 V1000');
+    }
+    .lab-mountain .mt-camp {
+      grid-template-columns: 1fr;
+      gap: 6px;
+      padding-left: 22px;
+    }
+    .lab-mountain .mt-camp--right .mt-camp-marker {
+      order: 0;
+    }
+    .lab-mountain .mt-camp-marker {
+      justify-self: start;
+      width: min(200px, 60%);
+    }
+    .lab-mountain .mt-camp-flag {
+      right: -14%;
+    }
+  }
+</style>

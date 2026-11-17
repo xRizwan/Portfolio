@@ -1,0 +1,230 @@
+---
+// Contact: night by the front door. A note pinned to the wall carries the links, and the yarn
+// thread that started in the opening ends here with the kitten.
+import { site } from '../../../data/site';
+import Art from './Art.astro';
+
+const links = [
+  { label: 'GitHub', href: site.github, detail: site.github.replace('https://', '') },
+  {
+    label: 'LinkedIn',
+    href: site.linkedin,
+    detail: site.linkedin.replace('https://www.', '').replace(/\/$/, ''),
+  },
+  { label: 'Resume', href: site.resume, detail: 'PDF' },
+];
+---
+
+<section id="contact" class="cat-sec cat-contact cat-dark" data-thread="left">
+  <div class="cat-wrap cat-contact-grid">
+    <div class="cat-pinned" data-cat-reveal>
+      <span class="cat-pinned-pin" aria-hidden="true"></span>
+      <p class="cat-note">Contact</p>
+      <h2 class="cat-h2">
+        Leave a note <em>by the door</em>
+      </h2>
+      <p class="cat-pinned-text">Email is the quickest way to reach me.</p>
+      <a class="cat-pinned-mail" href={`mailto:${site.email}`}>
+        {site.email}
+      </a>
+      <ul class="cat-pinned-links">
+        {links.map((link) => (
+          <li>
+            <a href={link.href}>
+              <strong>{link.label}</strong>
+              <span>{link.detail}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+    <div class="cat-doorway" aria-hidden="true">
+      <div class="cat-doorway-window" data-cat-parallax="-0.06">
+        <div class="cat-doorway-sky">
+          <img src="/lab/cat/sky.webp" width="800" height="1200" alt="" loading="lazy" />
+        </div>
+        <Art name="window" />
+      </div>
+      <Art name="door" class="cat-doorway-door" />
+      <Art name="mat" class="cat-doorway-mat" />
+      <span class="cat-doorway-end" data-thread-end></span>
+      <Art name="tux-play" class="cat-doorway-kitten" />
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .lab-cat .cat-sec.cat-contact {
+    position: relative;
+    padding-top: 110px;
+    padding-bottom: 96px;
+    background: linear-gradient(#33233a, var(--night) 300px);
+  }
+  /* Floor */
+  .lab-cat .cat-contact::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 96px;
+    background:
+      linear-gradient(#5c3c3e 0 16px, transparent 16px),
+      repeating-linear-gradient(#4a3034 0 25px, #2a1d2f 25px 27px);
+    border-top: 2px solid #1c1220;
+  }
+  .lab-cat .cat-contact-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    gap: clamp(30px, 6vw, 90px);
+    align-items: end;
+  }
+  .lab-cat .cat-pinned {
+    position: relative;
+    margin-bottom: 70px;
+    padding: 44px clamp(24px, 4vw, 48px) 40px;
+    background: var(--paper);
+    color: var(--plum);
+    box-shadow: 6px 9px 0 rgb(12 6 14 / 45%);
+    rotate: -1.4deg;
+    --tilt-from: -6deg;
+  }
+  .lab-cat .cat-dark .cat-pinned .cat-note,
+  .lab-cat .cat-dark .cat-pinned .cat-h2 em {
+    color: var(--marm-ink);
+  }
+  .lab-cat .cat-pinned .cat-h2 {
+    font-size: clamp(38px, 5vw, 62px);
+  }
+  .lab-cat .cat-pinned-pin {
+    position: absolute;
+    left: 50%;
+    top: -11px;
+    width: 24px;
+    height: 24px;
+    translate: -50% 0;
+    border: 2px solid var(--plum);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #f6b06e, var(--marm) 60%);
+    box-shadow: 2px 4px 0 rgb(59 42 63 / 25%);
+  }
+  .lab-cat .cat-pinned-text {
+    margin-top: 18px;
+    font: 500 21px/1.3 var(--serif);
+  }
+  .lab-cat .cat-pinned-mail {
+    display: inline-block;
+    margin-top: 10px;
+    font: 700 clamp(30px, 4.4vw, 50px) / 1 var(--hand);
+    color: var(--marm-ink);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 5px;
+    overflow-wrap: anywhere;
+  }
+  .lab-cat .cat-pinned-mail:hover {
+    color: var(--plum);
+  }
+  .lab-cat .cat-pinned-links {
+    display: grid;
+    margin-top: 26px;
+    border-top: 2px dotted rgb(59 42 63 / 35%);
+  }
+  .lab-cat .cat-pinned-links a {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 2px 16px;
+    padding: 13px 4px;
+    border-bottom: 2px dotted rgb(59 42 63 / 35%);
+    text-decoration: none;
+    transition: padding 0.2s;
+  }
+  .lab-cat .cat-pinned-links a:hover {
+    padding-left: 14px;
+    background: rgb(232 135 58 / 16%);
+  }
+  .lab-cat .cat-pinned-links strong {
+    font: 600 22px/1.1 var(--serif);
+  }
+  .lab-cat .cat-pinned-links span {
+    font: 500 13.5px/1.3 var(--sans);
+    color: var(--plum-soft);
+    overflow-wrap: anywhere;
+  }
+
+  .lab-cat .cat-doorway {
+    position: relative;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    min-height: 420px;
+  }
+  .lab-cat .cat-doorway-door {
+    position: relative;
+    width: min(66%, 330px);
+    margin-bottom: -4px;
+    filter: brightness(0.82) saturate(0.85);
+  }
+  .lab-cat .cat-doorway-mat {
+    position: absolute;
+    right: calc(min(66%, 330px) * 0.08);
+    bottom: -46px;
+    width: calc(min(66%, 330px) * 0.84);
+    filter: brightness(0.75);
+  }
+  .lab-cat .cat-doorway-window {
+    position: absolute;
+    left: -6%;
+    top: 0;
+    width: 46%;
+    aspect-ratio: 1;
+    filter: brightness(0.86);
+  }
+  .lab-cat .cat-doorway-window > img {
+    position: relative;
+    display: block;
+    width: 100%;
+  }
+  .lab-cat .cat-doorway-sky {
+    position: absolute;
+    inset: 13% 27% 15.5% 27%;
+    overflow: hidden;
+  }
+  /* Night end of the same sky that passed the window in the opening. */
+  .lab-cat .cat-doorway-sky img {
+    position: absolute;
+    left: -150%;
+    bottom: 0;
+    width: 260%;
+    max-width: none;
+  }
+  .lab-cat .cat-doorway-kitten {
+    position: absolute;
+    left: 4%;
+    bottom: -34px;
+    width: clamp(110px, 30%, 170px);
+  }
+  .lab-cat .cat-doorway-end {
+    position: absolute;
+    left: calc(4% + clamp(110px, 30%, 170px) * 0.62);
+    bottom: 36px;
+    width: 2px;
+    height: 2px;
+  }
+
+  @media (max-width: 859px) {
+    .lab-cat .cat-contact-grid {
+      grid-template-columns: 1fr;
+    }
+    .lab-cat .cat-pinned {
+      margin-bottom: 20px;
+    }
+    .lab-cat .cat-doorway {
+      min-height: 340px;
+    }
+    .lab-cat .cat-doorway-door {
+      width: min(52%, 240px);
+    }
+  }
+</style>

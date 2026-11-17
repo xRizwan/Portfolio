@@ -1,0 +1,27 @@
+---
+// Three small rock ledges at the top edge of a section, for the ibex to hop between.
+// Drawn as pencil outlines over a grey wash; decorative.
+const shapes = [
+  'M3 14c6-6 14-9 24-8 9-4 20-3 28 2 6 1 10 4 12 8-8 5-22 7-34 6C21 23 9 20 3 14Z',
+  'M2 13c8-5 15-8 26-7 10-3 21-2 30 3 5 2 8 4 9 7-12 5-24 6-36 5C19 21 8 18 2 13Z',
+  'M4 12c7-5 17-7 25-6 11-4 22-2 31 4 4 1 6 3 7 6-10 4-23 6-35 5C20 21 10 17 4 12Z',
+];
+---
+
+<div class="mt-ledges" aria-hidden="true">
+  {shapes.map((d) => (
+    <span class="mt-ledge" data-mt-ledge>
+      <svg viewBox="0 0 70 26">
+        <path d={d} fill="#8d97a1" fill-opacity="0.85" />
+        <path d={d} fill="none" stroke="#4a4f57" stroke-width="1.1" stroke-linejoin="round" />
+        <path
+          d="M14 17l5-5m4 8 6-7m5 8 6-7m5 6 5-5"
+          stroke="#4a4f57"
+          stroke-width="0.8"
+          stroke-linecap="round"
+          opacity="0.6"
+        />
+      </svg>
+    </span>
+  ))}
+</div>

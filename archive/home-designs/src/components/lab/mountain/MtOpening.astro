@@ -1,0 +1,463 @@
+---
+// Pinned opening: dawn in the valley with the whole range ahead. Scrolling runs three stages
+// (opening.ts sets --p from 0 to 1 and the CSS derives the stages from it):
+//   sunrise  the sun climbs over the ridge, the sky warms and the valley mist lifts;
+//   the walk the camera pushes toward the peak and the depth layers part;
+//   the route a red line draws itself up the face to a flag on the top.
+// Without scripts, or with reduced motion, it is one still picture at sunrise.
+import { Image } from 'astro:assets';
+import portrait from '../../../assets/portrait.png';
+import { site } from '../../../data/site';
+
+// The route up the far peak, in the peak image's own pixel space (1536 x 1024).
+const route =
+  'M690 1010C742 950 812 912 770 850S700 760 772 700 880 640 832 560 790 470 858 420 906 330 872 270 880 170 902 120 910 86 910 86';
+---
+
+<section class="mt-open" id="top" data-mt-open aria-labelledby="mt-hello">
+  <div class="mt-open-stage">
+    <div class="mt-open-sky" aria-hidden="true"></div>
+    <div class="mt-open-sun" aria-hidden="true"></div>
+    <div class="mt-open-orbit" aria-hidden="true">
+      <img src="/lab/mountain/eagle.webp" width="520" height="214" alt="" />
+    </div>
+
+    <div class="mt-layer mt-layer--far" aria-hidden="true">
+      <img
+        src="/lab/mountain/peak-far.webp"
+        width="1536"
+        height="1024"
+        alt=""
+        fetchpriority="high"
+      />
+      <svg class="mt-open-route" viewBox="0 0 1536 1024" preserveAspectRatio="none">
+        <path class="mt-open-route-shadow" d={route} pathLength="1"></path>
+        <path class="mt-open-route-line" d={route} pathLength="1"></path>
+        <g class="mt-open-route-flag">
+          <path d="M910 88V30"></path>
+          <path class="mt-open-route-cloth" d="M910 31c14 4 26-3 40 3-12 6-26 2-40 9z"></path>
+        </g>
+      </svg>
+    </div>
+    <div class="mt-open-mist mt-open-mist--back" aria-hidden="true">
+      <img src="/lab/mountain/mist.webp" width="1400" height="304" alt="" />
+    </div>
+    <div class="mt-layer mt-layer--mid" aria-hidden="true">
+      <img src="/lab/mountain/ridge-mid.webp" width="1536" height="1024" alt="" />
+    </div>
+    <div class="mt-open-mist mt-open-mist--front" aria-hidden="true">
+      <img src="/lab/mountain/mist.webp" width="1400" height="304" alt="" />
+    </div>
+    <div class="mt-layer mt-layer--near" aria-hidden="true">
+      <img src="/lab/mountain/foothills-near.webp" width="1536" height="1024" alt="" />
+    </div>
+
+    <div class="mt-open-card mt-paper mt-tape">
+      <p class="mt-open-hi">Hi, I'm</p>
+      <h1 id="mt-hello" class="mt-open-name">
+        <span class="mt-sr">Hi, I'm </span>
+        {site.shortName}
+      </h1>
+      <p class="mt-open-role">{site.intro.role}</p>
+      <p class="mt-open-summary">{site.intro.summary}</p>
+    </div>
+
+    <figure class="mt-open-snap">
+      <span class="mt-open-snap-tape" aria-hidden="true"></span>
+      <Image
+        src={portrait}
+        alt={`Portrait of ${site.name}`}
+        width={240}
+        loading="eager"
+        fetchpriority="high"
+      />
+      <figcaption>me, before the walk</figcaption>
+    </figure>
+
+    <p class="mt-open-cue" aria-hidden="true">
+      Scroll to start the walk
+      <svg viewBox="0 0 14 22" width="14" height="22">
+        <path d="M7 1v19M1 14l6 6 6-6"></path>
+      </svg>
+    </p>
+    <p class="mt-open-note">My route goes up that face. Keep scrolling and we'll climb it.</p>
+  </div>
+</section>
+
+<style is:global>
+  .lab-mountain .mt-open {
+    /* --p is the scroll progress through the pinned scene (opening.ts). Without scripts it
+       rests at sunrise. The three stages are derived here so the timing lives in one place. */
+    --p: 0.3;
+    --s1: clamp(0, var(--p) * 3.2, 1);
+    --s2: clamp(0, (var(--p) - 0.32) * 3.2, 1);
+    --s3: clamp(0, (var(--p) - 0.62) * 2.9, 1);
+    position: relative;
+    z-index: 6;
+    height: calc(var(--mt-vh) * 100);
+    min-height: 560px;
+  }
+  .mt-pin .lab-mountain .mt-open {
+    height: calc(var(--mt-vh) * 360);
+  }
+  .lab-mountain .mt-open-stage {
+    position: sticky;
+    top: 0;
+    height: calc(var(--mt-vh) * 100);
+    min-height: 560px;
+    overflow: hidden;
+    /* The bottom of the scene melts into the sky colour the climb starts with. */
+    background: #f6d9b8;
+  }
+  .lab-mountain .mt-open-stage::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: calc(var(--mt-vh) * 22);
+    background: linear-gradient(rgb(246 217 184 / 0%), #f6d9b8 85%);
+    opacity: var(--s3);
+    pointer-events: none;
+  }
+  /* Text and the snapshot stay above that fade. */
+  .lab-mountain :is(.mt-open-card, .mt-open-snap, .mt-open-cue, .mt-open-note) {
+    z-index: 2;
+  }
+
+  /* Sky: from a cool pre-dawn to the warm valley morning as the sun comes up. */
+  .lab-mountain .mt-open-sky {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, #f0c9a6 calc(var(--s1) * 100%), #8d93ad) 0%,
+      color-mix(in srgb, #f7dcc0 calc(var(--s1) * 100%), #c3b2c0) 45%,
+      color-mix(in srgb, #fbe8cf calc(var(--s1) * 100%), #e6c2b2) 70%
+    );
+  }
+  .lab-mountain .mt-open-sun {
+    position: absolute;
+    left: 47%;
+    top: calc(var(--sun-from, 64%) - var(--s1) * var(--sun-rise, 50%));
+    width: clamp(110px, 17vmin, 190px);
+    aspect-ratio: 1;
+    border-radius: 47% 53% 51% 49%;
+    background: radial-gradient(
+      circle at 45% 42%,
+      #fff3d2 0%,
+      #ffd99a 46%,
+      color-mix(in srgb, #f6a768 calc(100% - var(--s1) * 60%), #ffd99a) 100%
+    );
+    box-shadow:
+      0 0 60px 30px rgb(255 214 160 / calc(30% + var(--s1) * 25%)),
+      0 0 180px 110px rgb(255 226 190 / calc(var(--s1) * 45%));
+    transform: translateX(-50%);
+  }
+  .lab-mountain .mt-open-orbit {
+    position: absolute;
+    left: 76%;
+    top: 17%;
+    width: 0;
+    height: 0;
+    opacity: calc(var(--s1) * 0.9);
+    animation: mt-orbit 22s linear infinite;
+  }
+  .lab-mountain .mt-open-orbit img {
+    width: clamp(58px, 6vw, 86px);
+    max-width: none;
+    /* Offset from the centre of the circle, turned so the head leads. */
+    transform: translate(-50%, -50%) translateX(clamp(60px, 9vw, 130px)) rotate(180deg);
+  }
+  @keyframes mt-orbit {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Depth layers. Each is a box in its image's proportions, so the route stays on the peak.
+     The camera push scales each by a different amount from the peak: far barely, near most. */
+  .lab-mountain .mt-layer {
+    --w: max(100vw, calc(var(--mt-vh) * 130));
+    position: absolute;
+    left: calc(50% - var(--w) / 2 + var(--far-x, 0px));
+    width: var(--w);
+    aspect-ratio: 3 / 2;
+  }
+  .lab-mountain .mt-layer img {
+    width: 100%;
+    height: 100%;
+  }
+  .lab-mountain .mt-layer--far {
+    top: var(--far-top, calc(var(--mt-vh) * 4));
+    transform-origin: 59% 8%;
+    transform: scale(calc(1 + var(--s2) * 0.14)) translateY(calc(var(--s3) * 3%));
+  }
+  .lab-mountain .mt-layer--mid {
+    bottom: 0;
+    transform-origin: 59% 30%;
+    transform: translateY(calc(8% + var(--s2) * 9%)) scale(calc(1 + var(--s2) * 0.2));
+  }
+  .lab-mountain .mt-layer--near {
+    bottom: 0;
+    transform-origin: 59% 40%;
+    transform: translateY(calc(18% + var(--s2) * 11%)) scale(calc(1 + var(--s2) * 0.3));
+  }
+
+  .lab-mountain .mt-open-route {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .lab-mountain .mt-open-route-shadow {
+    stroke: rgb(247 249 251 / 70%);
+    stroke-width: 9;
+    stroke-dasharray: 1;
+    stroke-dashoffset: calc(1 - var(--s3));
+    vector-effect: non-scaling-stroke;
+    opacity: 0.7;
+  }
+  .lab-mountain .mt-open-route-line {
+    stroke: var(--mt-red);
+    stroke-width: 4;
+    stroke-dasharray: 1;
+    stroke-dashoffset: calc(1 - var(--s3));
+    vector-effect: non-scaling-stroke;
+  }
+  .lab-mountain .mt-open-route-flag {
+    stroke: var(--mt-ink);
+    stroke-width: 3;
+    opacity: clamp(0, (var(--s3) - 0.92) * 14, 1);
+    transform-origin: 910px 88px;
+    transform: scale(clamp(0, (var(--s3) - 0.9) * 10, 1));
+  }
+  .lab-mountain .mt-open-route-cloth {
+    fill: var(--mt-red);
+    stroke: none;
+    transform-origin: 910px 36px;
+    animation: mt-flutter 1.4s ease-in-out infinite alternate;
+  }
+  @keyframes mt-flutter {
+    from {
+      transform: skewY(-6deg) scaleX(0.94);
+    }
+    to {
+      transform: skewY(5deg) scaleX(1.04);
+    }
+  }
+
+  /* Valley mist: lifts and thins as the sun comes up, gone once the walk starts. */
+  .lab-mountain .mt-open-mist {
+    position: absolute;
+    left: -10%;
+    width: 120%;
+    pointer-events: none;
+  }
+  .lab-mountain .mt-open-mist img {
+    width: 100%;
+    animation: mt-drift 26s ease-in-out infinite alternate;
+  }
+  .lab-mountain .mt-open-mist--back {
+    bottom: 22%;
+    opacity: calc((1 - var(--s1) * 0.45) * (1 - var(--s2)) * 0.9);
+    transform: translateY(calc(var(--s1) * -12vh));
+  }
+  .lab-mountain .mt-open-mist--front {
+    bottom: -4%;
+    opacity: calc((1 - var(--s1) * 0.55) * (1 - var(--s2) * 1.4));
+    transform: translateY(calc(var(--s1) * -8vh)) scaleY(1.3);
+  }
+  .lab-mountain .mt-open-mist--front img {
+    animation-duration: 19s;
+    animation-direction: alternate-reverse;
+  }
+  @keyframes mt-drift {
+    from {
+      transform: translateX(-5%);
+    }
+    to {
+      transform: translateX(5%);
+    }
+  }
+
+  /* The intro is a page glued into the scene, so the type always sits on paper. */
+  .lab-mountain .mt-open-card {
+    position: absolute;
+    left: clamp(16px, 6vw, 96px);
+    top: clamp(96px, 14vh, 120px);
+    width: min(580px, 100% - 32px);
+    padding: clamp(20px, 2.4vw, 30px) clamp(22px, 2.8vw, 36px) clamp(22px, 2.6vw, 32px);
+    rotate: -1.5deg;
+    opacity: clamp(0, 1 - var(--s2) * 1.5, 1);
+    transform: translateY(calc(var(--s2) * -60vh)) rotate(calc(var(--s2) * -6deg));
+  }
+  .lab-mountain .mt-open-hi {
+    color: var(--mt-graphite);
+    font: 700 clamp(30px, 3vw, 40px) / 1 var(--mt-hand);
+  }
+  .lab-mountain .mt-open-name {
+    margin: 2px 0 6px -4px;
+    font: 600 clamp(84px, 10vw, 150px) / 0.86 var(--mt-serif);
+    letter-spacing: -0.025em;
+  }
+  .lab-mountain .mt-open-role {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 5px 10px 4px;
+    background: var(--mt-red);
+    color: #fff8ef;
+    font: 700 clamp(11px, 1vw, 13px) / 1.2 var(--mt-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transform: rotate(-1deg);
+  }
+  .lab-mountain .mt-open-summary {
+    margin-top: 14px;
+    max-width: 30em;
+    font: italic 400 clamp(18px, 1.5vw, 21px) / 1.45 var(--mt-serif);
+  }
+
+  /* The portrait: a snapshot taped into the journal. */
+  .lab-mountain .mt-open-snap {
+    position: absolute;
+    right: clamp(16px, 8vw, 150px);
+    top: 40%;
+    width: clamp(118px, 15vw, 230px);
+    padding: 10px 10px 0;
+    background: var(--mt-grain), #fbf8f0;
+    box-shadow:
+      0 20px 30px -16px rgb(30 30 40 / 50%),
+      0 2px 6px rgb(30 30 40 / 18%);
+    rotate: 4deg;
+    opacity: clamp(0, 1 - var(--s2) * 1.4, 1);
+    transform: translateY(calc(var(--s2) * -50vh)) rotate(calc(var(--s2) * 10deg));
+  }
+  .lab-mountain .mt-open-snap img {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    object-position: 50% 22%;
+    filter: sepia(0.18) saturate(0.92);
+  }
+  .lab-mountain .mt-open-snap figcaption {
+    padding: 6px 2px 8px;
+    color: var(--mt-graphite);
+    font: 500 clamp(17px, 1.5vw, 21px) / 1.1 var(--mt-hand);
+    text-align: center;
+  }
+  .lab-mountain .mt-open-snap-tape {
+    position: absolute;
+    top: -13px;
+    left: 50%;
+    width: 86px;
+    height: 26px;
+    background: var(--mt-grain), var(--mt-tape);
+    transform: translateX(-50%) rotate(-3deg);
+    clip-path: polygon(3% 0, 97% 6%, 100% 50%, 96% 100%, 2% 94%, 0 46%);
+  }
+
+  .lab-mountain .mt-open-cue {
+    position: absolute;
+    left: 50%;
+    bottom: 78px;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgb(245 236 215 / 88%);
+    font: 700 11px/1 var(--mt-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    opacity: clamp(0, 1 - var(--p) * 8, 1);
+    transform: translateX(-50%);
+  }
+  .lab-mountain .mt-open-cue svg {
+    fill: none;
+    stroke: var(--mt-red);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    animation: mt-nudge 1.6s ease-in-out infinite;
+  }
+  @keyframes mt-nudge {
+    50% {
+      transform: translateY(4px);
+    }
+  }
+  .mt-pin .lab-mountain .mt-open-cue {
+    display: inline-flex;
+  }
+
+  /* Stage three's note sits under the summit, written in pencil on a scrap of paper. */
+  .lab-mountain .mt-open-note {
+    position: absolute;
+    left: 50%;
+    bottom: 96px;
+    width: min(440px, 100% - 40px);
+    padding: 10px 18px 12px;
+    background: var(--mt-grain), rgb(245 236 215 / 94%);
+    box-shadow: 0 12px 24px -14px rgb(30 30 40 / 45%);
+    color: var(--mt-ink);
+    font: 700 clamp(22px, 2.1vw, 27px) / 1.15 var(--mt-hand);
+    text-align: center;
+    opacity: 0;
+    transform: translateX(-50%) rotate(-1.5deg);
+  }
+  .mt-pin .lab-mountain .mt-open-note {
+    opacity: clamp(0, (var(--s3) - 0.35) * 3, 1);
+    transform: translateX(-50%) translateY(calc((1 - var(--s3)) * 30px)) rotate(-1.5deg);
+  }
+
+  @media (max-width: 700px) {
+    .lab-mountain .mt-layer {
+      --far-x: -90px;
+    }
+    .lab-mountain .mt-layer--far {
+      --far-top: calc(var(--mt-vh) * 44);
+    }
+    .lab-mountain .mt-open-card {
+      top: 92px;
+      left: 16px;
+      width: calc(100% - 32px);
+      rotate: -1deg;
+    }
+    .lab-mountain .mt-open-summary {
+      max-width: 100%;
+      padding-right: 0;
+      font-size: 17px;
+    }
+    .lab-mountain .mt-open-snap {
+      top: auto;
+      bottom: 88px;
+      right: 14px;
+      width: 118px;
+      padding: 6px 6px 0;
+    }
+    .lab-mountain .mt-open-snap figcaption {
+      font-size: 15px;
+      padding: 4px 0 5px;
+    }
+    .lab-mountain .mt-open-cue {
+      left: 16px;
+      transform: none;
+    }
+    .lab-mountain .mt-open-orbit {
+      left: 30%;
+      top: 58%;
+    }
+    .lab-mountain .mt-open-sun {
+      --sun-from: 82%;
+      --sun-rise: 30%;
+    }
+  }
+  @media (max-width: 700px) and (max-height: 700px) {
+    .lab-mountain .mt-open-snap {
+      display: none;
+    }
+  }
+</style>

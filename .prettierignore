@@ -3,6 +3,7 @@ dist
 .vercel
 node_modules
 prototypes
+archive
 docs/agent-runs
 package-lock.json
 public

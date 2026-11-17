@@ -7,7 +7,16 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ['dist/', '.astro/', '.vercel/', 'node_modules/', 'prototypes/', 'public/'],
+    // archive/ holds retired home-page designs kept for reference; they are not built.
+    ignores: [
+      'dist/',
+      '.astro/',
+      '.vercel/',
+      'node_modules/',
+      'prototypes/',
+      'archive/',
+      'public/',
+    ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
@@ -38,12 +47,6 @@ export default tseslint.config(
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/no-misused-promises': 'error',
     },
-  },
-  {
-    // The skill notes overlap; focusing a note (tabindex="0") brings it to the front so keyboard
-    // users can read it. Allow that on <article> in this component only.
-    files: ['src/components/home/SkillNotes.astro'],
-    rules: { 'astro/jsx-a11y/no-noninteractive-tabindex': ['error', { tags: ['article'] }] },
   },
   prettier,
 );

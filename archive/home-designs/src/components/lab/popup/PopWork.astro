@@ -1,0 +1,318 @@
+---
+// Work: a toy theatre. Three sets of double doors stand under the curtain, and each opens on one
+// project with a link to its page. The doors open one after another as the spread is scrolled,
+// and each can be opened or shut by hand. Without scripts they are simply open.
+import { art, artSrc } from './art';
+import Piece from './Piece.astro';
+import { workRows } from '../../../data/work';
+import { getProjects } from '../../../lib/collections';
+import { projectHref } from '../../../lib/content';
+
+const projects = await getProjects();
+const doorPaint = ['var(--pb-blue)', 'var(--pb-sun)', 'var(--pb-green)'];
+const rows = workRows.map((row, index) => {
+  const entry = projects.find((project) => project.id === row.id);
+  return {
+    row,
+    title: entry?.data.title ?? row.title,
+    description: entry?.data.description ?? '',
+    href: projectHref(row.id),
+    paint: doorPaint[index % doorPaint.length] ?? 'var(--pb-blue)',
+    x: 42 + index * 381,
+  };
+});
+---
+
+<section
+  class="pb-spread pb-spread--work"
+  id="work"
+  data-spread="work"
+  data-len="230"
+  data-rise="70"
+  aria-labelledby="pb-work-title"
+>
+  <div class="pb-page pb-page--l"></div>
+  <div class="pb-page pb-page--r"></div>
+
+  <div class="pb-work__head pb-across">
+    <img
+      class="pb-work__pelmet"
+      src={artSrc('pelmet')}
+      width={art.pelmet.w}
+      height={art.pelmet.h}
+      alt=""
+      loading="lazy"
+      decoding="async"
+    />
+  </div>
+  <Piece name="pelmet" x={60} y={236} w={1080} a={56} at={0} dur={0.35} class="pb-across" />
+
+  <div
+    class="pb-pop pb-across pb-card pb-work__sign"
+    style="--x:40;--y:624;--w:336;--h:112;--a:50;--z:6"
+    data-at="0.5"
+    data-dur="0.3"
+  >
+    <p class="pb-kicker">Work</p>
+    <h2 class="pb-h2" id="pb-work-title">
+      Three projects, behind three doors
+    </h2>
+  </div>
+
+  <ul class="pb-doors pb-across">
+    {rows.map((item, index) => (
+      <li
+        class="pb-pop pb-across pb-door"
+        style={`--x:${item.x};--y:${470 + (index === 1 ? -26 : 0)};--w:354;--h:338;--a:50;--z:3;--paint:${item.paint}`}
+        data-at={0.12 + index * 0.12}
+        data-dur="0.36"
+        data-pb-flap
+        data-auto={0.62 + index * 0.13}
+      >
+        <p class="pb-door__label pb-paint">{item.row.label}</p>
+        <div class="pb-door__way">
+          <article class="pb-door__card" id={`pb-work-${item.row.id}`}>
+            <h3>{item.title}</h3>
+            <p>{item.description}</p>
+            <a class="pb-btn" href={item.href}>
+              Read the case study
+              <span class="pb-sr">: {item.title}</span>
+            </a>
+          </article>
+          <span class="pb-door__leaf pb-paint" aria-hidden="true" />
+          <span class="pb-door__leaf pb-paint" aria-hidden="true" />
+          <button
+            class="pb-door__leaves"
+            type="button"
+            aria-expanded="false"
+            aria-controls={`pb-work-${item.row.id}`}
+          >
+            <span class="pb-sr">Open or close the doors on {item.title}</span>
+          </button>
+        </div>
+      </li>
+    ))}
+  </ul>
+
+  <div
+    class="pb-pop pb-across pb-work__more"
+    style="--x:806;--y:624;--w:356;--h:84;--a:50;--z:6"
+    data-at="0.6"
+    data-dur="0.3"
+  >
+    <p class="pb-note">The longer write-ups are on the blog.</p>
+    <a class="pb-btn pb-btn--plain" href="/blog/">
+      Go to the blog
+    </a>
+  </div>
+</section>
+
+<style is:global>
+  .lab-popup .pb-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .lab-popup .pb-spread--work::before {
+    content: none;
+  }
+  .lab-popup .pb-work__pelmet {
+    width: min(760px, 100%);
+    margin: -8px auto -6px;
+  }
+  .lab-popup .pb-work__sign {
+    padding: 0;
+    background: none;
+    box-shadow: none;
+  }
+  .lab-popup .pb-doors {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+    gap: 22px;
+  }
+  .lab-popup .pb-door {
+    display: flex;
+    flex-direction: column;
+    border: 2px solid var(--pb-ink);
+    border-radius: 5px 7px 4px 6px;
+    background-color: #fffdf6;
+    background-image: var(--pb-grain);
+  }
+  .lab-popup .pb-door__label {
+    padding: 8px 14px 9px;
+    border-bottom: 2px solid var(--pb-ink);
+    border-radius: 3px 5px 0 0;
+    font: 800 15px/1.1 var(--pb-display);
+    letter-spacing: 0.02em;
+  }
+  .lab-popup .pb-door__way {
+    position: relative;
+    flex: 1;
+    min-height: 250px;
+    perspective: 900px;
+  }
+  .lab-popup .pb-door__card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    height: 100%;
+    padding: 18px 18px 20px;
+  }
+  .lab-popup .pb-door__card h3 {
+    font: 800 23px/1.08 var(--pb-display);
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  .lab-popup .pb-door__card p {
+    font-size: 16.5px;
+    line-height: 1.36;
+  }
+  .lab-popup .pb-door__card .pb-btn {
+    margin-top: auto;
+  }
+  .lab-popup .pb-door__leaves {
+    display: none;
+  }
+  html.pb-js .lab-popup .pb-door__leaves {
+    position: absolute;
+    inset: 0;
+    display: block;
+    padding: 0;
+    border: 0;
+    background: none;
+    z-index: 2;
+  }
+  .lab-popup .pb-door__leaf {
+    display: none;
+  }
+  html.pb-js .lab-popup .pb-door__leaf {
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50%;
+    border: 2px solid var(--pb-ink);
+    border-width: 0 2px 0 0;
+    transition: transform 0.9s cubic-bezier(0.3, 1.25, 0.5, 1);
+    box-shadow: 0 0 0 3px rgb(255 253 246 / 55%) inset;
+  }
+  .lab-popup .pb-door__leaf:nth-of-type(1) {
+    left: 0;
+    transform-origin: 0 50%;
+  }
+  .lab-popup .pb-door__leaf:nth-of-type(2) {
+    right: 0;
+    border-width: 0 0 0 2px;
+    transform-origin: 100% 50%;
+  }
+  /* Door knobs. */
+  .lab-popup .pb-door__leaf::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--pb-ink);
+    border-radius: 50%;
+    background: #fffdf6;
+  }
+  .lab-popup .pb-door__leaf:nth-of-type(2)::after {
+    right: auto;
+    left: 12px;
+  }
+  .lab-popup .pb-door__way:has(.pb-door__leaves:hover) .pb-door__leaf:nth-of-type(1) {
+    transform: rotateY(-16deg);
+  }
+  .lab-popup .pb-door__way:has(.pb-door__leaves:hover) .pb-door__leaf:nth-of-type(2) {
+    transform: rotateY(16deg);
+  }
+  /* Open leaves are foreshortened as well as swung, so they stay inside the gap between
+     doorways instead of covering the project next door. */
+  .lab-popup .pb-door.is-open .pb-door__leaf:nth-of-type(1) {
+    transform: rotateY(-100deg) scaleX(0.28);
+  }
+  .lab-popup .pb-door.is-open .pb-door__leaf:nth-of-type(2) {
+    transform: rotateY(100deg) scaleX(0.28);
+  }
+  /* Once open, the button shrinks to a round tab in the corner so the link behind the doors
+     can be reached; that tab shuts them again. */
+  .lab-popup .pb-door.is-open .pb-door__leaves {
+    inset: 0 0 auto auto;
+    width: 34px;
+    height: 34px;
+  }
+  .lab-popup .pb-door.is-open .pb-door__leaves::before {
+    content: '×';
+    position: absolute;
+    inset: 4px;
+    display: grid;
+    place-items: center;
+    border: 2px solid var(--pb-ink);
+    border-radius: 50%;
+    background: #fffdf6;
+    font: 800 16px/1 var(--pb-display);
+  }
+  .lab-popup .pb-door__leaf {
+    pointer-events: none;
+  }
+  .lab-popup .pb-work__more {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 16px;
+  }
+  html.pb-m-book .lab-popup {
+    .pb-work__head {
+      display: none;
+    }
+    .pb-doors {
+      display: block;
+      position: absolute;
+      inset: 0;
+      transform-style: preserve-3d;
+    }
+    .pb-work__sign .pb-h2 {
+      font-size: 25px;
+    }
+    .pb-work__sign {
+      gap: 2px;
+      padding: 10px 16px 12px;
+      background-color: #fffdf6;
+      background-image: var(--pb-grain);
+      box-shadow: 0 0 0 1px rgb(28 37 64 / 12%);
+    }
+    .pb-door__card {
+      padding: 14px 16px 16px;
+      gap: 8px;
+    }
+    .pb-door__card h3 {
+      font-size: 21px;
+    }
+    .pb-door__card p {
+      font-size: 15px;
+    }
+    .pb-work__more {
+      padding: 10px 14px;
+      border-radius: 4px 6px 5px 7px;
+      background-color: #fffdf6;
+      background-image: var(--pb-grain);
+      box-shadow: 0 0 0 1px rgb(28 37 64 / 12%);
+      flex-wrap: nowrap;
+      justify-content: flex-end;
+      align-items: flex-end;
+    }
+    .pb-work__more .pb-note {
+      font-size: 19px;
+      line-height: 1;
+      text-align: right;
+    }
+    .pb-work__more .pb-btn {
+      flex: none;
+    }
+  }
+</style>

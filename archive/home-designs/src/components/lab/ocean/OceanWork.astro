@@ -1,0 +1,246 @@
+---
+// The wreck: three things found around it, one per work sample. A line of string is drawn
+// between them as the section scrolls into view.
+import { workRows } from '../../../data/work';
+import { getProjects } from '../../../lib/collections';
+import { projectHref } from '../../../lib/content';
+import { art, type ArtName } from './art';
+import { cutPanel, edgeMask } from './paper';
+
+const projects = await getProjects();
+// What each sample was found in, and the paper colour the octopus copies when it is touched.
+const finds: { thing: ArtName; tone: string; tint: string }[] = [
+  { thing: 'helmet', tone: 'sun', tint: '#fff7e6' },
+  { thing: 'chest', tone: 'wood', tint: '#ffd98a' },
+  { thing: 'bottle', tone: 'teal', tint: '#cdf0ea' },
+];
+const rows = workRows.map((row, index) => ({
+  ...row,
+  href: projectHref(row.id),
+  description: projects.find((project) => project.id === row.id)?.data.description,
+  find: finds[index % finds.length] ?? { thing: 'chest' as ArtName, tone: 'wood', tint: '#fff7e6' },
+}));
+const bedMask = edgeMask({ seed: 71, height: 130, swell: 12, jitter: 5 });
+---
+
+<section class="oc-section oc-work" id="work" data-tone="wood" aria-labelledby="oc-work-title">
+  <div class="oc-clip" aria-hidden="true">
+    <div class="oc-bed" style={{ '--mask': bedMask }}></div>
+    <!-- The box stays put so the wreck's drift is measured against its own place on the page. -->
+    <div class="oc-work-wreck" data-drift-anchor>
+      <img
+        class="oc-art"
+        {...art('wreck')}
+        alt=""
+        loading="lazy"
+        data-drift-x="-150"
+        data-drift="30"
+      />
+    </div>
+    <img class="oc-art oc-work-weed oc-sway" {...art('seaweed')} alt="" loading="lazy" />
+  </div>
+  <div class="oc-wrap">
+    <p class="oc-place">The wreck</p>
+    <h2 class="oc-h2" id="oc-work-title">
+      Work samples
+    </h2>
+    <p class="oc-note oc-work-note">Three things I found down here. Open one up.</p>
+    <div class="oc-finds">
+      <svg
+        class="oc-finds-string"
+        viewBox="0 0 1000 200"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <path
+          data-draw
+          pathLength="1"
+          d="M-10 130C90 30 200 190 330 96S540 20 660 112s230 60 350-50"
+        ></path>
+      </svg>
+      {rows.map((row, index) => (
+        <a
+          class="oc-paper oc-find"
+          href={row.href}
+          data-rise
+          data-touch-tone={row.find.tone}
+          style={{
+            '--cut': cutPanel(80 + index),
+            '--rise-i': index,
+            '--rise-tilt': `${index === 1 ? 3 : -3}deg`,
+            '--oc-paper-tint': row.find.tint,
+          }}
+        >
+          <img class="oc-find-thing" {...art(row.find.thing)} alt="" loading="lazy" />
+          <span class="oc-find-label">{row.label}</span>
+          <h3>{row.title}</h3>
+          {row.description && <p>{row.description}</p>}
+          <span class="oc-find-go">
+            Read the write-up
+            <svg viewBox="0 0 28 14" width="28" height="14" aria-hidden="true">
+              <path d="M1 8c7-3 14 2 24-1m-6-6c2 2 4 4 7 6-3 1-5 3-7 5" />
+            </svg>
+          </span>
+        </a>
+      ))}
+    </div>
+    <p class="oc-work-more" data-rise>
+      <span class="oc-note">I also write things down.</span>
+      <a class="oc-btn oc-btn--sun" href="/blog/">
+        Read the blog
+      </a>
+    </p>
+  </div>
+</section>
+
+<style is:global>
+  /* Room under the cards for the wreck itself. */
+  .lab-ocean .oc-section.oc-work {
+    padding-bottom: clamp(300px, 33vw, 450px);
+  }
+  .lab-ocean .oc-work-wreck img {
+    position: relative;
+    width: 100%;
+  }
+  .lab-ocean .oc-work-wreck {
+    position: absolute;
+    left: 3vw;
+    bottom: 22px;
+    width: min(54vw, 720px);
+  }
+  .lab-ocean .oc-work-weed {
+    right: 5vw;
+    bottom: 46px;
+    width: clamp(70px, 8vw, 120px);
+  }
+  .lab-ocean .oc-work-note {
+    margin-top: 16px;
+  }
+  .lab-ocean .oc-finds {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(18px, 2.6vw, 36px);
+    margin-top: 110px;
+  }
+  .lab-ocean .oc-finds-string {
+    position: absolute;
+    left: -8%;
+    top: -92px;
+    width: 116%;
+    height: 150px;
+    overflow: visible;
+    fill: none;
+    stroke: var(--oc-foam);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+  }
+  .lab-ocean .oc-finds-string path {
+    vector-effect: non-scaling-stroke;
+  }
+  .lab-ocean .oc-find {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 76px 26px 26px;
+    text-decoration: none;
+  }
+  .lab-ocean .oc-find:nth-child(3) {
+    margin-top: 44px;
+  }
+  .lab-ocean .oc-find:nth-child(4) {
+    margin-top: 12px;
+  }
+  .oc-js .lab-ocean .oc-find.is-in {
+    transition:
+      opacity 0.7s ease,
+      transform 0.45s cubic-bezier(0.3, 1.4, 0.5, 1);
+    transition-delay: 0s;
+  }
+  .oc-js .lab-ocean .oc-find.is-in:hover,
+  .oc-js .lab-ocean .oc-find.is-in:focus-visible {
+    transform: translateY(-10px) rotate(-1.5deg);
+  }
+  .lab-ocean .oc-find-thing {
+    position: absolute;
+    left: 14px;
+    top: -84px;
+    width: auto;
+    height: 150px;
+    transform-origin: 50% 90%;
+    transition: transform 0.5s cubic-bezier(0.3, 1.7, 0.5, 1);
+  }
+  .lab-ocean .oc-find:hover .oc-find-thing,
+  .lab-ocean .oc-find:focus-visible .oc-find-thing {
+    transform: translateY(-14px) rotate(-9deg) scale(1.08);
+  }
+  .lab-ocean .oc-find-label {
+    padding: 3px 10px 4px;
+    background: var(--oc-ink);
+    color: var(--oc-foam);
+    font: 700 12.5px/1.2 var(--oc-body);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .lab-ocean .oc-find h3 {
+    margin-top: 14px;
+    font: 800 clamp(23px, 2.2vw, 30px) / 1.04 var(--oc-display);
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+  .lab-ocean .oc-find p {
+    margin-top: 12px;
+    font-size: 15.5px;
+    line-height: 1.5;
+  }
+  .lab-ocean .oc-find-go {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 18px;
+    font: 800 15px/1 var(--oc-body);
+  }
+  .lab-ocean .oc-find-go svg {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform 0.3s ease;
+  }
+  .lab-ocean .oc-find:hover .oc-find-go svg {
+    transform: translateX(7px);
+  }
+  .lab-ocean .oc-work-more {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 14px 22px;
+    margin-top: 46px;
+  }
+  @media (max-width: 860px) {
+    .lab-ocean .oc-finds {
+      grid-template-columns: 1fr;
+      gap: 104px;
+    }
+    .lab-ocean .oc-finds-string {
+      display: none;
+    }
+    .lab-ocean .oc-find:nth-child(n) {
+      margin-top: 0;
+    }
+    .lab-ocean .oc-section.oc-work {
+      padding-bottom: 330px;
+    }
+    .lab-ocean .oc-work-wreck {
+      width: 82vw;
+      left: 2vw;
+    }
+    .lab-ocean .oc-work-more {
+      justify-content: flex-start;
+    }
+  }
+</style>

@@ -1,0 +1,116 @@
+---
+// The header: a strip along the top of the frame, like the destination blind over a carriage door.
+import { site } from '../../../data/site';
+
+const links = [
+  { label: 'About', href: '#about', small: false },
+  { label: 'Skills', href: '#skills', small: true },
+  { label: 'Experience', href: '#experience', small: false },
+  { label: 'Work', href: '#work', small: true },
+  { label: 'Certificates', href: '#certificates', small: false },
+  { label: 'Contact', href: '#contact', small: true },
+];
+---
+
+<header class="tr-header">
+  <a class="tr-brand" href="#top" aria-label={`${site.name}, back to the platform`}>
+    <span class="tr-brand-lamp" aria-hidden="true"></span>
+    {site.shortName}
+  </a>
+  <nav class="tr-nav" aria-label="Sections">
+    {links.map((link) => (
+      <a href={link.href} class:list={[!link.small && 'tr-nav-wide']} data-tr-nav>
+        {link.label}
+      </a>
+    ))}
+    <a class="tr-nav-resume" href={site.resume}>
+      Resume
+    </a>
+  </nav>
+</header>
+
+<style is:global>
+  .lab-train .tr-header {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    height: 58px;
+    padding: 0 clamp(14px, 3vw, 34px);
+    background: var(--tr-grain), #0a1326;
+    border-bottom: 2px solid var(--tr-brass);
+    box-shadow: 0 5px 0 -2px rgb(0 0 0 / 35%);
+  }
+  .lab-train .tr-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font: 600 22px/1 var(--tr-serif);
+    letter-spacing: 0.08em;
+    text-decoration: none;
+  }
+  /* The one red lamp: a tail light. */
+  .lab-train .tr-brand-lamp {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--tr-red);
+    box-shadow: 0 0 0 3px rgb(216 69 46 / 25%);
+  }
+  .lab-train .tr-nav {
+    display: flex;
+    align-items: center;
+    gap: clamp(2px, 1vw, 10px);
+    font: 700 11.5px/1 var(--tr-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .lab-train .tr-nav a {
+    padding: 9px 9px;
+    border-radius: 3px;
+    text-decoration: none;
+    color: rgb(246 231 200 / 78%);
+    transition: color 0.2s ease;
+  }
+  .lab-train .tr-nav a:hover,
+  .lab-train .tr-nav a[aria-current='true'] {
+    color: var(--tr-amber);
+  }
+  .lab-train .tr-nav a[aria-current='true'] {
+    box-shadow: inset 0 -2px 0 var(--tr-amber);
+  }
+  .lab-train .tr-nav .tr-nav-resume {
+    margin-left: 6px;
+    padding: 9px 12px;
+    border: 1.5px solid var(--tr-cream);
+    color: var(--tr-cream);
+  }
+  .lab-train .tr-nav .tr-nav-resume:hover {
+    background: var(--tr-amber);
+    border-color: var(--tr-amber);
+    color: var(--tr-indigo);
+  }
+  @media (max-width: 860px) {
+    .lab-train .tr-nav .tr-nav-wide {
+      display: none;
+    }
+  }
+  @media (max-width: 420px) {
+    .lab-train .tr-header {
+      height: 54px;
+    }
+    .lab-train .tr-nav {
+      font-size: 10.5px;
+      letter-spacing: 0.04em;
+    }
+    .lab-train .tr-nav a {
+      padding: 9px 6px;
+    }
+    .lab-train .tr-brand {
+      font-size: 19px;
+    }
+  }
+</style>

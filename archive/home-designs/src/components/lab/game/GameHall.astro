@@ -1,0 +1,410 @@
+---
+// Certificates, as trophies hung in the tower's hall. The wall is lit by two torches and by a
+// light that follows the cursor; picking a trophy up opens it full size in a dialog. Without
+// scripts each one is a plain link to the large image.
+import { Image, getImage } from 'astro:assets';
+import { credentialAlt, credentials } from '../../../data/certificates';
+import { art } from './art';
+import Flag from './Flag.astro';
+
+const trophies = await Promise.all(
+  credentials.map(async (credential, index) => {
+    const full = await getImage({
+      src: credential.image,
+      width: 1600,
+      format: 'webp',
+      quality: 85,
+    });
+    return {
+      ...credential,
+      alt: credentialAlt(credential),
+      full: full.src,
+      // A small, repeatable lean so the frames do not hang in a perfect grid.
+      lean: ((index * 29) % 7) - 3,
+    };
+  }),
+);
+---
+
+<section
+  class="qg-place qg-dark qg-hall"
+  id="certificates"
+  data-place="certificates"
+  data-lane="gutter"
+  aria-labelledby="qg-certificates-title"
+>
+  <span class="qg-tear" aria-hidden="true"></span>
+  <div class="qg-inner">
+    <div class="qg-hall__top">
+      <div class="qg-hall__wall" aria-hidden="true">
+        <img {...art('hall')} alt="" loading="lazy" />
+        <span class="qg-hall__torch"></span>
+        <span class="qg-hall__torch"></span>
+      </div>
+      <header class="qg-head">
+        <p class="qg-head__place">
+          <Flag />
+          Trophy tower
+        </p>
+        <h2 id="qg-certificates-title">
+          Trophy <em>hall</em>
+        </h2>
+        <p class="qg-head__note">
+          Courses I finished and badges I earned. Pick one up for a closer look.
+        </p>
+      </header>
+    </div>
+
+    <div class="qg-hall__grid" data-hall>
+      <ul>
+        {trophies.map((trophy, index) => (
+          <li style={{ '--lean': `${trophy.lean * 0.6}deg`, '--i': index % 4 }} data-reveal>
+            <a
+              class="qg-trophy"
+              href={trophy.full}
+              data-trophy
+              data-title={trophy.title}
+              data-issuer={trophy.issuer}
+              data-alt={trophy.alt}
+            >
+              <span class="qg-trophy__frame">
+                <Image
+                  src={trophy.image}
+                  alt={trophy.alt}
+                  widths={[320, 480]}
+                  sizes="(max-width: 600px) 44vw, 250px"
+                  loading="lazy"
+                />
+              </span>
+              <span class="qg-trophy__plate">
+                <strong>{trophy.title}</strong>
+                <span>{trophy.issuer}</span>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+      <span class="qg-hall__light" aria-hidden="true"></span>
+    </div>
+  </div>
+  <span class="qg-tear qg-tear--up" aria-hidden="true"></span>
+
+  <dialog class="qg-inspect" data-inspect aria-labelledby="qg-inspect-title">
+    <div class="qg-inspect__sheet">
+      <img class="qg-inspect__img" data-inspect-img alt="" />
+      <div class="qg-inspect__foot">
+        <div>
+          <h3 id="qg-inspect-title" data-inspect-title>
+            {trophies[0]?.title}
+          </h3>
+          <p data-inspect-issuer>{trophies[0]?.issuer}</p>
+        </div>
+        <div class="qg-inspect__keys">
+          <button type="button" data-inspect-prev>
+            Previous
+          </button>
+          <button type="button" data-inspect-next>
+            Next
+          </button>
+          <button type="button" class="qg-inspect__close" data-inspect-close>
+            Put it back
+          </button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+</section>
+
+<style is:global>
+  .lab-game .qg-hall__top {
+    position: relative;
+    display: grid;
+    margin-bottom: clamp(26px, 4vw, 54px);
+  }
+  /* The painted wall: only its upper part, with the two torches, fading out below. */
+  .lab-game .qg-hall__wall {
+    position: relative;
+    grid-area: 1 / 1;
+    aspect-ratio: 1500 / 600;
+    overflow: hidden;
+    mask-image:
+      linear-gradient(transparent, #000 14% 52%, transparent 96%),
+      linear-gradient(90deg, transparent, #000 5% 95%, transparent);
+    mask-composite: intersect;
+    -webkit-mask-image:
+      linear-gradient(transparent, #000 14% 52%, transparent 96%),
+      linear-gradient(90deg, transparent, #000 5% 95%, transparent);
+    -webkit-mask-composite: source-in;
+  }
+  .lab-game .qg-hall__wall img {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-width: none;
+  }
+  .lab-game .qg-hall__torch {
+    position: absolute;
+    left: 8%;
+    top: 30%;
+    width: 30%;
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    background: radial-gradient(closest-side, rgb(255 196 96 / 40%), transparent);
+    mix-blend-mode: screen;
+  }
+  .lab-game .qg-hall__torch + .qg-hall__torch {
+    left: 92%;
+  }
+  html:not(.qg-still) .lab-game .qg-hall__torch {
+    animation: qg-flicker 2.1s ease-in-out infinite;
+  }
+  html:not(.qg-still) .lab-game .qg-hall__torch + .qg-hall__torch {
+    animation-duration: 2.7s;
+    animation-delay: -1.3s;
+  }
+  .lab-game .qg-hall .qg-head {
+    grid-area: 1 / 1;
+    position: relative;
+    align-self: center;
+    justify-self: center;
+    margin: 0;
+    padding: 0 20px;
+    text-align: center;
+  }
+  .lab-game .qg-hall .qg-head__note {
+    margin-inline: auto;
+  }
+
+  .lab-game .qg-hall__grid {
+    position: relative;
+  }
+  .lab-game .qg-hall__grid li {
+    min-width: 0;
+  }
+  .lab-game .qg-hall__grid ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+    gap: clamp(26px, 3vw, 44px) clamp(18px, 2.4vw, 34px);
+  }
+  .lab-game .qg-trophy {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    text-decoration: none;
+    rotate: var(--lean);
+    transform-origin: 50% -18px;
+    transition: rotate 0.5s cubic-bezier(0.3, 1.8, 0.5, 1);
+  }
+  /* The nail and cord each frame hangs from. */
+  .lab-game .qg-trophy::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: -18px;
+    width: 64%;
+    height: 20px;
+    translate: -50% 0;
+    background:
+      radial-gradient(circle at 50% 4px, #b9b3a6 0 3px, #3a342c 3.5px 4.5px, transparent 5px),
+      linear-gradient(
+          to top right,
+          transparent calc(50% - 1px),
+          #8a6a3c 0 calc(50% + 1px),
+          transparent 0
+        )
+        left / 50% 100% no-repeat,
+      linear-gradient(
+          to top left,
+          transparent calc(50% - 1px),
+          #8a6a3c 0 calc(50% + 1px),
+          transparent 0
+        )
+        right / 50% 100% no-repeat;
+  }
+  /* A gilded frame, painted rather than ruled: uneven corners and a double line. */
+  .lab-game .qg-trophy__frame {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 4 / 3;
+    padding: 9px;
+    border: 7px solid var(--q-gold);
+    border-radius: 3px 7px 4px 8px / 7px 3px 8px 4px;
+    background-color: var(--q-parch-light);
+    box-shadow:
+      0 0 0 1.5px #5a3a14,
+      inset 0 0 0 1.5px #8a5f1e,
+      0 12px 22px rgb(0 0 0 / 55%);
+    transition:
+      translate 0.3s ease,
+      box-shadow 0.3s ease;
+  }
+  .lab-game .qg-trophy__frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .lab-game .qg-trophy:hover,
+  .lab-game .qg-trophy:focus-visible {
+    rotate: calc(var(--lean) * -1.4);
+  }
+  .lab-game .qg-trophy:hover .qg-trophy__frame,
+  .lab-game .qg-trophy:focus-visible .qg-trophy__frame {
+    translate: 0 -5px;
+    box-shadow:
+      0 0 0 1.5px #5a3a14,
+      inset 0 0 0 1.5px #8a5f1e,
+      0 22px 30px rgb(0 0 0 / 60%),
+      0 0 34px rgb(217 164 65 / 30%);
+  }
+  .lab-game .qg-trophy__plate {
+    display: grid;
+    gap: 3px;
+    padding: 0 4px;
+    text-align: center;
+  }
+  .lab-game .qg-trophy__plate strong {
+    font: 500 19px/1.2 var(--q-display);
+    color: var(--q-parch-light);
+    text-wrap: balance;
+  }
+  .lab-game .qg-trophy__plate span {
+    color: var(--q-gold);
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  /* The hand-held light: the wall is dimmed except around the cursor. Scripts switch it on
+     only for a mouse, so touch screens and keyboards see the whole wall. */
+  .lab-game .qg-hall__light {
+    position: absolute;
+    inset: -40px 0;
+    background: radial-gradient(
+      circle 380px at var(--lx, 50%) var(--ly, 30%),
+      transparent 0 34%,
+      rgb(18 10 6 / 60%) 100%
+    );
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+  }
+  .lab-game .qg-hall__grid.is-lit .qg-hall__light {
+    opacity: 1;
+  }
+
+  /* Inspecting a trophy. */
+  .lab-game .qg-inspect {
+    width: min(1040px, 100vw - 24px);
+    max-width: none;
+    max-height: calc(100dvh - 24px);
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--q-ink);
+    overflow: visible;
+  }
+  .lab-game .qg-inspect::backdrop {
+    background: rgb(16 10 6 / 84%);
+  }
+  .lab-game .qg-inspect__sheet {
+    display: grid;
+    gap: 14px;
+    max-height: calc(100dvh - 24px);
+    padding: clamp(12px, 2vw, 22px);
+    border: 2px solid var(--q-ink);
+    border-radius: 4px 12px 6px 14px;
+    background-color: var(--q-parch-light);
+    background-image: var(--q-grain), var(--q-stains);
+    box-shadow:
+      0 0 0 6px var(--q-gold),
+      0 0 0 8px #5a3a14,
+      0 30px 80px rgb(0 0 0 / 60%);
+    overflow: auto;
+  }
+  html:not(.qg-still) .lab-game .qg-inspect[open] .qg-inspect__sheet {
+    animation: qg-pickup 0.45s cubic-bezier(0.2, 1.2, 0.4, 1);
+  }
+  @keyframes qg-pickup {
+    from {
+      opacity: 0;
+      transform: translateY(40px) rotate(-3deg) scale(0.9);
+    }
+  }
+  .lab-game .qg-inspect__img {
+    display: block;
+    width: 100%;
+    max-height: calc(100dvh - 190px);
+    object-fit: contain;
+    background: #fff;
+    border: 1px solid rgb(35 26 20 / 30%);
+  }
+  .lab-game .qg-inspect__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 12px 24px;
+  }
+  .lab-game .qg-inspect h3 {
+    font: 600 clamp(21px, 2.4vw, 28px) / 1.15 var(--q-display);
+  }
+  .lab-game .qg-inspect p {
+    margin-top: 3px;
+    color: var(--q-crimson);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .lab-game .qg-inspect__keys {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .lab-game .qg-inspect__keys button {
+    padding: 9px 14px;
+    border: 1.5px solid var(--q-ink);
+    border-radius: 3px 8px 4px 9px;
+    background: transparent;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .lab-game .qg-inspect__keys button:hover,
+  .lab-game .qg-inspect__keys .qg-inspect__close {
+    background: var(--q-ink);
+    color: var(--q-parch-light);
+  }
+  .lab-game .qg-inspect__keys .qg-inspect__close:hover {
+    background: var(--q-crimson);
+    border-color: var(--q-crimson);
+  }
+
+  @media (max-width: 760px) {
+    /* The painted wall is too small to hold the heading on a phone, so the heading follows it. */
+    .lab-game .qg-hall__wall {
+      aspect-ratio: 1500 / 640;
+    }
+    .lab-game .qg-hall .qg-head {
+      grid-area: auto;
+      margin-top: -22px;
+      padding: 0;
+    }
+    .lab-game .qg-hall__grid ul {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 30px 14px;
+    }
+    .lab-game .qg-trophy__frame {
+      padding: 5px;
+      border-width: 5px;
+    }
+    .lab-game .qg-trophy__plate strong {
+      font-size: 16px;
+    }
+    .lab-game .qg-trophy__plate span {
+      font-size: 10px;
+    }
+  }
+</style>

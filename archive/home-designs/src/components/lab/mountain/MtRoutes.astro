@@ -1,0 +1,194 @@
+---
+// Work: three routes already climbed, one sketched peak per work sample. Each card is the
+// project's real title, label and description, and links to its write-up. The peaks rise
+// from behind a pencilled horizon as the section scrolls in (life.ts parallax).
+import { workRows } from '../../../data/work';
+import { getProjects } from '../../../lib/collections';
+import { projectHref } from '../../../lib/content';
+import MtLedges from './MtLedges.astro';
+
+const projects = await getProjects();
+const peaks = [
+  { src: 'peak-spire', width: 559, height: 525 },
+  { src: 'peak-dome', width: 560, height: 366 },
+  { src: 'peak-twin', width: 560, height: 346 },
+];
+const fallbackPeak = { src: 'peak-dome', width: 560, height: 366 };
+const routes = workRows.map((row, index) => {
+  const project = projects.find((entry) => entry.id === row.id);
+  return {
+    ...row,
+    href: projectHref(row.id),
+    title: project?.data.title ?? row.title,
+    description: project?.data.description,
+    peak: peaks[index % peaks.length] ?? fallbackPeak,
+    tilt: [-1.2, 0.9, -0.6][index % 3] ?? 0,
+  };
+});
+---
+
+<section class="mt-section mt-routes" id="work" aria-labelledby="mt-routes-title">
+  <MtLedges />
+  <div class="mt-wrap">
+    <p class="mt-place">Routes already climbed</p>
+    <h2 class="mt-h2" id="mt-routes-title">
+      Work I've <em>written up</em>
+    </h2>
+    <p class="mt-pencil mt-routes-hint">Three climbs, with the route notes for each.</p>
+
+    <ul class="mt-routes-list">
+      {routes.map((route, index) => (
+        <li data-reveal style={{ '--reveal-i': index, '--reveal-rest': `${route.tilt}deg` }}>
+          <a class="mt-route mt-paper" href={route.href}>
+            <span class="mt-route-peak">
+              <span class="mt-route-rise" data-mt-parallax={0.22 + index * 0.06} data-mt-floor>
+                <img
+                  src={`/lab/mountain/${route.peak.src}.webp`}
+                  width={route.peak.width}
+                  height={route.peak.height}
+                  alt=""
+                  loading="lazy"
+                />
+              </span>
+            </span>
+            <span class="mt-route-label">{route.label}</span>
+            <h3>{route.title}</h3>
+            {route.description && <p>{route.description}</p>}
+            <span class="mt-route-go">
+              Read the route notes
+              <svg viewBox="0 0 22 12" aria-hidden="true">
+                <path d="M1 6h19m-5-5 5 5-5 5" />
+              </svg>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <p class="mt-routes-more">
+      <span class="mt-pencil">I also keep notes on what I'm learning.</span>
+      <a class="mt-btn mt-btn--ghost" href="/blog/">
+        Read the blog
+        <svg viewBox="0 0 22 12" aria-hidden="true">
+          <path d="M1 6h19m-5-5 5 5-5 5"></path>
+        </svg>
+      </a>
+    </p>
+  </div>
+</section>
+
+<style is:global>
+  .lab-mountain .mt-routes-hint {
+    margin-top: 14px;
+  }
+  .lab-mountain .mt-routes-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(20px, 2.6vw, 36px);
+    margin-top: clamp(40px, 6vh, 64px);
+    align-items: stretch;
+  }
+  .lab-mountain .mt-routes-list > li {
+    display: flex;
+  }
+  .lab-mountain .mt-route {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 0 clamp(20px, 2vw, 28px) clamp(22px, 2.4vw, 30px);
+    text-decoration: none;
+    transition:
+      transform 0.4s cubic-bezier(0.3, 1.4, 0.5, 1),
+      box-shadow 0.4s ease;
+  }
+  .lab-mountain .mt-route:hover,
+  .lab-mountain .mt-route:focus-visible {
+    transform: translateY(-8px) rotate(-0.6deg);
+    box-shadow:
+      0 1px 0 rgb(80 60 30 / 18%),
+      0 30px 40px -22px rgb(40 34 20 / 55%);
+  }
+  /* The peak sits on a pencilled horizon at the top of the card, and lifts a little on hover. */
+  .lab-mountain .mt-route-peak {
+    display: grid;
+    place-items: end center;
+    height: clamp(190px, 17vw, 240px);
+    margin-bottom: 14px;
+    padding-top: 12px;
+    border-bottom: 1.5px solid rgb(74 79 87 / 45%);
+    overflow: hidden;
+  }
+  .lab-mountain .mt-route-rise {
+    display: grid;
+    place-items: end center;
+    height: 100%;
+    width: 100%;
+  }
+  .lab-mountain .mt-route-peak img {
+    max-height: 100%;
+    width: auto;
+    margin-bottom: -2px;
+    transition: transform 0.5s cubic-bezier(0.3, 1.4, 0.5, 1);
+  }
+  .lab-mountain .mt-route:hover .mt-route-peak img,
+  .lab-mountain .mt-route:focus-visible .mt-route-peak img {
+    transform: translateY(-6px) scale(1.04);
+  }
+  .lab-mountain .mt-route-label {
+    color: var(--mt-red-ink);
+    font: 700 12px/1.2 var(--mt-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .lab-mountain .mt-route h3 {
+    margin-top: 8px;
+    font: 500 clamp(25px, 2.2vw, 31px) / 1.12 var(--mt-serif);
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  .lab-mountain .mt-route p {
+    margin-top: 10px;
+    color: #3a414b;
+    font-size: 17px;
+    line-height: 1.5;
+  }
+  .lab-mountain .mt-route-go {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 18px;
+    color: var(--mt-ink);
+    font: 700 22px/1 var(--mt-hand);
+  }
+  .lab-mountain .mt-route-go svg {
+    width: 22px;
+    height: 12px;
+    fill: none;
+    stroke: var(--mt-red);
+    stroke-width: 2;
+    stroke-linecap: round;
+    transition: transform 0.3s ease;
+  }
+  .lab-mountain .mt-route:hover .mt-route-go svg {
+    transform: translateX(5px);
+  }
+  .lab-mountain .mt-routes-more {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 14px 22px;
+    margin-top: clamp(44px, 7vh, 70px);
+  }
+
+  @media (max-width: 900px) {
+    .lab-mountain .mt-routes-list {
+      grid-template-columns: 1fr;
+      max-width: 560px;
+    }
+    .lab-mountain .mt-route-peak {
+      height: 190px;
+    }
+  }
+</style>

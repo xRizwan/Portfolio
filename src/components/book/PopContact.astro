@@ -1,0 +1,223 @@
+---
+// Contact: the last spread. A post box and bunting on the left, and one envelope per way of
+// getting in touch on the right. No form.
+import { site } from '../../data/site';
+import { art, artSrc } from './art';
+import Piece from './Piece.astro';
+
+const envelopes = [
+  {
+    label: 'Email',
+    value: site.email,
+    href: `mailto:${site.email}`,
+    paint: 'var(--pb-red)',
+    x: 30,
+    y: 400,
+    tilt: -2,
+  },
+  {
+    label: 'GitHub',
+    value: site.github.replace('https://', ''),
+    href: site.github,
+    paint: 'var(--pb-ink)',
+    x: 310,
+    y: 430,
+    tilt: 2,
+  },
+  {
+    label: 'LinkedIn',
+    value: site.linkedin.replace('https://www.', '').replace(/\/$/, ''),
+    href: site.linkedin,
+    paint: 'var(--pb-blue)',
+    x: 50,
+    y: 590,
+    tilt: 1.5,
+  },
+  {
+    label: 'Resume',
+    value: 'PDF, opens in the browser',
+    href: site.resume,
+    paint: 'var(--pb-green)',
+    x: 322,
+    y: 612,
+    tilt: -1.5,
+  },
+];
+---
+
+<section
+  class="pb-spread pb-spread--contact"
+  id="contact"
+  data-spread="contact"
+  data-len="200"
+  data-rise="62"
+  aria-labelledby="pb-contact-title"
+>
+  <div class="pb-page pb-page--l">
+    <Piece name="bunting" x={30} y={170} w={540} a={58} at={0} />
+    <div
+      class="pb-pop pb-card pb-contact__card"
+      style="--x:226;--y:470;--w:350;--h:300;--a:50;--z:2"
+      data-at="0.15"
+      data-dur="0.4"
+    >
+      <p class="pb-kicker">Contact</p>
+      <h2 class="pb-h2" id="pb-contact-title">
+        Write to me
+      </h2>
+      <p class="pb-contact__text">
+        Email is the quickest way to reach me. The envelopes go to the same places you would expect.
+      </p>
+    </div>
+    <img
+      class="pb-contact__box"
+      src={artSrc('postbox')}
+      width={art.postbox.w}
+      height={art.postbox.h}
+      alt=""
+      loading="lazy"
+      decoding="async"
+    />
+    <Piece name="postbox" x={30} y={540} w={190} a={62} at={0.3} z={3} />
+    <Piece name="cat" x={200} y={585} w={92} a={64} at={0.55} z={4} cat />
+    <Piece name="boat" x={400} y={610} w={150} a={66} at={0.6} z={5} />
+  </div>
+
+  <div class="pb-page pb-page--r">
+    <ul class="pb-envs">
+      {envelopes.map((envelope, index) => (
+        <li
+          class="pb-pop pb-env"
+          style={`--x:${envelope.x};--y:${envelope.y};--w:250;--h:156;--a:50;--z:${2 + index};--paint:${envelope.paint};--tilt:${envelope.tilt}deg`}
+          data-at={0.3 + index * 0.12}
+          data-dur="0.3"
+        >
+          <a href={envelope.href}>
+            <span class="pb-env__flap" aria-hidden="true" />
+            <span class="pb-env__stamp pb-paint" aria-hidden="true" />
+            <strong>{envelope.label}</strong>
+            <span class="pb-env__value">{envelope.value}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+    <Piece name="cat" x={470} y={250} w={84} a={64} at={0.6} z={1} cat class="pb-flip" />
+  </div>
+</section>
+
+<style is:global>
+  .home-book .pb-contact__card {
+    display: grid;
+    gap: 8px;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+  }
+  .home-book .pb-contact__text {
+    font-size: 18px;
+  }
+  .home-book .pb-contact__box {
+    width: 120px;
+  }
+  .home-book .pb-envs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+    gap: 22px 18px;
+  }
+  .home-book .pb-env a {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 2px;
+    min-height: 150px;
+    height: 100%;
+    padding: 16px 16px 14px;
+    overflow: hidden;
+    border-radius: 4px;
+    /* Airmail edging, drawn as a striped border. */
+    border: 7px solid transparent;
+    background:
+      linear-gradient(#fffdf6, #fffdf6) padding-box,
+      repeating-linear-gradient(
+          -45deg,
+          var(--pb-red) 0 9px,
+          #fffdf6 9px 18px,
+          var(--pb-blue) 18px 27px,
+          #fffdf6 27px 36px
+        )
+        border-box;
+    text-decoration: none;
+    box-shadow:
+      0 0 0 1.5px rgb(28 37 64 / 55%),
+      3px 4px 0 rgb(28 37 64 / 30%);
+    rotate: var(--tilt);
+    transition:
+      rotate 0.3s,
+      translate 0.3s;
+  }
+  .home-book .pb-env a:hover,
+  .home-book .pb-env a:focus-visible {
+    rotate: 0deg;
+    translate: 0 -6px;
+  }
+  /* The flap: a triangle of the same paper that lifts when the envelope is picked. */
+  .home-book .pb-env__flap {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 46%;
+    background: var(--pb-card-2);
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transform-origin: 50% 0;
+    transition: transform 0.45s cubic-bezier(0.3, 1.3, 0.5, 1);
+    box-shadow: 0 -30px 0 rgb(28 37 64 / 6%) inset;
+  }
+  .home-book .pb-env a:hover .pb-env__flap,
+  .home-book .pb-env a:focus-visible .pb-env__flap {
+    transform: scaleY(0.25);
+  }
+  .home-book .pb-env__stamp {
+    position: absolute;
+    right: 12px;
+    top: 10px;
+    width: 34px;
+    height: 40px;
+    outline: 2px dashed #fffdf6;
+    outline-offset: -1px;
+    rotate: 4deg;
+  }
+  .home-book .pb-env strong {
+    position: relative;
+    font: 800 27px/1 var(--pb-display);
+    letter-spacing: -0.01em;
+  }
+  .home-book .pb-env__value {
+    position: relative;
+    font: 400 12.5px/1.25 var(--pb-mono);
+    overflow-wrap: anywhere;
+  }
+  html.pb-m-book .home-book {
+    .pb-contact__box {
+      display: none;
+    }
+    .pb-contact__card {
+      display: flex;
+      padding: 18px 20px;
+      background-color: #fffdf6;
+      background-image: var(--pb-grain);
+      box-shadow: 0 0 0 1px rgb(28 37 64 / 12%);
+    }
+    .pb-contact__text {
+      font-size: 17px;
+    }
+    .pb-envs {
+      display: block;
+      position: absolute;
+      inset: 0;
+      transform-style: preserve-3d;
+    }
+    .pb-env a {
+      min-height: 0;
+    }
+  }
+</style>

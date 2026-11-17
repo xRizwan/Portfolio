@@ -1,0 +1,166 @@
+---
+// Certificates: framed notices hung along the corridor wall. Picking one takes it down and
+// shows it large, with previous and next (viewer.ts). Without scripts each frame links to the
+// full image.
+import { Image, getImage } from 'astro:assets';
+import { credentialAlt, credentials } from '../../../data/certificates';
+import TrCar from './TrCar.astro';
+
+const frames = await Promise.all(
+  credentials.map(async (credential) => ({
+    credential,
+    full: await getImage({
+      src: credential.image,
+      width: Math.min(1500, credential.image.width),
+      format: 'webp',
+    }),
+  })),
+);
+---
+
+<TrCar id="certificates">
+  <header class="tr-plate tr-sway">
+    <p class="tr-kicker">Corridor</p>
+    <h2 class="tr-h2" id="tr-certificates-title">
+      Courses <em>I finished</em>
+    </h2>
+    <p class="tr-hint">They hang along the wall. Pick one to see it larger.</p>
+  </header>
+
+  <ul class="tr-frames">
+    {frames.map(({ credential, full }, index) => (
+      <li class:list={[credential.kind === 'badge' && 'is-badge']}>
+        <a
+          class="tr-frame"
+          href={full.src}
+          data-tr-cert
+          data-title={credential.title}
+          data-issuer={credential.issuer}
+          data-alt={credentialAlt(credential)}
+        >
+          <span class="tr-frame-pic tr-sway" style={`--tr-pace:${3 + (index % 4) * 0.45}s`}>
+            <Image
+              src={credential.image}
+              alt={credentialAlt(credential)}
+              width={credential.kind === 'badge' ? 240 : 420}
+              loading="lazy"
+            />
+          </span>
+          <span class="tr-frame-cap">
+            <strong>{credential.title}</strong>
+            <span>{credential.issuer}</span>
+          </span>
+        </a>
+      </li>
+    ))}
+  </ul>
+</TrCar>
+
+<style is:global>
+  .lab-train .tr-frames {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--tr-frame-w), 1fr));
+    gap: 30px 26px;
+    width: min(1000px, 100%);
+    --tr-frame-w: clamp(170px, 15.5vw, 226px);
+  }
+  /* Pinned: two rows, hung salon-style, the lower row set half a frame along. */
+  html.tr-pin .lab-train .tr-frames {
+    grid-template-columns: none;
+    grid-template-rows: repeat(2, auto);
+    grid-auto-flow: column;
+    grid-auto-columns: var(--tr-frame-w);
+    align-content: center;
+    gap: clamp(14px, 2.4vh, 26px) clamp(30px, 3.4vw, 54px);
+    width: auto;
+    padding-right: calc(var(--tr-frame-w) / 2);
+  }
+  html.tr-pin .lab-train .tr-frames li:nth-child(even) {
+    transform: translateX(calc(50% + 15px));
+  }
+  .lab-train .tr-frame {
+    display: grid;
+    gap: 9px;
+    text-decoration: none;
+  }
+  .lab-train .tr-frame-pic {
+    position: relative;
+    display: block;
+    padding: 6px;
+    border: 7px solid #160c06;
+    background: var(--tr-cream);
+    box-shadow:
+      inset 0 0 0 1.5px var(--tr-brass),
+      0 10px 0 -6px rgb(0 0 0 / 40%);
+    --tr-reach: 0.7deg;
+    transform-origin: 50% -16px;
+    transition: scale 0.35s cubic-bezier(0.3, 1.5, 0.5, 1);
+  }
+  /* The nail and wire. */
+  .lab-train .tr-frame-pic::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 7px);
+    left: 50%;
+    width: 44px;
+    height: 12px;
+    margin-left: -22px;
+    background:
+      linear-gradient(to top right, #0000 46%, var(--tr-brass) 47% 54%, #0000 55%) 0 0 / 50% 100%
+        no-repeat,
+      linear-gradient(to top left, #0000 46%, var(--tr-brass) 47% 54%, #0000 55%) 100% 0 / 50% 100%
+        no-repeat;
+  }
+  .lab-train .tr-frame-pic img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    object-position: 50% 30%;
+  }
+  .lab-train .is-badge .tr-frame-pic {
+    width: 68%;
+    margin-inline: auto;
+    border-radius: 50%;
+  }
+  .lab-train .is-badge .tr-frame-pic img {
+    aspect-ratio: 1;
+    object-fit: contain;
+    border-radius: 50%;
+  }
+  .lab-train .tr-frame:hover .tr-frame-pic,
+  .lab-train .tr-frame:focus-visible .tr-frame-pic {
+    scale: 1.06;
+  }
+  .lab-train .tr-frame-cap {
+    display: grid;
+    gap: 3px;
+    /* A small enamel plate, so the caption reads the same over wood or over a window. */
+    padding: 6px 8px 7px;
+    border-radius: 3px;
+    background: var(--tr-indigo);
+    box-shadow: inset 0 0 0 1px rgb(246 231 200 / 45%);
+    text-align: center;
+  }
+  .lab-train .tr-frame-cap strong {
+    display: -webkit-box;
+    overflow: hidden;
+    font: 600 clamp(13.5px, 1.05vw, 15.5px) / 1.18 var(--tr-serif);
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+  .lab-train .tr-frame-cap span {
+    color: var(--tr-amber);
+    font: 400 10px/1.25 var(--tr-mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  @media (max-width: 700px) {
+    .lab-train .tr-frames {
+      --tr-frame-w: 168px;
+    }
+    html.tr-pin .lab-train .tr-frames {
+      gap: 12px 26px;
+    }
+  }
+</style>

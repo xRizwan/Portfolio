@@ -1,0 +1,111 @@
+---
+// Two fixed layers that stay for the whole trip: the star field behind the page, and the flight
+// lane in the right-hand gutter where the rocket travels once the launch is over. Both are
+// decoration only and are drawn by sky.ts and ship.ts.
+import { art } from './art';
+---
+
+<div class="sp-sky" aria-hidden="true">
+  <canvas data-sp-stars></canvas>
+</div>
+<div class="sp-lane" data-sp-lane aria-hidden="true">
+  <canvas class="sp-lane-trail" data-sp-trail></canvas>
+  <div class="sp-lane-line"></div>
+  <div data-sp-lane-stops></div>
+  <div class="sp-ship" data-sp-ship>
+    <img class="sp-ship-flame" data-sp-ship-flame {...art('flame')} alt="" />
+    <img class="sp-ship-body" {...art('rocket')} alt="" />
+  </div>
+</div>
+
+<style is:global>
+  .lab-space .sp-sky {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(120% 90% at 80% 0%, rgb(46 38 110 / 55%), transparent 60%), var(--sp-deep);
+  }
+  .lab-space .sp-sky canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  /* Grain over the night as well, so the dark sections read as printed ink and not as a screen. */
+  .lab-space .sp-sky::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--sp-grain);
+    opacity: 0.35;
+    mix-blend-mode: soft-light;
+  }
+
+  .lab-space .sp-lane {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
+    width: var(--sp-lane);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  /* The lane only exists while things move; with motion off the page is simply a page. */
+  .sp-motion .lab-space .sp-lane.is-flying {
+    opacity: 1;
+  }
+  .lab-space .sp-lane-trail {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: calc(var(--sp-lane) + 70px);
+    height: 100%;
+  }
+  .lab-space .sp-lane-line {
+    position: absolute;
+    top: 104px;
+    bottom: 96px;
+    left: 50%;
+    width: 0;
+    border-left: 2px dotted rgb(242 177 52 / 55%);
+  }
+  .lab-space .sp-lane-stop {
+    position: absolute;
+    left: 50%;
+    width: 11px;
+    height: 11px;
+    margin: -5.5px 0 0 -5.5px;
+    border: 2px solid var(--sp-mustard);
+    border-radius: 50%;
+    background: var(--sp-deep);
+    transition:
+      background-color 0.3s ease,
+      scale 0.3s ease;
+  }
+  .lab-space .sp-lane-stop.is-passed {
+    background: var(--sp-tomato);
+    scale: 1.25;
+  }
+  .lab-space .sp-ship {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: clamp(26px, 3.3vw, 46px);
+    will-change: transform;
+  }
+  .lab-space .sp-ship-body {
+    position: relative;
+    width: 100%;
+  }
+  .lab-space .sp-ship-flame {
+    position: absolute;
+    top: 86%;
+    left: 50%;
+    width: 62%;
+    max-width: none;
+    transform: translateX(-50%);
+    transform-origin: 50% 0;
+  }
+</style>

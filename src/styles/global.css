@@ -139,13 +139,6 @@ summary:focus-visible {
   text-decoration: underline;
   text-underline-offset: 5px;
 }
-.motion-toggle {
-  border: 1px solid var(--line);
-  background: transparent;
-  font: 9px var(--mono);
-  padding: 7px 10px;
-  border-radius: 3px;
-}
 .r2-menu {
   display: none;
   position: relative;
@@ -679,11 +672,6 @@ th {
   .r2-menu {
     display: block;
   }
-  .r2-header > .motion-toggle {
-    margin-left: auto;
-    font-size: 8px;
-    padding: 6px;
-  }
   .section-line {
     align-items: start;
     gap: 15px;
@@ -859,11 +847,6 @@ th {
 }
 .mobile-nav {
   display: none;
-}
-.motion-toggle {
-  border-radius: 20px;
-  font-size: 8px;
-  color: var(--muted);
 }
 .micro {
   font: 10px/1.7 var(--mono);
@@ -1350,10 +1333,6 @@ th {
     display: grid;
     gap: 20px;
     z-index: 100;
-  }
-  .motion-toggle {
-    font-size: 8px;
-    padding: 7px;
   }
   .project-intro {
     padding-top: 65px;
@@ -4278,9 +4257,6 @@ html:has(body.notes-pending) {
   .theme-toggle [data-theme-label] {
     display: none;
   }
-  .motion-toggle {
-    white-space: nowrap;
-  }
   .mobile-nav summary {
     white-space: nowrap;
   }
@@ -4313,33 +4289,6 @@ html:has(body.notes-pending) {
   background: color-mix(in srgb, var(--brand) 68%, #1b201c);
   -webkit-mask: var(--icon) center / contain no-repeat;
   mask: var(--icon) center / contain no-repeat;
-}
-
-/* Phones: "Pause motion" sits under the name so the top row has room for the theme toggle and
-   menu. Both buttons exist in the markup; only one is shown at a time. */
-.motion-toggle-phone {
-  display: none;
-}
-@media (max-width: 650px) {
-  .nav-actions > .motion-toggle {
-    display: none;
-  }
-  .motion-toggle-phone {
-    display: inline-block;
-    margin: 3px 0 9px;
-    padding: 3px 8px;
-    font-size: 7px;
-  }
-  /* The header grows with the extra row; the logo and the controls keep their old positions. */
-  .site-nav {
-    height: auto;
-    min-height: 78px;
-    align-items: flex-start;
-    padding-top: 17px;
-  }
-  .nav-actions {
-    margin-top: 8px;
-  }
 }
 
 /* The photo placeholder shown until the 3D frame starts: same place as the 3D frame, no stand,

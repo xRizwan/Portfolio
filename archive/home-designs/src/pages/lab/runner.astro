@@ -1,0 +1,145 @@
+---
+// Trial home page "Side-scroller": the portfolio as a hand-drawn platform level. Scrolling down
+// runs a cat to the right through one long level, and each section of the page is a stage of it.
+// Without the game (no JavaScript, reduced motion, very small screens) the same markup reads as
+// an ordinary vertical page.
+import LabLayout from '../../layouts/LabLayout.astro';
+import { art, backdrops, sprites } from '../../components/lab/runner/art';
+import { level, TITLE_END, treats } from '../../components/lab/runner/data';
+import { levelData, START } from '../../components/lab/runner/level';
+import RunnerSections from '../../components/lab/runner/RunnerSections.astro';
+import RunnerWorld from '../../components/lab/runner/RunnerWorld.astro';
+import '../../components/lab/runner/runner.css';
+import { site } from '../../data/site';
+
+const themes = ['meadow', 'sky', 'sunset', 'cave'] as const;
+const links = [
+  { href: '#about', label: 'About' },
+  { href: '#skills', label: 'Skills' },
+  { href: '#experience', label: 'Experience' },
+  { href: '#work', label: 'Work' },
+  { href: '#certificates', label: 'Certificates' },
+  { href: '#contact', label: 'Contact' },
+];
+const span = level.length - START;
+const data = { ...levelData(level), titleEnd: TITLE_END };
+---
+
+<LabLayout slug="runner" themeColor="#8ecae6">
+  <!-- Decides before first paint whether the level is played or the page is a plain column, so
+       the pinned stage does not flash in and out. The engine re-checks and keeps it up to date. -->
+  <script is:inline slot="head">
+    if (
+      !matchMedia('(prefers-reduced-motion: reduce)').matches &&
+      innerWidth >= 320 &&
+      innerHeight >= 480
+    ) {
+      document.documentElement.classList.add('rn-play');
+    }
+  </script>
+  <header class="rn-header">
+    <a class="rn-header__name" href="#top" aria-label={`${site.name}, back to the start`}>
+      {site.shortName}
+    </a>
+    <nav class="rn-header__nav" aria-label="Sections">
+      {links.map((link) => (
+        <a href={link.href}>{link.label}</a>
+      ))}
+    </nav>
+    <a class="rn-header__resume" href={site.resume}>
+      Resume
+    </a>
+  </header>
+
+  <main id="main" class="rn-main">
+    <div class="rn-track">
+      <div class="rn-stage is-title" data-theme="meadow">
+        <div class="rn-back" aria-hidden="true">
+          {themes.map((theme) => (
+            <div
+              class={`rn-far rn-far--${theme}`}
+              data-layer="far"
+              data-theme={theme}
+              data-aspect={backdrops.far[theme]}
+            />
+          ))}
+          {themes.map((theme) => (
+            <div
+              class={`rn-mid rn-mid--${theme}`}
+              data-layer="mid"
+              data-theme={theme}
+              data-aspect={backdrops.mid[theme].toFixed(3)}
+            />
+          ))}
+        </div>
+
+        <RunnerWorld />
+
+        <div class="rn-dark" aria-hidden="true"></div>
+        <div class="rn-flies" aria-hidden="true">
+          {[0, 1, 2].map(() => (
+            <span class="rn-fly">
+              <img
+                src={art('butterfly')}
+                width={sprites.butterfly[0]}
+                height={sprites.butterfly[1]}
+                alt=""
+                decoding="async"
+              />
+            </span>
+          ))}
+        </div>
+
+        <RunnerSections />
+
+        <div class="rn-hud" aria-hidden="true">
+          <span class="rn-hud__stage">{level.stages[0]?.name}</span>
+          <div class="rn-hud__bar">
+            <i class="rn-hud__fill"></i>
+            {level.stages.slice(1).map((stage) => (
+              <span
+                class="rn-hud__tick"
+                style={`left:${(((stage.from - START) / span) * 100).toFixed(2)}%`}
+              />
+            ))}
+            <b class="rn-hud__cat"></b>
+          </div>
+          <span class="rn-hud__treats">
+            <img
+              src={art('treat')}
+              width={sprites.treat[0]}
+              height={sprites.treat[1]}
+              alt=""
+              decoding="async"
+            />
+            <span>
+              <b>0</b> of {treats.length}
+            </span>
+          </span>
+        </div>
+
+        <div class="rn-iris" aria-hidden="true"></div>
+        <div class="rn-wipe" aria-hidden="true"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="rn-footer">
+    <p>
+      © {new Date().getFullYear()} {site.name}
+    </p>
+    <nav aria-label="More pages">
+      <a href="/blog/">Blog</a>
+      <a href="/experience/">Experience</a>
+      <a href={site.resume}>Resume</a>
+      <a href="#top">Play it again</a>
+    </nav>
+  </footer>
+
+  <script type="application/json" id="rn-level" set:html={JSON.stringify(data)} />
+</LabLayout>
+
+<script>
+  import '../../components/lab/runner/dialogs.ts';
+  import '../../components/lab/runner/engine.ts';
+</script>

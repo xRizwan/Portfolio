@@ -1,0 +1,143 @@
+---
+import { site } from '../../../data/site';
+import { cutPanel } from './paper';
+
+const links = [
+  { label: 'About', href: '#about' },
+  { label: 'Skills', href: '#skills' },
+  { label: 'Work', href: '#work' },
+  { label: 'Experience', href: '#experience' },
+  { label: 'Certificates', href: '#certificates' },
+  { label: 'Contact', href: '#contact' },
+];
+---
+
+<header class="oc-header">
+  <div class="oc-header-bar oc-paper" style={{ '--cut': cutPanel(11) }}>
+    <a class="oc-header-name" href="#top" aria-label={`${site.name}, back to the top`}>
+      {site.shortName}
+    </a>
+    <nav class="oc-header-nav" aria-label="Sections">
+      {links.map((link) => (
+        <a href={link.href}>{link.label}</a>
+      ))}
+    </nav>
+    <a class="oc-btn oc-btn--coral oc-header-resume" href={site.resume}>
+      Resume
+    </a>
+    <!-- Phone menu. A <details> element, so it opens without any script. -->
+    <details class="oc-header-menu">
+      <summary>Menu</summary>
+      <nav aria-label="Sections">
+        {links.map((link) => (
+          <a href={link.href}>{link.label}</a>
+        ))}
+      </nav>
+    </details>
+  </div>
+</header>
+
+<script>
+  import { select, selectAll } from '../../../scripts/motion';
+
+  // Close the phone menu after picking a section.
+  const menu = select('.oc-header-menu', HTMLDetailsElement);
+  if (menu) {
+    for (const link of selectAll('a', HTMLAnchorElement, menu)) {
+      link.addEventListener('click', () => {
+        menu.open = false;
+      });
+    }
+  }
+</script>
+
+<style is:global>
+  .lab-ocean .oc-header {
+    position: fixed;
+    top: 12px;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    padding: 0 12px;
+    pointer-events: none;
+  }
+  .lab-ocean .oc-header-bar {
+    display: flex;
+    align-items: center;
+    gap: clamp(10px, 2vw, 26px);
+    max-width: 100%;
+    padding: 7px 10px 7px 20px;
+    pointer-events: auto;
+    --oc-paper-tint: var(--oc-foam);
+  }
+  .lab-ocean .oc-header-name {
+    font: 800 24px/1 var(--oc-display);
+    letter-spacing: -0.03em;
+    text-decoration: none;
+  }
+  .lab-ocean .oc-header-nav {
+    display: flex;
+    gap: 2px;
+  }
+  .lab-ocean .oc-header-nav a,
+  .lab-ocean .oc-header-menu nav a {
+    padding: 8px 11px;
+    font: 700 14.5px/1 var(--oc-body);
+    text-decoration: none;
+    background: linear-gradient(var(--oc-sun), var(--oc-sun)) 50% 88% / 0 5px no-repeat;
+    transition: background-size 0.25s ease;
+  }
+  .lab-ocean .oc-header-nav a:hover,
+  .lab-ocean .oc-header-menu nav a:hover {
+    background-size: calc(100% - 20px) 5px;
+  }
+  .lab-ocean .oc-header-resume {
+    padding: 9px 16px 10px;
+  }
+  .lab-ocean .oc-header-menu {
+    display: none;
+    position: relative;
+  }
+  .lab-ocean .oc-header-menu summary {
+    padding: 9px 12px;
+    font: 700 14.5px/1 var(--oc-body);
+    cursor: pointer;
+    list-style: none;
+  }
+  .lab-ocean .oc-header-menu summary::-webkit-details-marker {
+    display: none;
+  }
+  .lab-ocean .oc-header-menu nav {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: -10px;
+    display: grid;
+    min-width: 190px;
+    padding: 10px;
+    background: var(--oc-foam);
+    box-shadow: 0 12px 24px rgb(18 38 58 / 22%);
+  }
+  .lab-ocean .oc-header-menu nav a {
+    padding: 12px;
+    font-size: 16px;
+  }
+  @media (max-width: 860px) {
+    .lab-ocean .oc-header {
+      justify-content: stretch;
+    }
+    .lab-ocean .oc-header-bar {
+      width: 100%;
+    }
+    .lab-ocean .oc-header-nav {
+      display: none;
+    }
+    .lab-ocean .oc-header-resume {
+      margin-left: auto;
+    }
+    .lab-ocean .oc-header-menu {
+      display: block;
+    }
+  }
+</style>

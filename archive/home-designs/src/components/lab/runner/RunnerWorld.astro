@@ -1,0 +1,398 @@
+---
+// The level itself: ground, props, creatures and the hero, all placed in level units inside one
+// element that the engine slides and scales. Everything here is scenery except the item blocks,
+// which are real buttons so a skill group can be opened by hand.
+import { Image } from 'astro:assets';
+import { credentials } from '../../../data/certificates';
+import { experienceIntro } from '../../../data/experience';
+import { skillGroups } from '../../../data/skills';
+import { art, groundTiles, sprites } from './art';
+import { level, restingAt, treats } from './data';
+import { BLOCK_Y, GROUND } from './level';
+import Sprite from './Sprite.astro';
+
+const { about, skills, experience, work, certificates, contact } = level;
+const traits = experienceIntro.about.traits;
+
+type Decor = { name: 'flowers' | 'bush' | 'boulder' | 'crystals' | 'stalagmite'; at: number[] };
+const widths = { flowers: 70, bush: 120, boulder: 110, crystals: 80, stalagmite: 92 } as const;
+const cave = work.intro.from;
+const end = level.length;
+const decor: Decor[] = [
+  {
+    name: 'flowers',
+    at: [-260, 330, 980, 1700, 2380, 3900, 4800, 6200, 7300, end - 400, end - 200, end + 150],
+  },
+  {
+    name: 'bush',
+    at: [-60, 760, 1600, 2250, 4100, 5500, 6900, 8500, 9500, 10900, end - 300, end + 400],
+  },
+  { name: 'boulder', at: [1180, 8100, 9650, 10700] },
+  {
+    name: 'crystals',
+    at: [cave + 140, cave + 740, cave + 1340, cave + 1940, cave + 2440, 14700, 15700, 16700, 17400],
+  },
+  { name: 'stalagmite', at: [cave + 240, cave + 1140, cave + 2290, 14150, 15200, 16200, 17200] },
+];
+const snails = [900, 6500, 10600];
+const birds = [1760, 2480, 4500, 5900, 7100, 8700, 10300, end - 100];
+const frogs = [2330, 9600, cave + 1740];
+
+/** The holes between ground strips: pits, the canyon, and the open air under the cloud. */
+const strips = [...level.ground].sort((a, b) => a.from - b.from);
+const pits = strips.flatMap((strip, index) => {
+  const next = strips[index + 1];
+  return next && next.from > strip.to ? [{ from: strip.to, to: next.from }] : [];
+});
+
+/** Bottom edge for something standing on the surface at `x`, sunk a little into the grass. */
+const stand = (x: number, sink = 6) => Math.round(restingAt(x) - sink);
+---
+
+<div class="rn-world">
+  {level.ground.map((piece) => {
+    const tile = groundTiles[piece.theme];
+    return (
+      <div
+        class={`rn-ground rn-ground--${piece.theme}`}
+        style={`left:${piece.from}px;width:${piece.to - piece.from}px;height:${tile.height}px;bottom:${GROUND + tile.top - tile.height}px;background-position:${-piece.from}px 0`}
+      />
+    );
+  })}
+
+  <!-- Shade inside each pit, so the distant painting does not show through as a flat wall. -->
+  {pits.map((pit) => (
+    <div
+      class:list={['rn-pit', { 'rn-pit--air': pit.to - pit.from > 320 }]}
+      style={`left:${pit.from - 4}px;width:${pit.to - pit.from + 8}px;height:${GROUND + 20}px`}
+    />
+  ))}
+
+  <!-- The stream under the footbridge. -->
+  <div
+    class="rn-water"
+    style={`left:${about.bridge.from + 30}px;width:${about.bridge.to - about.bridge.from - 60}px;height:${GROUND - 24}px`}
+  ></div>
+
+  {decor.flatMap((group) =>
+    group.at.map((x) => (
+      <Sprite name={group.name} x={x} y={stand(x, 8)} w={widths[group.name]} class="rn-decor" />
+    )),
+  )}
+
+  <!-- Meadow: signposts, the bridge, the ledge and the spring. -->
+  <div
+    class="rn-signpost"
+    style={`left:${about.intro.from + 5}px;bottom:${stand(about.intro.from + 80)}px`}
+  >
+    <img
+      src={art('sign')}
+      width={sprites.sign[0]}
+      height={sprites.sign[1]}
+      alt=""
+      loading="lazy"
+      decoding="async"
+    />
+    <span aria-hidden="true">About me</span>
+  </div>
+  {about.traits.map((hold, index) => {
+    const x = hold.from + 70;
+    const trait = traits[index];
+    return (
+      <div class="rn-signpost" style={`left:${x - 75}px;bottom:${stand(x)}px`}>
+        <img
+          src={art('sign')}
+          width={sprites.sign[0]}
+          height={sprites.sign[1]}
+          alt=""
+          loading="lazy"
+          decoding="async"
+        />
+        {trait && <span aria-hidden="true">{trait.title}</span>}
+      </div>
+    );
+  })}
+  <Sprite
+    name="bridge"
+    x={(about.bridge.from + about.bridge.to) / 2}
+    y={GROUND - 42}
+    w={250}
+    class="rn-prop"
+  />
+  <Sprite name="ledge" x={(about.ledge.from + about.ledge.to) / 2} y={-40} w={450} />
+  <Sprite
+    name="spring"
+    x={about.spring + 14}
+    y={restingAt(about.spring) - 58}
+    w={76}
+    class="rn-spring"
+    from={about.spring - 30}
+    to={about.spring + 46}
+  />
+
+  <!-- Up in the sky: the cloud you land on, the ramp down, and one block per skill group. -->
+  <Sprite
+    name="cloud"
+    x={(skills.cloud.from + skills.cloud.to) / 2}
+    y={restingAt(skills.cloud.from + 10) - 72}
+    w={250}
+    class="rn-cloud"
+  />
+  <Sprite
+    name="ramp"
+    x={(skills.ramp.from + skills.ramp.to) / 2 + 2}
+    y={GROUND - 6}
+    w={164}
+    h={66}
+  />
+  {skills.blocks.map((block, index) => {
+    const group = skillGroups[index];
+    return (
+      group && (
+        <button
+          class="rn-block"
+          type="button"
+          data-from={block.x}
+          data-jump={block.x + 30}
+          style={`left:${block.x - 36}px;bottom:${GROUND + BLOCK_Y}px`}
+          aria-label={`Open the ${group.name} block`}
+        >
+          <img
+            class="rn-block__new"
+            src={art('block')}
+            width={sprites.block[0]}
+            height={sprites.block[1]}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            draggable="false"
+          />
+          <img
+            class="rn-block__used"
+            src={art('block-used')}
+            width={sprites['block-used'][0]}
+            height={sprites['block-used'][1]}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            draggable="false"
+          />
+        </button>
+      )
+    );
+  })}
+
+  <!-- Sunset trail: a hollow log, a checkpoint flag per role, and the plank over the canyon. -->
+  {experience.flags.map((flag) => (
+    <div
+      class="rn-flag"
+      data-from={flag.x - 40}
+      style={`left:${flag.x - 22}px;bottom:${stand(flag.x, 4)}px`}
+    >
+      <img
+        class="rn-flag__pole"
+        src={art('pole')}
+        width={sprites.pole[0]}
+        height={sprites.pole[1]}
+        alt=""
+        loading="lazy"
+        decoding="async"
+      />
+      <img
+        class="rn-flag__cloth"
+        src={art('pennant')}
+        width={sprites.pennant[0]}
+        height={sprites.pennant[1]}
+        alt=""
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+  ))}
+  <img
+    class="rn-sprite rn-plank"
+    src={art('plank')}
+    width={sprites.plank[0]}
+    height={sprites.plank[1]}
+    alt=""
+    loading="lazy"
+    decoding="async"
+    style={`left:-75px;bottom:${GROUND + 8 - 56}px;width:150px;height:64px`}
+  />
+
+  <!-- The cave: a doorway in, three chests, a signpost for the blog, and the gallery. -->
+  {level.doors.map((x, index) => (
+    <Sprite name="door" x={x} y={GROUND - 8} w={230} class="rn-prop" flip={index === 1} />
+  ))}
+  {work.chests.map((chest) => (
+    <div
+      class="rn-chest"
+      data-from={chest.x - 70}
+      style={`left:${chest.x - 68}px;bottom:${stand(chest.x)}px`}
+    >
+      <img
+        class="rn-chest__shut"
+        src={art('chest')}
+        width={sprites.chest[0]}
+        height={sprites.chest[1]}
+        alt=""
+        loading="lazy"
+        decoding="async"
+      />
+      <img
+        class="rn-chest__open"
+        src={art('chest-open')}
+        width={sprites['chest-open'][0]}
+        height={sprites['chest-open'][1]}
+        alt=""
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+  ))}
+  <div class="rn-signpost" style={`left:${work.blog.x - 35}px;bottom:${stand(work.blog.x + 40)}px`}>
+    <img
+      src={art('sign')}
+      width={sprites.sign[0]}
+      height={sprites.sign[1]}
+      alt=""
+      loading="lazy"
+      decoding="async"
+    />
+    <span aria-hidden="true">Blog</span>
+  </div>
+  {certificates.frames.map((frame, index) => {
+    const credential = credentials[index];
+    return (
+      credential && (
+        <div
+          class="rn-frame"
+          data-from={frame.x - 190}
+          data-to={frame.x + 300}
+          style={`left:${frame.x - 75}px;bottom:${GROUND + 168 + (index % 2) * 26}px`}
+        >
+          <Image
+            class="rn-frame__picture"
+            src={credential.image}
+            alt=""
+            width={220}
+            loading="lazy"
+            draggable="false"
+          />
+          <img
+            class="rn-frame__wood"
+            src={art('frame')}
+            width={sprites.frame[0]}
+            height={sprites.frame[1]}
+            alt=""
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      )
+    );
+  })}
+
+  <!-- The finish: a flagpole, a little castle and a handful of stars. -->
+  <div
+    class="rn-flag rn-flag--finish"
+    data-from={level.length - 170}
+    style={`left:${contact.pole - 30}px;bottom:${GROUND - 4}px`}
+  >
+    <img
+      class="rn-flag__pole"
+      src={art('pole')}
+      width={sprites.pole[0]}
+      height={sprites.pole[1]}
+      alt=""
+      loading="lazy"
+      decoding="async"
+    />
+    <img
+      class="rn-flag__cloth"
+      src={art('pennant')}
+      width={sprites.pennant[0]}
+      height={sprites.pennant[1]}
+      alt=""
+      loading="lazy"
+      decoding="async"
+    />
+  </div>
+  <Sprite name="castle" x={contact.castle} y={GROUND - 8} w={240} class="rn-prop" />
+  {[-150, -70, 20, 110, 190].map((offset, index) => (
+    <Sprite
+      name="star"
+      x={contact.pole + offset}
+      y={GROUND + 250 + (index % 2) * 70}
+      w={index % 2 ? 34 : 46}
+      class="rn-star"
+      from={level.length - 14}
+    />
+  ))}
+
+  <!-- Creatures. -->
+  {snails.map((x) => (
+    <Sprite name="snail" x={x} y={stand(x, 4)} w={56} class="rn-snail" />
+  ))}
+  {frogs.map((x) => (
+    <Sprite name="frog" x={x} y={stand(x, 4)} w={58} class="rn-frog" from={x - 150} to={x + 110} />
+  ))}
+  {birds.map((x, index) => (
+    <div
+      class="rn-bird"
+      data-from={x - 240}
+      style={`left:${x - 24}px;bottom:${stand(x, 2)}px;--away:${index % 2 ? -1 : 1}`}
+    >
+      <img
+        class="rn-bird__stand"
+        src={art('bird')}
+        width={sprites.bird[0]}
+        height={sprites.bird[1]}
+        alt=""
+        loading="lazy"
+        decoding="async"
+      />
+      <img
+        class="rn-bird__fly"
+        src={art('bird-fly')}
+        width={sprites['bird-fly'][0]}
+        height={sprites['bird-fly'][1]}
+        alt=""
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+  ))}
+
+  {treats.map((treat) => (
+    <Sprite name="treat" x={treat.x} y={treat.bottom} w={44} class="rn-treat" from={treat.x - 8} />
+  ))}
+
+  <!-- Dust the hero kicks up; the engine moves these few around. -->
+  {Array.from({ length: 5 }, () => (
+    <img
+      class="rn-sprite rn-dust"
+      src={art('dust')}
+      width={sprites.dust[0]}
+      height={sprites.dust[1]}
+      alt=""
+      decoding="async"
+    />
+  ))}
+
+  <div class="rn-hero" style={`bottom:${GROUND - 3}px`}>
+    <img
+      class="rn-hero__lantern"
+      src={art('lantern')}
+      width={sprites.lantern[0]}
+      height={sprites.lantern[1]}
+      alt=""
+      loading="lazy"
+      decoding="async"
+    />
+    <i class="rn-hero__cat"></i>
+  </div>
+
+  <!-- Drawn after the hero so the cat disappears inside it. -->
+  <Sprite name="log" x={experience.log} y={GROUND - 16} w={230} class="rn-front" />
+</div>

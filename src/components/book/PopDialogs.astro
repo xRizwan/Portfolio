@@ -1,0 +1,88 @@
+---
+// The two dialogs, kept outside the book so its 3D stage cannot affect them: the sheet that a
+// role's detail is pulled out on, and the enlarged certificate.
+---
+
+<dialog class="pb-sheet" data-pb-sheet aria-label="Role detail">
+  <span class="pb-sheet__tab" aria-hidden="true"></span>
+  <div class="pb-sheet__body" data-pb-sheet-body></div>
+  <button class="pb-btn" type="button" data-pb-sheet-close>
+    Push it back in
+  </button>
+</dialog>
+
+<dialog class="pb-lightbox" data-pb-lightbox aria-labelledby="pb-lightbox-title">
+  <div class="pb-lightbox__frame">
+    <img data-pb-lightbox-img src="" alt="" />
+  </div>
+  <p class="pb-lightbox__caption">
+    <strong id="pb-lightbox-title" data-pb-lightbox-title></strong>
+    <span data-pb-lightbox-issuer></span>
+  </p>
+  <div class="pb-lightbox__ctl">
+    <button class="pb-btn pb-btn--plain" type="button" data-pb-lightbox-prev>
+      Previous
+    </button>
+    <button class="pb-btn" type="button" data-pb-lightbox-close>
+      Fold it away
+    </button>
+    <button class="pb-btn pb-btn--plain" type="button" data-pb-lightbox-next>
+      Next
+    </button>
+  </div>
+</dialog>
+
+<style is:global>
+  .home-book .pb-lightbox {
+    width: min(980px, 100vw - 20px);
+    max-height: 94vh;
+    padding: clamp(12px, 2.4vw, 22px);
+    border: 2px solid var(--pb-ink);
+    border-radius: 6px 9px 7px 10px;
+    background-color: #fffdf6;
+    background-image: var(--pb-grain);
+    color: var(--pb-ink);
+    box-shadow: 8px 10px 0 rgb(28 37 64 / 55%);
+  }
+  .home-book .pb-lightbox::backdrop {
+    background: rgb(40 58 64 / 78%);
+  }
+  .home-book .pb-lightbox[open] {
+    animation: pb-sheet-in 0.45s cubic-bezier(0.3, 1.2, 0.5, 1);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .home-book .pb-lightbox[open] {
+      animation: none;
+    }
+  }
+  .home-book .pb-lightbox__frame {
+    display: grid;
+    place-items: center;
+    padding: clamp(8px, 1.6vw, 16px);
+    background: var(--pb-sun);
+    box-shadow: 0 0 0 2px var(--pb-ink) inset;
+  }
+  .home-book .pb-lightbox__frame img {
+    max-height: min(64vh, 640px);
+    width: auto;
+    box-shadow: 0 2px 0 rgb(28 37 64 / 40%);
+  }
+  .home-book .pb-lightbox__caption {
+    margin-top: 12px;
+    text-align: center;
+  }
+  .home-book .pb-lightbox__caption strong {
+    display: block;
+    font: 800 clamp(19px, 3vw, 25px) / 1.1 var(--pb-display);
+  }
+  .home-book .pb-lightbox__caption span {
+    font: 500 23px/1.1 var(--pb-hand);
+  }
+  .home-book .pb-lightbox__ctl {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 12px;
+  }
+</style>

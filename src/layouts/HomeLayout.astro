@@ -1,0 +1,83 @@
+---
+// Shell for the home page. The home page is a self-contained pop-up book with its own header and
+// back cover, so it does not use the shared site header, footer or global.css (those stay with
+// the blog, experience and case-study pages via BaseLayout). It keeps the same fonts and the same
+// SEO tags and structured data.
+import '@fontsource/manrope/400.css';
+import '@fontsource/manrope/500.css';
+import '@fontsource/manrope/600.css';
+import '@fontsource/manrope/700.css';
+import '@fontsource/manrope/800.css';
+import '@fontsource/newsreader/400.css';
+import '@fontsource/newsreader/400-italic.css';
+import '@fontsource/newsreader/500.css';
+import '@fontsource/newsreader/500-italic.css';
+import '@fontsource/newsreader/600.css';
+import '@fontsource/bricolage-grotesque/400.css';
+import '@fontsource/bricolage-grotesque/600.css';
+import '@fontsource/bricolage-grotesque/800.css';
+import '@fontsource/caveat/500.css';
+import '@fontsource/caveat/700.css';
+import '@fontsource/space-mono/400.css';
+import '@fontsource/space-mono/700.css';
+import Seo from '../components/Seo.astro';
+import { site } from '../data/site';
+
+type SeoProps = import('astro/types').ComponentProps<typeof Seo>;
+
+interface Props extends SeoProps {
+  /** Browser-chrome colour matching the desk the book lies on. */
+  themeColor?: string;
+}
+
+const { themeColor = '#5f7f86', ...seo } = Astro.props;
+---
+
+<!doctype html>
+<html lang={site.language}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content={themeColor} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <Seo {...seo} />
+    <slot name="head" />
+  </head>
+  <body class="home-book">
+    <a class="home-skip" href="#main">
+      Skip to content
+    </a>
+    <slot />
+  </body>
+</html>
+
+<style is:global>
+  .home-book,
+  .home-book *,
+  .home-book *::before,
+  .home-book *::after {
+    box-sizing: border-box;
+  }
+  html:has(.home-book) {
+    -webkit-text-size-adjust: 100%;
+  }
+  .home-book {
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+  .home-skip {
+    position: absolute;
+    left: 12px;
+    top: -60px;
+    z-index: 200;
+    padding: 10px 14px;
+    background: #fff;
+    color: #111;
+    border-radius: 8px;
+  }
+  .home-skip:focus {
+    top: 12px;
+  }
+</style>

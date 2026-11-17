@@ -1,0 +1,295 @@
+---
+// Experience: the stops along the line, oldest first. The train pulls into a station for each
+// job (its name is on the platform sign outside) and the journal has an entry for it. The full
+// entry opens over the page on request; it is a plain <details>, so it works without scripts.
+import { roles } from '../../../data/experience';
+import TrCar from './TrCar.astro';
+
+const stops = [...roles].reverse();
+---
+
+<TrCar id="experience">
+  <header class="tr-plate tr-sway">
+    <p class="tr-kicker">The line</p>
+    <h2 class="tr-h2" id="tr-experience-title">
+      Stops <em>along the way</em>
+    </h2>
+    <p class="tr-hint">Oldest stop first. The train waits at each one while you read.</p>
+  </header>
+
+  {stops.map((role) => (
+    <article class="tr-stop" data-tr-stop>
+      <span class="tr-stop-view" data-tr-view aria-hidden="true" />
+      <div class="tr-entry tr-paper">
+        <header class="tr-entry-head">
+          <h3>{role.company}</h3>
+          <p>{role.dates}</p>
+        </header>
+        <div class="tr-entry-body">
+          <p class="tr-entry-kind">{role.kind}</p>
+          <ul class="tr-entry-titles">
+            {role.titles.map((title) => (
+              <li>
+                <strong>{title.title}</strong>
+                <span>{title.dates}</span>
+              </li>
+            ))}
+          </ul>
+          <p class="tr-entry-summary">{role.summary}</p>
+          <details class="tr-more" data-tr-more>
+            <summary>
+              <span class="tr-btn">Read the journal entry</span>
+            </summary>
+            <div class="tr-more-body tr-paper">
+              <p class="tr-more-title">
+                {role.company}, {role.dates}
+              </p>
+              <ul class="tr-more-points">
+                {role.points.map((point) => (
+                  <li>{point}</li>
+                ))}
+              </ul>
+              {role.contributed.length > 0 && (
+                <p class="tr-more-note">
+                  <strong>Codebases I worked in:</strong> {role.contributed.join(', ')}
+                </p>
+              )}
+              <p class="tr-more-note">
+                <strong>Stack:</strong> {role.stack.join(', ')}
+              </p>
+              <button type="button" class="tr-btn" data-tr-more-close>
+                Close the entry
+              </button>
+            </div>
+          </details>
+        </div>
+      </div>
+    </article>
+  ))}
+
+  <div class="tr-line-end">
+    <p>The same stops, with more detail, are on their own page.</p>
+    <a class="tr-btn" href="/experience/">
+      The full experience page
+      <svg viewBox="0 0 22 12" aria-hidden="true">
+        <path d="M1 6h19M15 1l5 5-5 5"></path>
+      </svg>
+    </a>
+  </div>
+</TrCar>
+
+<style is:global>
+  .lab-train .tr-stop {
+    display: flex;
+    align-items: center;
+    gap: clamp(24px, 3vw, 50px);
+    max-width: 100%;
+  }
+  /* Hung from the top of the wall, so the full entry has the whole height to open into. */
+  html.tr-pin .lab-train .tr-stop {
+    align-self: flex-start;
+    margin-top: 8px;
+  }
+  /* The stretch of window left clear so the station can be seen. */
+  .lab-train .tr-stop-view {
+    display: none;
+  }
+  html.tr-pin .lab-train .tr-stop-view {
+    display: block;
+    flex: none;
+    width: 40vw;
+    height: 10px;
+  }
+  .lab-train .tr-entry {
+    position: relative;
+    flex: none;
+    width: min(460px, 100vw - 44px);
+    border-radius: 5px;
+    box-shadow: 0 14px 0 -8px rgb(0 0 0 / 35%);
+    transform: rotate(0.6deg);
+  }
+  .lab-train .tr-stop:nth-of-type(even) .tr-entry {
+    transform: rotate(-0.7deg);
+  }
+  /* The head of the entry is the platform sign. */
+  .lab-train .tr-entry-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 14px;
+    padding: 15px 22px 14px;
+    border-radius: 5px 5px 0 0;
+    background: var(--tr-grain), var(--tr-indigo);
+    box-shadow:
+      inset 0 0 0 3px var(--tr-indigo),
+      inset 0 0 0 4.5px var(--tr-cream);
+    color: var(--tr-cream);
+  }
+  .lab-train .tr-entry-head h3 {
+    font: 600 clamp(28px, 2.8vw, 38px) / 1 var(--tr-serif);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .lab-train .tr-entry-head p {
+    color: var(--tr-amber);
+    font: 700 11.5px/1.2 var(--tr-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .lab-train .tr-entry-body {
+    padding: 18px 22px 22px;
+  }
+  .lab-train .tr-entry-kind {
+    color: #a1361f;
+    font: 700 11px/1.3 var(--tr-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .lab-train .tr-entry-titles {
+    display: grid;
+    gap: 6px;
+    margin-top: 12px;
+  }
+  .lab-train .tr-entry-titles li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 2px 12px;
+    padding-bottom: 6px;
+    border-bottom: 1.5px dashed rgb(42 33 24 / 28%);
+  }
+  .lab-train .tr-entry-titles strong {
+    font: 600 clamp(18px, 1.5vw, 21px) / 1.2 var(--tr-serif);
+  }
+  .lab-train .tr-entry-titles span {
+    color: var(--tr-ink-soft);
+    font: 400 11.5px/1.2 var(--tr-mono);
+  }
+  .lab-train .tr-entry-summary {
+    margin-top: 13px;
+    font-size: clamp(14px, 1.05vw, 15.5px);
+    line-height: 1.55;
+    color: #3b2f22;
+  }
+  .lab-train .tr-more {
+    margin-top: 16px;
+  }
+  .lab-train .tr-more summary {
+    display: inline-block;
+    list-style: none;
+    cursor: pointer;
+  }
+  .lab-train .tr-more summary::-webkit-details-marker {
+    display: none;
+  }
+  .lab-train .tr-entry .tr-btn:hover {
+    background: var(--tr-indigo);
+    border-color: var(--tr-indigo);
+    color: var(--tr-cream);
+  }
+  .lab-train .tr-more-body {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 2px solid var(--tr-ink);
+  }
+  /* Pinned, there is no room to grow downward, so the full entry lays itself over the page. */
+  html.tr-pin .lab-train .tr-more-body {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    margin: 0;
+    padding: 20px 22px 22px;
+    border: 0;
+    border-radius: 5px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    max-height: calc(var(--tr-zone) - 16px);
+    min-height: 100%;
+    height: max-content;
+    box-shadow: 0 14px 0 -8px rgb(0 0 0 / 35%);
+  }
+  html.tr-pin .lab-train .tr-more[open] .tr-more-body {
+    animation: tr-more-in 0.35s ease;
+  }
+  @keyframes tr-more-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+  }
+  .lab-train .tr-more-title {
+    font: 600 20px/1.2 var(--tr-serif);
+  }
+  .lab-train .tr-more-points {
+    display: grid;
+    gap: 9px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #3b2f22;
+  }
+  .lab-train .tr-more-points li {
+    position: relative;
+    padding-left: 18px;
+  }
+  .lab-train .tr-more-points li::before {
+    content: '';
+    position: absolute;
+    left: 2px;
+    top: 0.62em;
+    width: 8px;
+    height: 2px;
+    background: var(--tr-red);
+  }
+  .lab-train .tr-more-note {
+    margin-top: 12px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: #3b2f22;
+  }
+  .lab-train .tr-more-body .tr-btn {
+    margin-top: 16px;
+  }
+  html:not(.tr-pin) .lab-train .tr-more-body .tr-btn {
+    display: none;
+  }
+
+  .lab-train .tr-line-end {
+    display: grid;
+    justify-items: start;
+    gap: 14px;
+    width: min(300px, 100vw - 60px);
+    padding: 20px 22px 22px;
+    border-radius: 5px;
+    background: var(--tr-grain), var(--tr-indigo);
+    box-shadow:
+      inset 0 0 0 2px var(--tr-indigo),
+      inset 0 0 0 4px var(--tr-cream);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 700px) {
+    /* Phones: the station shows in the window ribbon above the entry, so no gap is needed. */
+    html.tr-pin .lab-train .tr-stop {
+      position: relative;
+      align-self: flex-start;
+    }
+    html.tr-pin .lab-train .tr-stop-view {
+      position: absolute;
+      left: 50%;
+      width: 2px;
+    }
+    .lab-train .tr-entry-head {
+      padding: 12px 16px;
+    }
+    .lab-train .tr-entry-body {
+      padding: 14px 16px 18px;
+    }
+    html.tr-pin .lab-train .tr-more-body {
+      padding: 16px;
+    }
+  }
+</style>

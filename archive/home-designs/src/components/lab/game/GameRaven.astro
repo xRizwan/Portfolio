@@ -1,0 +1,170 @@
+---
+// Contact, at the harbour: a letter waiting for the raven. Email first, then the other places
+// to find me. No form.
+import { site } from '../../../data/site';
+import { art } from './art';
+import Flag from './Flag.astro';
+
+const links = [
+  { label: 'GitHub', href: site.github, note: site.github.replace('https://', '') },
+  {
+    label: 'LinkedIn',
+    href: site.linkedin,
+    note: site.linkedin.replace('https://www.', '').replace(/\/$/, ''),
+  },
+  { label: 'Resume', href: site.resume, note: 'PDF' },
+];
+---
+
+<section
+  class="qg-place qg-ravensec"
+  id="contact"
+  data-place="contact"
+  data-lane="gutter"
+  aria-labelledby="qg-contact-title"
+>
+  <div class="qg-inner">
+    <div class="qg-post">
+      <div class="qg-letter" data-reveal>
+        <header class="qg-head">
+          <p class="qg-head__place">
+            <Flag />
+            Harbour
+          </p>
+          <h2 id="qg-contact-title">
+            Send a <em>raven</em>
+          </h2>
+          <p class="qg-head__note">Email is the quickest way to reach me.</p>
+        </header>
+        <a class="qg-letter__mail" href={`mailto:${site.email}`}>
+          {site.email}
+        </a>
+        <ul class="qg-letter__links">
+          {links.map((link) => (
+            <li>
+              <a href={link.href}>
+                <img {...art('item-seal')} alt="" loading="lazy" />
+                <span>
+                  <strong>{link.label}</strong>
+                  <small>{link.note}</small>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div class="qg-raven" data-raven aria-hidden="true">
+        <img {...art('raven')} alt="" loading="lazy" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .lab-game .qg-post {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+    gap: clamp(20px, 4vw, 60px);
+    align-items: center;
+  }
+  .lab-game .qg-letter {
+    --tilt-from: 1.4deg;
+    position: relative;
+    padding: clamp(26px, 4.4vw, 60px);
+    border: 2px solid var(--q-ink);
+    border-radius: 4px 14px 6px 12px / 12px 5px 14px 4px;
+    background-color: var(--q-parch-light);
+    background-image: var(--q-grain), var(--q-stains);
+    box-shadow: 10px 14px 0 rgb(35 26 20 / 12%);
+  }
+  .lab-game .qg-letter .qg-head {
+    margin-bottom: 22px;
+  }
+  .lab-game .qg-letter__mail {
+    display: inline-block;
+    max-width: 100%;
+    color: var(--q-crimson);
+    font: 500 italic clamp(27px, 4.6vw, 54px) / 1.1 var(--q-display);
+    overflow-wrap: anywhere;
+    text-decoration: underline wavy 2px;
+    text-decoration-color: rgb(184 50 42 / 45%);
+    text-underline-offset: 9px;
+  }
+  .lab-game .qg-letter__mail:hover {
+    text-decoration-color: var(--q-crimson);
+  }
+  .lab-game .qg-letter__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 26px;
+    margin-top: 36px;
+    padding-top: 22px;
+    border-top: 1.5px dashed rgb(35 26 20 / 40%);
+  }
+  .lab-game .qg-letter__links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 6px 4px 0;
+    text-decoration: none;
+  }
+  .lab-game .qg-letter__links img {
+    width: 50px;
+    height: 50px;
+    transition: transform 0.35s cubic-bezier(0.3, 1.6, 0.5, 1);
+  }
+  .lab-game .qg-letter__links a:hover img {
+    transform: rotate(-16deg) scale(1.12);
+  }
+  .lab-game .qg-letter__links span {
+    display: grid;
+  }
+  .lab-game .qg-letter__links strong {
+    font: 600 23px/1.1 var(--q-display);
+  }
+  .lab-game .qg-letter__links small {
+    color: var(--q-ink-soft);
+    font-size: 12.5px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+  .lab-game .qg-letter__links a:hover strong {
+    color: var(--q-crimson);
+  }
+  /* The raven hovers beside the letter and leans towards the cursor. */
+  .lab-game .qg-raven {
+    justify-self: center;
+    width: min(100%, 380px);
+    translate: var(--rx, 0px) var(--ry, 0px);
+    transition: translate 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .lab-game .qg-raven img {
+    display: block;
+    filter: drop-shadow(0 26px 14px rgb(35 26 20 / 20%));
+  }
+  html:not(.qg-still) .lab-game .qg-raven img {
+    animation: qg-hover 3.2s ease-in-out infinite;
+  }
+  @keyframes qg-hover {
+    0%,
+    100% {
+      transform: translateY(0) rotate(-2deg);
+    }
+    50% {
+      transform: translateY(-16px) rotate(2.5deg);
+    }
+  }
+  @media (max-width: 860px) {
+    .lab-game .qg-post {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .lab-game .qg-raven {
+      order: -1;
+      width: 200px;
+      margin-bottom: -34px;
+      justify-self: end;
+      position: relative;
+      z-index: 1;
+    }
+  }
+</style>

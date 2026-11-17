@@ -1,0 +1,630 @@
+---
+// The pinned opening. A torch-lit title screen with the portrait in a painted frame; scrolling
+// lifts the title away, unrolls the map, draws the road in ink, paints the landmarks in one by
+// one and sends the traveller off towards the village. Without scripts (or with reduced motion)
+// the title and the finished map simply follow each other down the page.
+import { Image } from 'astro:assets';
+import portrait from '../../../assets/portrait.png';
+import { site } from '../../../data/site';
+import { art } from './art';
+import { MAP_HEIGHT, MAP_WIDTH, places, roadPath, roadSegments } from './places';
+
+const road = roadPath(roadSegments());
+const percent = (value: number, total: number): string => `${((value / total) * 100).toFixed(2)}%`;
+
+// One soft ellipse of visible paint per landmark; `--k<n>` grows it from nothing. Radii are in
+// container-query widths so they scale with the map (1600 map pixels = 100cqw).
+const paintMask = places
+  .map((place, index) => {
+    const { at, rx, ry } = place.paint;
+    const grow = `var(--k${index}, 1.3)`;
+    return `radial-gradient(ellipse calc(${grow} * ${(rx / 16).toFixed(2)}cqw) calc(${grow} * ${(ry / 16).toFixed(2)}cqw) at ${percent(at[0], MAP_WIDTH)} ${percent(at[1], MAP_HEIGHT)}, #000 42%, transparent 100%)`;
+  })
+  .join(', ');
+const village = places[0];
+---
+
+<section class="qg-open" id="top" data-open aria-labelledby="qg-title">
+  <div class="qg-open__pin" data-open-pin data-stage="0">
+    <div class="qg-title" data-title>
+      <div class="qg-title__glow" aria-hidden="true"></div>
+      <figure class="qg-portrait">
+        <Image
+          class="qg-portrait__photo"
+          src={portrait}
+          alt={`Portrait of ${site.name}`}
+          widths={[280, 420, 560]}
+          sizes="(max-width: 760px) 190px, 300px"
+          loading="eager"
+        />
+        <img class="qg-portrait__frame" {...art('frame')} alt="" />
+      </figure>
+      <div class="qg-title__text">
+        <h1 class="qg-banner" id="qg-title">
+          <span class="qg-banner__hi">Hi, I’m</span>
+          <span class="qg-banner__name">
+            <span>{site.shortName}</span>
+          </span>
+        </h1>
+        <p class="qg-title__role">{site.intro.role}</p>
+        <p class="qg-title__summary">{site.intro.summary}</p>
+        <a class="qg-begin" href="#about" data-begin>
+          <span>Begin</span>
+          <svg viewBox="0 0 24 14" aria-hidden="true">
+            <path d="M2 2c4 4 7 7 10 10 3-3 6-6 10-10"></path>
+          </svg>
+        </a>
+        <p class="qg-title__hint">Scroll to unroll the map</p>
+      </div>
+    </div>
+
+    <div class="qg-table" data-table>
+      <div class="qg-scrollwrap">
+        <span class="qg-rod qg-rod--l" aria-hidden="true"></span>
+        <span class="qg-rod qg-rod--r" aria-hidden="true"></span>
+        <div class="qg-sheet">
+          <div class="qg-map" data-map>
+            <img
+              class="qg-map__paint"
+              {...art('map')}
+              style={{ 'mask-image': paintMask, '-webkit-mask-image': paintMask }}
+              alt="Hand-painted map with a village, a forest camp, a mountain range, a dragon’s cave, a tower on a hill and a harbour town, joined by one winding road."
+            />
+            <img class="qg-map__rest" {...art('map')} alt="" />
+            <div class="qg-clouds" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <svg
+              class="qg-map__road"
+              viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`}
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            >
+              <defs>
+                <mask id="qg-road-ink" maskUnits="userSpaceOnUse">
+                  <path class="qg-map__ink" d={road} pathLength="1"></path>
+                </mask>
+              </defs>
+              <path class="qg-map__dashes" d={road} mask="url(#qg-road-ink)"></path>
+            </svg>
+            {places.map((place, index) => (
+              <a
+                class="qg-pin"
+                href={`#${place.id}`}
+                style={{
+                  left: percent(place.label[0], MAP_WIDTH),
+                  top: percent(place.label[1], MAP_HEIGHT),
+                  '--pin': `var(--k${index}, 1.3)`,
+                }}
+              >
+                <span class="qg-pin__name">{place.name}</span>
+                <span class="qg-pin__holds">{place.holds}</span>
+              </a>
+            ))}
+            {village && (
+              <img
+                class="qg-token"
+                {...art('traveller')}
+                alt=""
+                data-token
+                style={{
+                  left: percent(village.stop[0], MAP_WIDTH),
+                  top: percent(village.stop[1], MAP_HEIGHT),
+                }}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+      <p class="qg-caption">
+        <span data-caption="1">The scroll is a map. Keep going and it unrolls.</span>
+        <span data-caption="2">One road joins six places. Each place is a part of this page.</span>
+        <span data-caption="3">The road starts at the village. Scroll on to walk it.</span>
+      </p>
+    </div>
+  </div>
+  <span class="qg-tear qg-tear--up" aria-hidden="true"></span>
+</section>
+
+<style is:global>
+  .lab-game .qg-open {
+    /* Above the fixed dragon and traveller (z-index 2), so they pass behind the map. */
+    position: relative;
+    z-index: 4;
+    background-color: var(--q-night);
+    background-image:
+      radial-gradient(120% 80% at 50% 0%, rgb(217 164 65 / 10%), transparent 60%), var(--q-grain);
+    color: var(--q-parch);
+  }
+
+  /* Default layout (no scripts, or motion reduced): title, then the finished map. */
+  .lab-game .qg-open__pin {
+    --lift: 0;
+    --u: 1;
+    --draw: 1;
+    --rest: 1;
+    --pan: 0px;
+    --table: 1;
+    position: relative;
+    display: grid;
+    gap: 44px;
+    padding: 104px 20px 70px;
+  }
+  .lab-game .qg-title {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 540px);
+    gap: clamp(28px, 5vw, 84px);
+    align-items: center;
+    justify-content: center;
+  }
+  /* Torchlight behind the portrait. */
+  .lab-game .qg-title__glow {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(1100px, 130vw);
+    aspect-ratio: 1.5;
+    transform: translate(-62%, -50%);
+    background: radial-gradient(
+      closest-side,
+      rgb(217 164 65 / 30%),
+      rgb(184 50 42 / 10%) 55%,
+      transparent
+    );
+    pointer-events: none;
+  }
+  html:not(.qg-still) .lab-game .qg-title__glow {
+    animation: qg-flicker 3.4s ease-in-out infinite;
+  }
+  @keyframes qg-flicker {
+    0%,
+    100% {
+      opacity: 0.92;
+      scale: 1;
+    }
+    18% {
+      opacity: 0.7;
+      scale: 0.97;
+    }
+    31% {
+      opacity: 1;
+      scale: 1.02;
+    }
+    52% {
+      opacity: 0.78;
+      scale: 0.985;
+    }
+    74% {
+      opacity: 0.96;
+      scale: 1.01;
+    }
+  }
+  .lab-game .qg-portrait {
+    position: relative;
+    height: min(60svh, 520px);
+    aspect-ratio: 560 / 794;
+    rotate: -1.6deg;
+    filter: drop-shadow(0 18px 26px rgb(0 0 0 / 55%));
+  }
+  /* The photo sits just inside the painted frame's opening and is warmed a little so it
+     belongs with the ink and wash around it. */
+  .lab-game .qg-portrait__photo {
+    position: absolute;
+    left: 10%;
+    top: 11%;
+    width: 80%;
+    height: 81.5%;
+    object-fit: cover;
+    object-position: 50% 12%;
+    filter: sepia(0.22) saturate(0.92) contrast(1.03);
+  }
+  .lab-game .qg-portrait__frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .lab-game .qg-title__text {
+    position: relative;
+  }
+  .lab-game .qg-banner {
+    display: grid;
+    /* A definite column: the ribbon sizes from it (it has no intrinsic width of its own). */
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: start;
+    font-weight: 400;
+  }
+  .lab-game .qg-banner__hi {
+    margin: 0 0 -6px 12px;
+    color: var(--q-gold);
+    font: 700 clamp(32px, 3.6vw, 46px) / 1 var(--q-hand);
+    rotate: -3deg;
+  }
+  .lab-game .qg-banner__name {
+    /* The painted ribbon is the box; the name sits on its flat middle band (the top four
+       fifths of the artwork), sized from the ribbon's own width. */
+    display: grid;
+    place-items: center;
+    width: min(108%, 640px);
+    aspect-ratio: 900 / 180;
+    margin-left: -5%;
+    padding-bottom: 3.2%;
+    container-type: inline-size;
+    background: url('/lab/game/banner.webp') center / 100% 100% no-repeat;
+    color: var(--q-parch-light);
+    font: 600 60px/1 var(--q-display);
+    letter-spacing: 0.1em;
+    text-shadow: 0 2px 0 rgb(60 12 8 / 55%);
+  }
+  .lab-game .qg-banner__name span {
+    font-size: 13.4cqw;
+    /* Letter-spacing trails the last letter; pull the word back to centre. */
+    margin-right: -0.1em;
+  }
+  .lab-game .qg-title__role {
+    margin-top: 18px;
+    color: var(--q-gold);
+    font: 700 13px/1.3 var(--q-ui);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .lab-game .qg-title__summary {
+    margin-top: 12px;
+    max-width: 30ch;
+    font: 400 clamp(21px, 2.1vw, 27px) / 1.32 var(--q-display);
+    text-wrap: pretty;
+  }
+  .lab-game .qg-begin {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    margin-top: 26px;
+    padding: 10px 26px 8px;
+    border: 1.5px solid rgb(217 164 65 / 70%);
+    border-radius: 4px 12px 5px 13px;
+    color: var(--q-gold);
+    font: 500 italic 26px/1 var(--q-display);
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
+  }
+  .lab-game .qg-begin:hover {
+    background: var(--q-gold);
+    color: var(--q-ink);
+  }
+  .lab-game .qg-begin:focus-visible {
+    outline-color: var(--q-gold);
+  }
+  .lab-game .qg-begin svg {
+    width: 22px;
+    height: 13px;
+    fill: none;
+    stroke: currentcolor;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  html:not(.qg-still) .lab-game .qg-begin svg {
+    animation: qg-nudge 1.5s ease-in-out infinite;
+  }
+  @keyframes qg-nudge {
+    50% {
+      translate: 0 5px;
+    }
+  }
+  .lab-game .qg-title__hint {
+    display: none;
+    margin-top: 12px;
+    color: rgb(239 226 196 / 62%);
+    font: 500 21px/1 var(--q-hand);
+  }
+
+  /* The map on the table. */
+  .lab-game .qg-table {
+    display: grid;
+    justify-items: center;
+    gap: 14px;
+  }
+  .lab-game .qg-scrollwrap {
+    position: relative;
+    width: min(1100px, 100%);
+    aspect-ratio: 16 / 9;
+  }
+  .lab-game .qg-sheet {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    clip-path: inset(0 calc((1 - var(--u)) * 50%));
+  }
+  .lab-game .qg-map {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    container-type: inline-size;
+    background-color: #ead9a8;
+    background-image: var(--q-grain), var(--q-stains);
+    transform: translateX(var(--pan));
+  }
+  .lab-game .qg-map__paint,
+  .lab-game .qg-map__rest,
+  .lab-game .qg-map__road,
+  .lab-game .qg-clouds {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+  }
+  .lab-game .qg-map__paint {
+    mask-repeat: no-repeat;
+    -webkit-mask-repeat: no-repeat;
+  }
+  .lab-game .qg-map__rest {
+    opacity: var(--rest);
+  }
+  .lab-game .qg-map__ink {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 16;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: calc(1 - var(--draw));
+  }
+  .lab-game .qg-map__dashes {
+    fill: none;
+    stroke: #4a2f1c;
+    stroke-width: 6;
+    stroke-linecap: round;
+    stroke-dasharray: 17 15;
+    opacity: 0.86;
+  }
+  /* Cloud shadows drifting over the land. */
+  .lab-game .qg-clouds {
+    overflow: hidden;
+    mix-blend-mode: multiply;
+    opacity: var(--rest);
+    pointer-events: none;
+  }
+  .lab-game .qg-clouds span {
+    position: absolute;
+    left: -30%;
+    top: 12%;
+    width: 26%;
+    aspect-ratio: 2.1;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(70 48 26 / 30%), transparent);
+    filter: blur(6px);
+  }
+  .lab-game .qg-clouds span:nth-child(2) {
+    top: 48%;
+    width: 34%;
+  }
+  .lab-game .qg-clouds span:nth-child(3) {
+    top: 70%;
+    width: 20%;
+  }
+  html:not(.qg-still) .lab-game .qg-clouds span {
+    animation: qg-cloud 46s linear infinite;
+  }
+  html:not(.qg-still) .lab-game .qg-clouds span:nth-child(2) {
+    animation-duration: 64s;
+    animation-delay: -30s;
+  }
+  html:not(.qg-still) .lab-game .qg-clouds span:nth-child(3) {
+    animation-duration: 38s;
+    animation-delay: -12s;
+  }
+  @keyframes qg-cloud {
+    to {
+      translate: 620% 30%;
+    }
+  }
+  /* Place names, written on the map by hand. Each one is a link to its section. */
+  .lab-game .qg-pin {
+    position: absolute;
+    display: grid;
+    justify-items: center;
+    padding: 2px 8px;
+    translate: -50% -50%;
+    color: #3a2414;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+    opacity: clamp(0, (var(--pin) - 0.55) * 2.4, 1);
+    rotate: -2deg;
+  }
+  .lab-game .qg-pin:nth-of-type(even) {
+    rotate: 1.5deg;
+  }
+  /* A small parchment cartouche keeps every name readable over land or sea. */
+  .lab-game .qg-pin {
+    padding: 3px 10px 4px;
+    border-radius: 3px 8px 4px 9px;
+    background: rgb(247 238 216 / 82%);
+    box-shadow: 0 0 0 1px rgb(58 36 20 / 35%);
+  }
+  .lab-game .qg-pin__name {
+    font: 700 clamp(15px, 2.3cqw, 27px) / 1 var(--q-hand);
+  }
+  .lab-game .qg-pin__holds {
+    font: 700 clamp(8px, 0.95cqw, 11px) / 1.5 var(--q-ui);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--q-crimson);
+  }
+  .lab-game .qg-pin:hover .qg-pin__name,
+  .lab-game .qg-pin:focus-visible .qg-pin__name {
+    text-decoration: underline wavy var(--q-crimson) 1.5px;
+    text-underline-offset: 4px;
+  }
+  .lab-game .qg-token {
+    position: absolute;
+    width: auto;
+    height: 12%;
+    translate: -50% -94%;
+    filter: drop-shadow(0 3px 2px rgb(40 24 10 / 45%));
+    opacity: var(--token, 1);
+    pointer-events: none;
+  }
+  .lab-game .qg-rod {
+    display: none;
+  }
+  /* The torn edge sits at the very foot of the tall pinned section, not after the pin. */
+  .lab-game .qg-open > .qg-tear {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+  }
+  .lab-game .qg-caption {
+    display: none;
+  }
+
+  @media (max-width: 760px) {
+    .lab-game .qg-open__pin {
+      padding-top: 112px;
+    }
+    .lab-game .qg-title {
+      grid-template-columns: minmax(0, 1fr);
+      justify-items: center;
+      gap: 14px;
+      text-align: center;
+    }
+    .lab-game .qg-title__glow {
+      transform: translate(-50%, -70%);
+    }
+    .lab-game .qg-portrait {
+      height: min(33svh, 300px);
+    }
+    .lab-game .qg-banner {
+      justify-items: center;
+    }
+    .lab-game .qg-banner__hi {
+      margin-left: 0;
+    }
+    .lab-game .qg-banner__name {
+      width: min(100%, 370px);
+      margin-left: 0;
+    }
+    .lab-game .qg-title__role {
+      margin-top: 12px;
+      font-size: 12px;
+    }
+    .lab-game .qg-title__summary {
+      margin: 8px auto 0;
+      font-size: 19px;
+    }
+    .lab-game .qg-begin {
+      margin-top: 16px;
+      font-size: 22px;
+    }
+  }
+
+  /* Scripted, moving layout: everything is stacked in one pinned screen and driven by scroll. */
+  html.qg-js:not(.qg-still) .lab-game .qg-open {
+    height: 470vh;
+  }
+  html.qg-js:not(.qg-still) .lab-game .qg-open__pin {
+    --mh: min(100svh - 196px, (100vw - 120px) * 0.5625);
+    position: sticky;
+    top: 0;
+    display: block;
+    height: 100vh;
+    height: 100svh;
+    padding: 0;
+    overflow: hidden;
+  }
+  html.qg-js:not(.qg-still) .lab-game .qg-title {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    padding: 70px 24px 66px;
+    align-content: center;
+    opacity: clamp(0, 1 - var(--lift) * 1.5, 1);
+    transform: translateY(calc(var(--lift) * -46vh)) scale(calc(1 - var(--lift) * 0.06));
+    visibility: var(--title-vis, visible);
+  }
+  html.qg-js:not(.qg-still) .lab-game .qg-title__hint {
+    display: block;
+  }
+  html.qg-js:not(.qg-still) .lab-game .qg-table {
+    position: absolute;
+    inset: 0;
+    align-content: center;
+    padding: 64px 0 62px;
+    opacity: var(--table);
+  }
+  html.qg-js:not(.qg-still) .lab-game .qg-scrollwrap {
+    width: min(var(--mh) * 16 / 9, 100vw - 40px);
+    height: var(--mh);
+    aspect-ratio: auto;
+    filter: drop-shadow(0 22px 30px rgb(0 0 0 / 55%));
+  }
+  html.qg-js:not(.qg-still) .lab-game .qg-map {
+    width: calc(var(--mh) * 16 / 9);
+    height: var(--mh);
+  }
+  /* The wooden rods the scroll is rolled on; they part as it opens. */
+  html.qg-js:not(.qg-still) .lab-game .qg-rod {
+    position: absolute;
+    top: -4.5%;
+    z-index: 2;
+    display: block;
+    width: 22px;
+    height: 109%;
+    border-radius: 11px;
+    background: linear-gradient(90deg, #3d2716, #a06a38 34%, #c08a4c 46%, #7a4d28 70%, #3a2414);
+    box-shadow:
+      inset 0 14px 0 -2px var(--q-gold),
+      inset 0 -14px 0 -2px var(--q-gold),
+      0 0 0 1.5px #20140b;
+  }
+  html.qg-js:not(.qg-still) .lab-game .qg-rod--l {
+    left: calc((1 - var(--u)) * 50% - 16px);
+  }
+  html.qg-js:not(.qg-still) .lab-game .qg-rod--r {
+    right: calc((1 - var(--u)) * 50% - 16px);
+  }
+  html.qg-js:not(.qg-still) .lab-game .qg-caption {
+    position: relative;
+    display: grid;
+    width: min(100vw - 32px, 720px);
+    min-height: 2.3em;
+    color: var(--q-gold);
+    font: 700 clamp(21px, 2.2vw, 27px) / 1.1 var(--q-hand);
+    text-align: center;
+  }
+  html.qg-js:not(.qg-still) .lab-game .qg-caption span {
+    grid-area: 1 / 1;
+    opacity: 0;
+    translate: 0 8px;
+    transition:
+      opacity 0.4s ease,
+      translate 0.4s ease;
+  }
+  html.qg-js:not(.qg-still) .lab-game [data-stage='1'] [data-caption='1'],
+  html.qg-js:not(.qg-still) .lab-game [data-stage='2'] [data-caption='2'],
+  html.qg-js:not(.qg-still) .lab-game [data-stage='3'] [data-caption='3'] {
+    opacity: 1;
+    translate: 0 0;
+  }
+  @media (max-width: 760px) {
+    /* On a phone the map is taller than the screen is wide, so it is shown through a window
+       and pans to follow the ink. */
+    html.qg-js:not(.qg-still) .lab-game .qg-open__pin {
+      --mh: min(52svh, 470px);
+    }
+    html.qg-js:not(.qg-still) .lab-game .qg-title {
+      padding: 92px 18px 62px;
+    }
+    html.qg-js:not(.qg-still) .lab-game .qg-table {
+      padding-top: 96px;
+    }
+  }
+</style>

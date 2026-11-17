@@ -1,0 +1,369 @@
+---
+// The content: a title card and one section per stage. While the level is being played the engine
+// shows each card for the stretch of the level named in its data-from / data-to; without the game
+// (no JavaScript, reduced motion, very small screens) the same markup is a plain vertical page.
+import { Image, getImage } from 'astro:assets';
+import portrait from '../../../assets/portrait.png';
+import { credentialAlt, credentials } from '../../../data/certificates';
+import { experienceIntro, roles } from '../../../data/experience';
+import { site } from '../../../data/site';
+import { skillGroups } from '../../../data/skills';
+import { workRows } from '../../../data/work';
+import { getProjects } from '../../../lib/collections';
+import { projectHref } from '../../../lib/content';
+import { art, sprites } from './art';
+import { level, TITLE_END } from './data';
+import { START } from './level';
+
+const { about, skills, experience, work, certificates, contact } = level;
+const stage = (id: string) => level.stages.find((entry) => entry.id === id);
+
+const projects = await getProjects();
+const workCards = workRows.map((row) => {
+  const project = projects.find((entry) => entry.id === row.id);
+  return {
+    label: row.label,
+    title: project?.data.title ?? row.title,
+    description: project?.data.description,
+    href: projectHref(row.id),
+  };
+});
+
+const certificateCards = await Promise.all(
+  credentials.map(async (credential) => {
+    const full = await getImage({
+      src: credential.image,
+      width: 1600,
+      format: 'webp',
+      quality: 85,
+    });
+    return { ...credential, alt: credentialAlt(credential), full: full.src };
+  }),
+);
+---
+
+<section
+  class="rn-title is-on"
+  id="top"
+  data-from={START - 5000}
+  data-to={TITLE_END}
+  aria-label="Introduction"
+>
+  <div class="rn-title__text">
+    <h1>
+      <span class="rn-title__hi">Hi, I'm</span>
+      <span class="rn-title__name">{site.shortName}</span>
+    </h1>
+    <p class="rn-title__role">{site.intro.role}</p>
+    <p class="rn-title__summary">{site.intro.summary}</p>
+    <p class="rn-title__prompt" aria-hidden="true">
+      <span>Scroll to play</span>
+    </p>
+  </div>
+  <div class="rn-bill">
+    <img
+      class="rn-bill__board"
+      src={art('billboard')}
+      width={sprites.billboard[0]}
+      height={sprites.billboard[1]}
+      alt=""
+      decoding="async"
+    />
+    <Image
+      class="rn-bill__photo"
+      src={portrait}
+      alt={`Portrait of ${site.name}`}
+      widths={[320, 480, 640]}
+      sizes="(min-width: 800px) 320px, 200px"
+      loading="eager"
+    />
+  </div>
+</section>
+
+<section
+  class="rn-sec"
+  id="about"
+  data-theme="meadow"
+  data-jump={about.intro.from + 30}
+  aria-labelledby="rn-about"
+>
+  <article class="rn-card rn-card--lead" data-from={about.intro.from} data-to={about.intro.to}>
+    <p class="rn-card__stage">{stage('about')?.name}</p>
+    <h2 id="rn-about">About me</h2>
+    <p class="rn-card__lead">{experienceIntro.about.lead}</p>
+    <p>{experienceIntro.about.body}</p>
+  </article>
+  {experienceIntro.about.traits.map((trait, index) => {
+    const hold = about.traits[index];
+    return (
+      hold && (
+        <article class="rn-card rn-card--sign" data-from={hold.from} data-to={hold.to}>
+          <h3>{trait.title}</h3>
+          <p>{trait.text}</p>
+        </article>
+      )
+    );
+  })}
+</section>
+
+<section
+  class="rn-sec"
+  id="skills"
+  data-theme="sky"
+  data-jump={skills.intro.from + 20}
+  aria-labelledby="rn-skills"
+>
+  <article class="rn-card rn-card--lead" data-from={skills.intro.from} data-to={skills.intro.to}>
+    <p class="rn-card__stage">{stage('skills')?.name}</p>
+    <h2 id="rn-skills">Skills</h2>
+    <p>
+      Each block holds one group of skills. The cat bumps them open on the way past, and you can hit
+      any block yourself.
+    </p>
+  </article>
+  {skillGroups.map((group, index) => {
+    const block = skills.blocks[index];
+    return (
+      block && (
+        <article class="rn-card rn-card--skill" data-from={block.from} data-to={block.to}>
+          <h3>{group.name}</h3>
+          <ul class="rn-chips">
+            {group.items.map((item, order) => (
+              <li style={`--i:${order}`}>{item}</li>
+            ))}
+          </ul>
+        </article>
+      )
+    );
+  })}
+</section>
+
+<section
+  class="rn-sec"
+  id="experience"
+  data-theme="sunset"
+  data-jump={experience.intro.from + 20}
+  aria-labelledby="rn-experience"
+>
+  <article
+    class="rn-card rn-card--lead"
+    data-from={experience.intro.from}
+    data-to={experience.intro.to}
+  >
+    <p class="rn-card__stage">{stage('experience')?.name}</p>
+    <h2 id="rn-experience">Experience</h2>
+    <p>
+      Each flag is a place I have worked, newest first. The flag goes up when the cat gets there.
+    </p>
+  </article>
+  {roles.map((role, index) => {
+    const flag = experience.flags[index];
+    return (
+      flag && (
+        <article class="rn-card rn-card--role" data-from={flag.from} data-to={flag.to}>
+          <header class="rn-role__head">
+            <h3>{role.company}</h3>
+            {index === 0 && <span class="rn-role__now">Where I am now</span>}
+            <p class="rn-role__dates">{role.dates}</p>
+          </header>
+          <p class="rn-role__kind">{role.kind}</p>
+          <ul class="rn-role__titles">
+            {role.titles.map((entry) => (
+              <li>
+                <strong>{entry.title}</strong>
+                {role.titles.length > 1 && <span>{entry.dates}</span>}
+              </li>
+            ))}
+          </ul>
+          <p>{role.summary}</p>
+          <details class="rn-more">
+            <summary>What I did there</summary>
+            <div class="rn-more__body">
+              <h4>{role.company}</h4>
+              <ul class="rn-more__points">
+                {role.points.map((point) => (
+                  <li>{point}</li>
+                ))}
+              </ul>
+              {role.contributed.length > 0 && (
+                <>
+                  <h5>Codebases I contributed to</h5>
+                  <ul class="rn-chips rn-chips--plain">
+                    {role.contributed.map((name) => (
+                      <li>{name}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
+              <h5>Stack</h5>
+              <ul class="rn-chips rn-chips--plain">
+                {role.stack.map((name) => (
+                  <li>{name}</li>
+                ))}
+              </ul>
+            </div>
+          </details>
+          {index === roles.length - 1 && (
+            <a class="rn-link" href="/experience/">
+              See the full experience page
+            </a>
+          )}
+        </article>
+      )
+    );
+  })}
+</section>
+
+<section
+  class="rn-sec"
+  id="work"
+  data-theme="cave"
+  data-jump={work.intro.from + 20}
+  aria-labelledby="rn-work"
+>
+  <article class="rn-card rn-card--lead" data-from={work.intro.from} data-to={work.intro.to}>
+    <p class="rn-card__stage">{stage('work')?.name}</p>
+    <h2 id="rn-work">Work</h2>
+    <p>Three chests, with one project in each.</p>
+  </article>
+  {workCards.map((card, index) => {
+    const chest = work.chests[index];
+    return (
+      chest && (
+        <article class="rn-card rn-card--chest" data-from={chest.from} data-to={chest.to}>
+          <p class="rn-card__label">{card.label}</p>
+          <h3>
+            <a href={card.href}>{card.title}</a>
+          </h3>
+          {card.description && <p>{card.description}</p>}
+          <a class="rn-link" href={card.href} aria-label={`Read the write-up: ${card.title}`}>
+            Read the write-up
+          </a>
+        </article>
+      )
+    );
+  })}
+  <article class="rn-card rn-card--sign" data-from={work.blog.from} data-to={work.blog.to}>
+    <h3>The blog</h3>
+    <p>I write up what I build and what I learn along the way.</p>
+    <a class="rn-link" href="/blog/">
+      Go to the blog
+    </a>
+  </article>
+</section>
+
+<section
+  class="rn-sec"
+  id="certificates"
+  data-theme="cave"
+  data-jump={certificates.intro.from + 20}
+  aria-labelledby="rn-certificates"
+>
+  <article
+    class="rn-card rn-card--lead"
+    data-from={certificates.intro.from}
+    data-to={certificates.intro.to}
+  >
+    <p class="rn-card__stage">{stage('certificates')?.name}</p>
+    <h2 id="rn-certificates">Certificates</h2>
+    <p>The lantern lights them one at a time. Pick any of them to see it full size.</p>
+  </article>
+  {certificateCards.map((card, index) => {
+    const frame = certificates.frames[index];
+    return (
+      frame && (
+        <article class="rn-card rn-card--cert" data-from={frame.from} data-to={frame.to}>
+          <a
+            class="rn-cert__open"
+            href={card.full}
+            data-index={index}
+            data-title={card.title}
+            data-issuer={card.issuer}
+            data-alt={card.alt}
+            aria-label={`See it full size: ${card.title}`}
+          >
+            <Image
+              src={card.image}
+              alt={card.alt}
+              widths={[240, 480]}
+              sizes="220px"
+              loading="lazy"
+            />
+          </a>
+          <div>
+            <h3>{card.title}</h3>
+            <p class="rn-cert__issuer">{card.issuer}</p>
+            <p class="rn-cert__hint" aria-hidden="true">
+              Pick the picture to see it full size.
+            </p>
+          </div>
+        </article>
+      )
+    );
+  })}
+</section>
+
+<section
+  class="rn-sec"
+  id="contact"
+  data-theme="meadow"
+  data-jump={contact.card.from + 20}
+  aria-labelledby="rn-contact"
+>
+  <article
+    class="rn-card rn-card--lead rn-card--finish"
+    data-from={contact.card.from}
+    data-to={level.length + 5000}
+  >
+    <p class="rn-card__stage">{stage('contact')?.name}</p>
+    <h2 id="rn-contact">That's the whole level. Say hello.</h2>
+    <ul class="rn-contact">
+      <li>
+        <span>Email</span>
+        <a href={`mailto:${site.email}`}>{site.email}</a>
+      </li>
+      <li>
+        <span>GitHub</span>
+        <a href={site.github}>{site.github.replace('https://', '')}</a>
+      </li>
+      <li>
+        <span>LinkedIn</span>
+        <a href={site.linkedin}>{site.linkedin.replace('https://www.', '').replace(/\/$/, '')}</a>
+      </li>
+      <li>
+        <span>Resume</span>
+        <a href={site.resume}>Open the PDF</a>
+      </li>
+    </ul>
+  </article>
+</section>
+
+<dialog class="rn-dialog rn-dialog--viewer" id="rn-viewer" aria-labelledby="rn-viewer-title">
+  <figure>
+    <img src="" alt="" />
+    <figcaption>
+      <strong id="rn-viewer-title"></strong>
+      <span></span>
+    </figcaption>
+  </figure>
+  <div class="rn-dialog__bar">
+    <button type="button" data-step="-1">
+      Previous
+    </button>
+    <button type="button" data-step="1">
+      Next
+    </button>
+    <button type="button" data-close>
+      Close
+    </button>
+  </div>
+</dialog>
+
+<dialog class="rn-dialog rn-dialog--notes" id="rn-notes" aria-label="What I did there">
+  <div class="rn-dialog__body"></div>
+  <div class="rn-dialog__bar">
+    <button type="button" data-close>
+      Close
+    </button>
+  </div>
+</dialog>

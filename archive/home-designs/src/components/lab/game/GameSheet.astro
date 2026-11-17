@@ -1,0 +1,255 @@
+---
+// About, as a character sheet: who this is, and the three traits as attributes described in
+// words. The dice pick one of the traits at random.
+import { experienceIntro } from '../../../data/experience';
+import { site } from '../../../data/site';
+import { art, type ArtName } from './art';
+import Flag from './Flag.astro';
+
+const { about } = experienceIntro;
+// One item from the painted set per trait, in the order the traits are written.
+const traitItems: ArtName[] = ['item-candle', 'item-lock', 'item-pick'];
+---
+
+<section
+  class="qg-place qg-sheet-place"
+  id="about"
+  data-place="about"
+  data-lane="gutter"
+  aria-labelledby="qg-about-title"
+>
+  <div class="qg-inner">
+    <div class="qg-charsheet" data-reveal>
+      <div class="qg-charsheet__who">
+        <header class="qg-head">
+          <p class="qg-head__place">
+            <Flag />
+            Home village
+          </p>
+          <h2 id="qg-about-title">
+            Character <em>sheet</em>
+          </h2>
+        </header>
+        <dl class="qg-fields">
+          <div>
+            <dt>Name</dt>
+            <dd>{site.name}</dd>
+          </div>
+          <div>
+            <dt>Goes by</dt>
+            <dd>{site.shortName}</dd>
+          </div>
+          <div>
+            <dt>Class</dt>
+            <dd>{site.jobTitle}</dd>
+          </div>
+        </dl>
+        <p class="qg-charsheet__lead">{about.lead}</p>
+        <p class="qg-charsheet__body">{about.body}</p>
+      </div>
+
+      <div class="qg-traits" data-traits>
+        <h3 class="qg-traits__title">Traits</h3>
+        <ul>
+          {about.traits.map((trait, index) => (
+            <li class="qg-trait" data-trait style={{ '--i': index }}>
+              <img
+                {...art(traitItems[index] ?? 'item-candle')}
+                alt=""
+                loading="lazy"
+                class="qg-trait__item"
+              />
+              <div>
+                <h4>{trait.title}</h4>
+                <p>{trait.text}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <div class="qg-roll">
+          <button class="qg-roll__btn" type="button" data-roll>
+            <img {...art('item-dice')} alt="" loading="lazy" />
+            <span>Roll the dice</span>
+          </button>
+          <p class="qg-roll__note" data-roll-note aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  /* The sheet: a lighter leaf of paper with a ruled ink border, lying a little crooked. */
+  .lab-game .qg-charsheet {
+    --tilt-from: -1.2deg;
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: clamp(28px, 4.5vw, 70px);
+    padding: clamp(26px, 4.4vw, 64px);
+    border: 2px solid var(--q-ink);
+    border-radius: 4px 14px 6px 12px / 12px 5px 14px 4px;
+    background-color: var(--q-parch-light);
+    background-image: var(--q-grain), var(--q-stains);
+    box-shadow:
+      inset 0 0 0 6px var(--q-parch-light),
+      inset 0 0 0 7.5px rgb(35 26 20 / 55%),
+      10px 14px 0 rgb(35 26 20 / 12%);
+  }
+  .lab-game .qg-charsheet .qg-head {
+    margin-bottom: 26px;
+  }
+  .lab-game .qg-fields {
+    display: grid;
+    gap: 2px;
+    margin-bottom: 30px;
+  }
+  .lab-game .qg-fields > div {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    align-items: baseline;
+    gap: 14px;
+    padding: 7px 0;
+    /* A hand-ruled line: slightly broken ink. */
+    border-bottom: 1.5px dashed rgb(35 26 20 / 34%);
+  }
+  .lab-game .qg-fields dt {
+    color: var(--q-ink-soft);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .lab-game .qg-fields dd {
+    font: 700 28px/1.1 var(--q-hand);
+  }
+  .lab-game .qg-charsheet__lead {
+    font: 500 italic clamp(25px, 2.7vw, 36px) / 1.2 var(--q-display);
+    text-wrap: balance;
+  }
+  .lab-game .qg-charsheet__body {
+    margin-top: 18px;
+    max-width: 58ch;
+    color: #3d2e22;
+  }
+  .lab-game .qg-traits__title {
+    display: inline-block;
+    padding: 0 18px 4px 2px;
+    border-bottom: 3px double var(--q-crimson);
+    color: var(--q-crimson);
+    font: 700 13px/1.6 var(--q-ui);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .lab-game .qg-traits ul {
+    display: grid;
+    gap: 6px;
+    margin-top: 14px;
+  }
+  .lab-game .qg-trait {
+    display: grid;
+    grid-template-columns: 74px minmax(0, 1fr);
+    gap: 16px;
+    align-items: center;
+    padding: 12px 12px 12px 6px;
+    border-radius: 8px;
+    transition:
+      background-color 0.3s ease,
+      transform 0.3s ease;
+  }
+  .lab-game .qg-trait__item {
+    width: 74px;
+    height: 74px;
+    object-fit: contain;
+    transition: transform 0.35s cubic-bezier(0.3, 1.6, 0.5, 1);
+  }
+  .lab-game .qg-trait:hover .qg-trait__item {
+    transform: rotate(-8deg) scale(1.1);
+  }
+  .lab-game .qg-trait h4 {
+    font: 600 clamp(24px, 2.3vw, 30px) / 1.1 var(--q-display);
+  }
+  .lab-game .qg-trait p {
+    margin-top: 4px;
+    color: #3d2e22;
+    font-size: 16px;
+  }
+  /* The trait the dice landed on. */
+  .lab-game .qg-trait.is-rolled {
+    background: rgb(217 164 65 / 26%);
+    box-shadow: inset 0 0 0 1.5px rgb(35 26 20 / 40%);
+    transform: rotate(-0.7deg) translateX(4px);
+  }
+  .lab-game .qg-trait.is-rolled .qg-trait__item {
+    transform: rotate(-10deg) scale(1.14);
+  }
+  .lab-game .qg-roll {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 16px;
+    margin-top: 16px;
+  }
+  .lab-game .qg-roll__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 16px 4px 6px;
+    border: 1.5px dashed rgb(35 26 20 / 60%);
+    border-radius: 999px;
+    background: transparent;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+  }
+  .lab-game .qg-roll__btn:hover {
+    border-style: solid;
+    background: rgb(35 26 20 / 6%);
+  }
+  .lab-game .qg-roll__btn img {
+    width: 46px;
+    height: 40px;
+    object-fit: contain;
+  }
+  .lab-game .qg-roll__btn.is-rolling img {
+    animation: qg-tumble 0.7s cubic-bezier(0.3, 0.7, 0.3, 1);
+  }
+  @keyframes qg-tumble {
+    30% {
+      transform: translateY(-16px) rotate(200deg);
+    }
+    60% {
+      transform: translateY(0) rotate(340deg);
+    }
+    80% {
+      transform: translateY(-5px) rotate(356deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  .lab-game .qg-roll__note {
+    color: var(--q-crimson);
+    font: 700 22px/1.1 var(--q-hand);
+  }
+  html:not(.qg-js) .lab-game .qg-roll {
+    display: none;
+  }
+  @media (max-width: 860px) {
+    .lab-game .qg-charsheet {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .lab-game .qg-fields > div {
+      grid-template-columns: 78px minmax(0, 1fr);
+    }
+    .lab-game .qg-trait {
+      grid-template-columns: 58px minmax(0, 1fr);
+      gap: 12px;
+      padding-left: 0;
+    }
+    .lab-game .qg-trait__item {
+      width: 58px;
+      height: 58px;
+    }
+  }
+</style>

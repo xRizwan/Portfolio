@@ -1,0 +1,188 @@
+---
+// Everything alive on the climb (life.ts): drifting mist that thickens mid-page and parts
+// around the cursor, snow that starts in the upper sections, a lammergeier that circles and
+// stoops on fast scrolls, and an ibex that hops between the ledges at section edges. All of it
+// sits behind the section content. Without scripts none of it is shown.
+---
+
+<div class="mt-life" aria-hidden="true">
+  <div class="mt-fog" data-mt-fog>
+    <img
+      class="mt-fog-bank mt-fog-bank--a"
+      src="/lab/mountain/mist.webp"
+      width="1400"
+      height="304"
+      alt=""
+      loading="lazy"
+    />
+    <img
+      class="mt-fog-bank mt-fog-bank--b"
+      src="/lab/mountain/mist.webp"
+      width="1400"
+      height="304"
+      alt=""
+      loading="lazy"
+    />
+    <img
+      class="mt-fog-bank mt-fog-bank--c"
+      src="/lab/mountain/mist.webp"
+      width="1400"
+      height="304"
+      alt=""
+      loading="lazy"
+    />
+  </div>
+  <canvas class="mt-snow" data-mt-snow></canvas>
+  <div class="mt-eagle" data-mt-eagle>
+    <img src="/lab/mountain/eagle.webp" width="520" height="214" alt="" loading="lazy" />
+  </div>
+</div>
+<div class="mt-goat" data-mt-goat aria-hidden="true">
+  <img src="/lab/mountain/goat.webp" width="313" height="360" alt="" loading="lazy" />
+</div>
+
+<style is:global>
+  .lab-mountain .mt-fog,
+  .lab-mountain .mt-snow,
+  .lab-mountain .mt-eagle {
+    position: fixed;
+    pointer-events: none;
+    display: none;
+  }
+  .mt-js .lab-mountain.mt-alive .mt-fog,
+  .mt-js .lab-mountain.mt-alive .mt-snow,
+  .mt-js .lab-mountain.mt-alive .mt-eagle {
+    display: block;
+  }
+
+  /* Mist: three banks drifting at different speeds. --fog (0 to 1) follows the altitude, and
+     a soft hole follows the cursor (--mx, --my) so the mist parts where you point. */
+  .lab-mountain .mt-fog {
+    --fog: 0;
+    --mx: -999px;
+    --my: -999px;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+    opacity: var(--fog);
+    -webkit-mask-image: radial-gradient(
+      circle 190px at var(--mx) var(--my),
+      transparent 0,
+      transparent 35%,
+      #000 100%
+    );
+    mask-image: radial-gradient(
+      circle 190px at var(--mx) var(--my),
+      transparent 0,
+      transparent 35%,
+      #000 100%
+    );
+  }
+  .lab-mountain .mt-fog-bank {
+    position: absolute;
+    width: max(1100px, 95vw);
+    max-width: none;
+    opacity: 0.85;
+    will-change: transform;
+  }
+  .lab-mountain .mt-fog-bank--a {
+    top: 6%;
+    animation: mt-fog-a 70s linear infinite;
+  }
+  .lab-mountain .mt-fog-bank--b {
+    top: 42%;
+    opacity: 0.7;
+    animation: mt-fog-b 95s linear infinite;
+  }
+  .lab-mountain .mt-fog-bank--c {
+    top: 74%;
+    animation: mt-fog-a 58s linear infinite;
+    animation-delay: -30s;
+  }
+  @keyframes mt-fog-a {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(100vw);
+    }
+  }
+  @keyframes mt-fog-b {
+    from {
+      transform: translateX(100vw) scaleX(-1);
+    }
+    to {
+      transform: translateX(-100%) scaleX(-1);
+    }
+  }
+
+  .lab-mountain .mt-snow {
+    inset: 0;
+    z-index: 3;
+    width: 100%;
+    height: 100%;
+  }
+
+  .lab-mountain .mt-eagle {
+    top: 0;
+    left: 0;
+    z-index: 3;
+    width: clamp(84px, 8vw, 120px);
+    will-change: transform;
+  }
+  .lab-mountain .mt-eagle img {
+    width: 100%;
+    filter: drop-shadow(0 10px 8px rgb(30 40 50 / 16%));
+  }
+
+  /* The ibex is placed in page coordinates by life.ts, on a ledge near the reader. */
+  .lab-mountain .mt-goat {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 4;
+    display: none;
+    width: clamp(44px, 4.4vw, 62px);
+    pointer-events: none;
+    will-change: transform;
+  }
+  .mt-js .lab-mountain.mt-alive .mt-goat {
+    display: block;
+  }
+  .lab-mountain .mt-goat img {
+    width: 100%;
+    transform: scaleX(var(--face, 1));
+    filter: drop-shadow(0 4px 3px rgb(30 40 50 / 22%));
+  }
+
+  /* Rock ledges at the top edge of each section, out on the right where there is no text. */
+  .lab-mountain .mt-ledges {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: min(320px, 46vw);
+    height: 110px;
+    pointer-events: none;
+  }
+  .lab-mountain .mt-ledge {
+    position: absolute;
+    width: clamp(62px, 6vw, 86px);
+  }
+  .lab-mountain .mt-ledge svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .lab-mountain .mt-ledge:nth-child(1) {
+    right: clamp(12px, 3vw, 48px);
+    top: 74px;
+  }
+  .lab-mountain .mt-ledge:nth-child(2) {
+    right: clamp(96px, 11vw, 170px);
+    top: 46px;
+  }
+  .lab-mountain .mt-ledge:nth-child(3) {
+    right: clamp(180px, 20vw, 290px);
+    top: 84px;
+  }
+</style>

@@ -1,0 +1,325 @@
+---
+// Experience, as stops along the mountain road. The page road runs down the middle of this
+// section (down the left edge on a phone) and each role is a journal page beside a waystone.
+// The day-to-day points stay folded away until asked for.
+import { roles } from '../../../data/experience';
+import { art } from './art';
+import Flag from './Flag.astro';
+---
+
+<section
+  class="qg-place qg-roadsec"
+  id="experience"
+  data-place="experience"
+  aria-labelledby="qg-experience-title"
+>
+  <div class="qg-inner">
+    <header class="qg-head">
+      <p class="qg-head__place">
+        <Flag />
+        Mountain road
+      </p>
+      <h2 id="qg-experience-title">
+        The road <em>so far</em>
+      </h2>
+      <p class="qg-head__note">Three stops, the latest one first. Each has a page in my journal.</p>
+    </header>
+
+    <div class="qg-journey">
+      <span class="qg-journey__lane" data-lane-self aria-hidden="true"></span>
+      <ol>
+        {roles.map((role, index) => (
+          <li class="qg-stop" data-stop>
+            <div class="qg-stop__stone" aria-hidden="true">
+              <img {...art('item-sword')} alt="" loading="lazy" />
+            </div>
+            <p class="qg-stop__when" data-reveal>
+              <span>{role.dates}</span>
+              <small>{role.kind}</small>
+            </p>
+            <article
+              class="qg-entry"
+              data-reveal
+              style={{ '--tilt-from': index % 2 ? '1.6deg' : '-1.6deg' }}
+            >
+              <h3>{role.company}</h3>
+              <ul class="qg-entry__titles">
+                {role.titles.map((title) => (
+                  <li>
+                    <strong>{title.title}</strong>
+                    {role.titles.length > 1 && <span>{title.dates}</span>}
+                  </li>
+                ))}
+              </ul>
+              <p class="qg-entry__summary">{role.summary}</p>
+              <details class="qg-entry__more">
+                <summary>
+                  <span class="qg-entry__closed">Read the journal entry</span>
+                  <span class="qg-entry__open">Close the journal</span>
+                </summary>
+                <ul class="qg-entry__points">
+                  {role.points.map((point) => (
+                    <li>{point}</li>
+                  ))}
+                </ul>
+                {role.contributed.length > 0 && (
+                  <p class="qg-entry__list">
+                    <span>Codebases I worked in</span>
+                    {role.contributed.join(', ')}
+                  </p>
+                )}
+                <p class="qg-entry__list">
+                  <span>Tools I carried</span>
+                  {role.stack.join(', ')}
+                </p>
+              </details>
+            </article>
+          </li>
+        ))}
+      </ol>
+    </div>
+
+    <p class="qg-roadsec__all" data-reveal>
+      <a class="qg-btn" href="/experience/">
+        Full experience page
+      </a>
+    </p>
+  </div>
+</section>
+
+<style is:global>
+  .lab-game .qg-journey {
+    position: relative;
+  }
+  /* Room under the heading for the road to cross from the gutter to the middle lane without
+     the traveller walking over any text. */
+  @media (min-width: 1100px) {
+    .lab-game .qg-roadsec .qg-head {
+      margin-bottom: 160px;
+    }
+  }
+  /* The strip the page road runs down; scripts read its position. */
+  .lab-game .qg-journey__lane {
+    position: absolute;
+    top: -30px;
+    bottom: -40px;
+    left: 50%;
+    width: 96px;
+    translate: -50% 0;
+  }
+  .lab-game .qg-journey ol {
+    display: grid;
+    gap: clamp(46px, 7vw, 96px);
+  }
+  .lab-game .qg-stop {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 150px minmax(0, 1fr);
+    align-items: center;
+  }
+  .lab-game .qg-stop__stone {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: center;
+    width: 84px;
+  }
+  .lab-game .qg-stop__stone img {
+    display: block;
+    filter: drop-shadow(0 5px 3px rgb(35 26 20 / 30%));
+    transition: transform 0.6s cubic-bezier(0.3, 1.6, 0.5, 1);
+  }
+  /* The waystone settles when the traveller reaches it. */
+  html.qg-js:not(.qg-still) .lab-game .qg-stop:not(.is-reached) .qg-stop__stone img {
+    transform: scale(0.72) rotate(-9deg);
+    opacity: 0.55;
+  }
+  .lab-game .qg-entry {
+    grid-column: 1;
+    grid-row: 1;
+    position: relative;
+    padding: clamp(22px, 2.8vw, 36px) clamp(20px, 2.8vw, 38px);
+    border: 1.5px solid rgb(35 26 20 / 75%);
+    border-radius: 3px 12px 5px 14px / 12px 4px 13px 5px;
+    background-color: var(--q-parch-light);
+    /* Ruled journal lines under the paper grain. */
+    background-image:
+      var(--q-grain), repeating-linear-gradient(transparent 0 31px, rgb(31 111 107 / 16%) 31px 32px);
+    box-shadow: 7px 9px 0 rgb(35 26 20 / 12%);
+  }
+  .lab-game .qg-stop__when {
+    grid-column: 3;
+    grid-row: 1;
+    display: grid;
+    gap: 4px;
+    padding: 0 8px;
+    rotate: -2deg;
+  }
+  .lab-game .qg-stop:nth-child(even) .qg-entry {
+    grid-column: 3;
+  }
+  .lab-game .qg-stop:nth-child(even) .qg-stop__when {
+    grid-column: 1;
+    justify-items: end;
+    text-align: right;
+    rotate: 2deg;
+  }
+  .lab-game .qg-stop__when span {
+    color: var(--q-crimson);
+    font: 700 clamp(30px, 3.4vw, 44px) / 1 var(--q-hand);
+  }
+  .lab-game .qg-stop__when small {
+    max-width: 22ch;
+    color: var(--q-ink-soft);
+    font: 500 21px/1.15 var(--q-hand);
+  }
+  .lab-game .qg-entry h3 {
+    font: 600 clamp(36px, 4.2vw, 54px) / 1 var(--q-display);
+    letter-spacing: -0.01em;
+  }
+  .lab-game .qg-entry__titles {
+    display: grid;
+    gap: 2px;
+    margin-top: 10px;
+  }
+  .lab-game .qg-entry__titles li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 12px;
+    align-items: baseline;
+  }
+  .lab-game .qg-entry__titles strong {
+    color: var(--q-teal);
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+  }
+  .lab-game .qg-entry__titles span {
+    color: var(--q-ink-soft);
+    font-size: 13.5px;
+    font-weight: 600;
+  }
+  .lab-game .qg-entry__summary {
+    margin-top: 14px;
+    font: 400 20px/1.42 var(--q-display);
+  }
+  .lab-game .qg-entry__more {
+    margin-top: 16px;
+  }
+  .lab-game .qg-entry__more summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 2px;
+    color: var(--q-crimson);
+    font: 700 24px/1 var(--q-hand);
+    cursor: pointer;
+    list-style: none;
+  }
+  .lab-game .qg-entry__more summary::-webkit-details-marker {
+    display: none;
+  }
+  .lab-game .qg-entry__more summary::after {
+    content: '';
+    width: 9px;
+    height: 9px;
+    border-right: 2.5px solid currentcolor;
+    border-bottom: 2.5px solid currentcolor;
+    rotate: 45deg;
+    translate: 0 -3px;
+    transition: rotate 0.25s ease;
+  }
+  .lab-game .qg-entry__more[open] summary::after {
+    rotate: 225deg;
+    translate: 0 3px;
+  }
+  .lab-game .qg-entry__more summary:hover {
+    text-decoration: underline wavy 1.5px;
+    text-underline-offset: 5px;
+  }
+  .lab-game .qg-entry__open,
+  .lab-game .qg-entry__more[open] .qg-entry__closed {
+    display: none;
+  }
+  .lab-game .qg-entry__more[open] .qg-entry__open {
+    display: inline;
+  }
+  .lab-game .qg-entry__points {
+    display: grid;
+    gap: 9px;
+    margin-top: 12px;
+    font-size: 15.5px;
+    line-height: 1.5;
+  }
+  .lab-game .qg-entry__points li {
+    position: relative;
+    padding-left: 22px;
+  }
+  /* An ink dash for each line of the entry. */
+  .lab-game .qg-entry__points li::before {
+    content: '';
+    position: absolute;
+    left: 2px;
+    top: 0.72em;
+    width: 11px;
+    height: 2.5px;
+    border-radius: 2px;
+    background: var(--q-crimson);
+    rotate: -8deg;
+  }
+  .lab-game .qg-entry__list {
+    margin-top: 14px;
+    font-size: 14.5px;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+  .lab-game .qg-entry__list span {
+    display: block;
+    color: var(--q-ink-soft);
+    font-size: 11.5px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .lab-game .qg-roadsec__all {
+    margin-top: clamp(40px, 6vw, 70px);
+    text-align: center;
+  }
+  @media (max-width: 900px) {
+    /* One column: the road keeps to the left edge and everything else sits to its right. */
+    .lab-game .qg-journey__lane {
+      left: 2px;
+      width: 30px;
+      translate: 0 0;
+    }
+    .lab-game .qg-stop,
+    .lab-game .qg-stop:nth-child(even) {
+      grid-template-columns: 52px minmax(0, 1fr);
+      align-items: start;
+      row-gap: 10px;
+    }
+    .lab-game .qg-stop__stone {
+      grid-column: 1;
+      grid-row: 1;
+      justify-self: start;
+      width: 44px;
+      margin-left: -4px;
+    }
+    .lab-game .qg-stop .qg-stop__when,
+    .lab-game .qg-stop:nth-child(even) .qg-stop__when {
+      grid-column: 2;
+      grid-row: 1;
+      justify-items: start;
+      padding: 0;
+      text-align: left;
+      rotate: -1deg;
+    }
+    .lab-game .qg-stop .qg-entry,
+    .lab-game .qg-stop:nth-child(even) .qg-entry {
+      grid-column: 2;
+      grid-row: 2;
+    }
+    .lab-game .qg-roadsec__all {
+      text-align: left;
+      padding-left: 52px;
+    }
+  }
+</style>

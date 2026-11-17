@@ -1,0 +1,55 @@
+---
+// The kitten that follows the cursor along the bottom edge of the window (residents.ts). The
+// calico and the grey cat are placed inside the sections they live in.
+import Art from './Art.astro';
+---
+
+<div class="cat-follower" data-cat-follower data-pose="sit" aria-hidden="true">
+  <Art name="tux-run-a" data-pose="run-a" />
+  <Art name="tux-run-b" data-pose="run-b" />
+  <Art name="tux-sit" data-pose="sit" />
+  <Art name="tux-blink" data-pose="blink" />
+  <Art name="tux-startled" data-pose="startled" />
+</div>
+
+<style is:global>
+  .lab-cat .cat-follower {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    z-index: 120;
+    display: none;
+    width: 78px;
+    aspect-ratio: 295 / 272;
+    margin-left: -39px;
+    pointer-events: none;
+    will-change: transform;
+  }
+  /* Only where there is a cursor to follow, and only while motion is on. */
+  @media (hover: hover) and (pointer: fine) {
+    .lab-cat.cat-motion .cat-follower {
+      display: block;
+      translate: 0 120%;
+      transition: translate 0.3s ease;
+    }
+    .lab-cat.cat-motion .cat-follower.is-out {
+      translate: 0 3%;
+    }
+  }
+  .lab-cat .cat-follower img {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: calc(var(--w) / 295 * 100%);
+    max-width: none;
+    translate: -50% 0;
+    opacity: 0;
+  }
+  .lab-cat .cat-follower[data-pose='run-a'] img[data-pose='run-a'],
+  .lab-cat .cat-follower[data-pose='run-b'] img[data-pose='run-b'],
+  .lab-cat .cat-follower[data-pose='sit'] img[data-pose='sit'],
+  .lab-cat .cat-follower[data-pose='blink'] img[data-pose='blink'],
+  .lab-cat .cat-follower[data-pose='startled'] img[data-pose='startled'] {
+    opacity: 1;
+  }
+</style>

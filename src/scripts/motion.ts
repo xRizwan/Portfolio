@@ -1,4 +1,7 @@
-/** Shared motion preference: the OS setting plus the page's "Pause motion" button. */
+/**
+ * Shared motion preference: the OS reduced-motion setting. On pages with the site header,
+ * site-chrome.ts mirrors it as the `motion-off` body class for the CSS animations.
+ */
 export const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 export const finePointer = matchMedia('(hover: hover) and (pointer: fine)');
 

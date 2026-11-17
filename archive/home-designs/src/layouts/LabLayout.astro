@@ -1,0 +1,144 @@
+---
+// Shell for the trial home-page designs under /lab/. These pages are previews only: they are
+// marked noindex and left out of the sitemap (see astro.config.mjs). Each design brings its own
+// styles, scoped under `.lab-<slug>`; the site's global.css is deliberately not loaded here.
+import '@fontsource/manrope/400.css';
+import '@fontsource/manrope/500.css';
+import '@fontsource/manrope/600.css';
+import '@fontsource/manrope/700.css';
+import '@fontsource/manrope/800.css';
+import '@fontsource/newsreader/400.css';
+import '@fontsource/newsreader/400-italic.css';
+import '@fontsource/newsreader/500.css';
+import '@fontsource/newsreader/500-italic.css';
+import '@fontsource/newsreader/600.css';
+import '@fontsource/bricolage-grotesque/400.css';
+import '@fontsource/bricolage-grotesque/600.css';
+import '@fontsource/bricolage-grotesque/800.css';
+import '@fontsource/caveat/500.css';
+import '@fontsource/caveat/700.css';
+import '@fontsource/space-mono/400.css';
+import '@fontsource/space-mono/700.css';
+import { site } from '../data/site';
+
+interface Props {
+  /** One of the slugs in `designs` below; also the body class suffix. */
+  slug: string;
+  /** Browser-chrome colour that suits the design's opening screen. */
+  themeColor?: string;
+}
+
+const { slug, themeColor = '#111111' } = Astro.props;
+
+const designs = [
+  { slug: 'cat', name: 'Cats' },
+  { slug: 'ocean', name: 'Reef' },
+  { slug: 'game', name: 'Quest' },
+  { slug: 'space', name: 'Space' },
+  { slug: 'mountain', name: 'Summit' },
+  { slug: 'train', name: 'Night train' },
+  { slug: 'popup', name: 'Pop-up' },
+  { slug: 'runner', name: 'Side-scroller' },
+];
+const current = designs.find((design) => design.slug === slug);
+---
+
+<!doctype html>
+<html lang={site.language}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content={themeColor} />
+    <title>{site.name} · {current?.name ?? slug} (design preview)</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <slot name="head" />
+  </head>
+  <body class={`lab lab-${slug}`}>
+    <a class="lab-skip" href="#main">Skip to content</a>
+    <slot />
+    <nav class="lab-switch" aria-label="Design previews">
+      <span>Preview</span>
+      {
+        designs.map((design) => (
+          <a
+            href={`/lab/${design.slug}/`}
+            aria-current={design.slug === slug ? 'page' : undefined}
+          >
+            {design.name}
+          </a>
+        ))
+      }
+      <a href="/">Live site</a>
+    </nav>
+  </body>
+</html>
+
+<style is:global>
+  .lab,
+  .lab *,
+  .lab *::before,
+  .lab *::after {
+    box-sizing: border-box;
+  }
+  html:has(.lab) {
+    -webkit-text-size-adjust: 100%;
+  }
+  .lab {
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+  .lab-skip {
+    position: absolute;
+    left: 12px;
+    top: -60px;
+    z-index: 200;
+    padding: 10px 14px;
+    background: #fff;
+    color: #111;
+    border-radius: 8px;
+  }
+  .lab-skip:focus {
+    top: 12px;
+  }
+  .lab-switch {
+    position: fixed;
+    left: 50%;
+    bottom: 14px;
+    transform: translateX(-50%);
+    z-index: 150;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    max-width: calc(100vw - 16px);
+    padding: 5px;
+    overflow-x: auto;
+    border: 1px solid rgb(255 255 255 / 22%);
+    border-radius: 999px;
+    background: rgb(20 20 22 / 92%);
+    color: #fff;
+    font:
+      500 13px/1 Manrope,
+      system-ui,
+      sans-serif;
+    white-space: nowrap;
+  }
+  .lab-switch span {
+    padding: 0 8px 0 10px;
+    opacity: 0.6;
+  }
+  .lab-switch a {
+    padding: 8px 11px;
+    border-radius: 999px;
+    color: inherit;
+    text-decoration: none;
+  }
+  .lab-switch a:hover {
+    background: rgb(255 255 255 / 14%);
+  }
+  .lab-switch a[aria-current='page'] {
+    background: #fff;
+    color: #111;
+  }
+</style>

@@ -1,0 +1,110 @@
+---
+// A strip of paper taped to the top of the page: name, section links and the resume.
+import { site } from '../../../data/site';
+
+const links = [
+  { label: 'About', href: '#about' },
+  { label: 'Skills', href: '#skills' },
+  { label: 'Work', href: '#work' },
+  { label: 'Experience', href: '#experience' },
+  { label: 'Certificates', href: '#certificates' },
+  { label: 'Contact', href: '#contact' },
+];
+---
+
+<header class="cat-header">
+  <a class="cat-header-name" href="#main" aria-label={site.name}>
+    <svg viewBox="0 0 32 30" width="22" height="20" aria-hidden="true">
+      <path d="M16 28c-6 0-10-3-10-7 0-4 5-8 10-8s10 4 10 8c0 4-4 7-10 7zM5 14c-2 0-3.500-2-3.500-4.500S3 5 5 5s3.500 2 3.500 4.500S7 14 5 14zm22 0c-2 0-3.500-2-3.500-4.500S25 5 27 5s3.500 2 3.500 4.500S29 14 27 14zM12 9.500C10 9.500 8.500 7.500 8.500 5S10 .500 12 .500 15.500 2.500 15.500 5 14 9.500 12 9.500zm8 0c-2 0-3.500-2-3.500-4.500S18 .500 20 .500 23.500 2.500 23.500 5 22 9.500 20 9.500z"></path>
+    </svg>
+    <span>{site.name}</span>
+  </a>
+  <nav class="cat-header-nav" aria-label="Sections">
+    {links.map((link) => (
+      <a href={link.href}>{link.label}</a>
+    ))}
+  </nav>
+  <a class="cat-header-resume" href={site.resume}>
+    Resume
+  </a>
+</header>
+
+<style is:global>
+  .lab-cat .cat-header {
+    position: fixed;
+    top: 14px;
+    left: 50%;
+    z-index: 140;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    width: min(1040px, calc(100vw - 28px));
+    padding: 8px 10px 8px 18px;
+    transform: translateX(-50%) rotate(-0.35deg);
+    background: var(--paper);
+    color: var(--plum);
+    border: 2px solid var(--plum);
+    border-radius: 14px 240px 16px 220px / 220px 14px 240px 16px;
+    box-shadow: 4px 5px 0 rgb(59 42 63 / 18%);
+  }
+  .lab-cat .cat-header-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin-right: auto;
+    font: 600 italic 21px/1 var(--serif);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .lab-cat .cat-header-name svg {
+    flex: none;
+    fill: var(--marm);
+  }
+  .lab-cat .cat-header-nav {
+    display: flex;
+    gap: 2px;
+  }
+  .lab-cat .cat-header-nav a {
+    padding: 9px 11px;
+    border-radius: 999px;
+    font: 600 14px/1 var(--sans);
+    text-decoration: none;
+  }
+  .lab-cat .cat-header-nav a:hover {
+    background: rgb(232 135 58 / 22%);
+  }
+  .lab-cat .cat-header-resume {
+    padding: 10px 16px;
+    border-radius: 999px;
+    background: var(--plum);
+    color: var(--cream);
+    font: 700 14px/1 var(--sans);
+    text-decoration: none;
+    transition: background-color 0.2s;
+  }
+  .lab-cat .cat-header-resume:hover {
+    background: var(--marm-ink);
+  }
+  @media (max-width: 899px) {
+    .lab-cat .cat-header {
+      top: 10px;
+      gap: 8px;
+      padding-left: 14px;
+    }
+    /* On small screens keep the three links people use most; the rest are a scroll away. */
+    .lab-cat .cat-header-nav a:nth-child(1),
+    .lab-cat .cat-header-nav a:nth-child(2),
+    .lab-cat .cat-header-nav a:nth-child(5) {
+      display: none;
+    }
+  }
+  @media (max-width: 599px) {
+    .lab-cat .cat-header-name span {
+      display: none;
+    }
+    .lab-cat .cat-header-nav a {
+      padding: 9px 8px;
+      font-size: 13px;
+    }
+  }
+</style>

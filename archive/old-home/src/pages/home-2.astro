@@ -1,0 +1,39 @@
+---
+import nameFont from '@fontsource/bricolage-grotesque/files/bricolage-grotesque-latin-800-normal.woff2?url';
+import CatScene from '../components/home/CatScene.astro';
+import CertificateShowcase from '../components/home/CertificateShowcase.astro';
+import Hero from '../components/home/Hero.astro';
+import ScrollCat from '../components/home/ScrollCat.astro';
+import SkillNotes from '../components/home/SkillNotes.astro';
+import WorkList from '../components/home/WorkList.astro';
+import { site } from '../data/site';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { profilePage } from '../lib/structured-data';
+
+// Trial copy of the home page with the rope cat; remove once decided.
+const origin = Astro.site ?? new URL('http://localhost:4321');
+// These body classes switch on the home page's hero, notes, and yarn styles in global.css.
+const bodyClass =
+  'current exploration rizzy variation variation-studio variation-cute variation-frame variation-side variation-fit variation-arrive variation-yarn yarn-center';
+---
+
+<BaseLayout
+  bodyClass={bodyClass}
+  description={site.description}
+  type="profile"
+  jsonLd={[profilePage(origin, '/')]}
+>
+  <!-- The big name uses this font; preloading it stops the name from first drawing in a wider
+       fallback font and then shrinking when the real one arrives. -->
+  <link slot="head" rel="preload" as="font" type="font/woff2" href={nameFont} crossorigin />
+  <main id="main">
+    <Hero />
+    <CatScene scene="chase" />
+    <SkillNotes />
+    <CatScene scene="nap" />
+    <WorkList />
+    <CatScene scene="tangle" />
+    <CertificateShowcase />
+  </main>
+  <ScrollCat />
+</BaseLayout>

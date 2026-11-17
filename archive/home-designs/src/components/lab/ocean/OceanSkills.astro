@@ -1,0 +1,237 @@
+---
+// The coral garden: every skill group is a creature. Touching one opens it and its skills float
+// out as bubbles. Without scripts every group is simply open.
+import { skillGroups } from '../../../data/skills';
+import { art, type ArtName } from './art';
+import { edgeMask } from './paper';
+
+// Which creature keeps which group, and the paper colour the octopus copies when it is touched.
+const keepers: Record<string, { creature: ArtName; tone: string }> = {
+  languages: { creature: 'octopus', tone: 'coral' },
+  interfaces: { creature: 'parrotfish', tone: 'teal' },
+  backend: { creature: 'crab', tone: 'coral' },
+  data: { creature: 'shell', tone: 'sand' },
+  cloud: { creature: 'ray', tone: 'sand' },
+  ml: { creature: 'puffer', tone: 'sun' },
+  quality: { creature: 'starfish', tone: 'sun' },
+  agents: { creature: 'clownfish', tone: 'coral' },
+  architecture: { creature: 'fan', tone: 'coral' },
+  design: { creature: 'anemone', tone: 'sun' },
+  games: { creature: 'seahorse', tone: 'sun' },
+};
+const fallback = { creature: 'starfish' as ArtName, tone: 'sun' };
+const bedMask = edgeMask({ seed: 61, height: 130, swell: 14, jitter: 4 });
+---
+
+<section
+  class="oc-section oc-skills"
+  id="skills"
+  data-tone="coral"
+  aria-labelledby="oc-skills-title"
+>
+  <div class="oc-clip" aria-hidden="true">
+    <div class="oc-bed" style={{ '--mask': bedMask }}></div>
+    <img
+      class="oc-art oc-skills-reef"
+      {...art('reef-right')}
+      alt=""
+      loading="lazy"
+      data-drift="60"
+      data-drift-x="-40"
+    />
+    <img class="oc-art oc-skills-weed oc-sway" {...art('seaweed')} alt="" loading="lazy" />
+    <img class="oc-art oc-skills-fan oc-sway" {...art('fan')} alt="" loading="lazy" />
+  </div>
+  <div class="oc-wrap">
+    <p class="oc-place">The coral garden</p>
+    <h2 class="oc-h2" id="oc-skills-title">
+      Skills
+    </h2>
+    <p class="oc-note oc-skills-note">Touch a creature to see what it keeps.</p>
+    <div class="oc-garden" data-oc-garden>
+      {skillGroups.map((group, index) => {
+        const keeper = keepers[group.id] ?? fallback;
+        return (
+          <div class="oc-colony">
+            <h3 class="oc-colony-head" data-rise style={{ '--rise-i': index % 6 }}>
+              <button
+                type="button"
+                data-skill-toggle
+                data-touch-tone={keeper.tone}
+                aria-expanded="true"
+                aria-controls={`oc-skill-${group.id}`}
+                aria-label={group.name}
+              >
+                <img
+                  {...art(keeper.creature)}
+                  alt=""
+                  loading="lazy"
+                  style={{ animationDelay: `${index * -0.7}s` }}
+                />
+                <span>{group.title}</span>
+              </button>
+            </h3>
+            <ul class="oc-bubbles" id={`oc-skill-${group.id}`} aria-label={group.name}>
+              {group.items.map((item, itemIndex) => (
+                <li style={{ '--i': itemIndex }}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  /* A strip of sand along the bottom of a section, with a cut top edge. */
+  .lab-ocean .oc-bed {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 130px;
+    background: var(--oc-sand) url('/lab/ocean/sand.webp') center / 700px;
+    mask: var(--mask) 0 0 / 100% 100% no-repeat;
+  }
+  .lab-ocean .oc-section.oc-skills {
+    padding-bottom: 230px;
+  }
+  .lab-ocean .oc-skills-reef {
+    right: -9vw;
+    bottom: 20px;
+    width: min(44vw, 560px);
+    opacity: 0.9;
+  }
+  .lab-ocean .oc-skills-weed {
+    left: 4vw;
+    bottom: 40px;
+    width: clamp(70px, 8vw, 120px);
+  }
+  .lab-ocean .oc-skills-fan {
+    left: 14vw;
+    bottom: 50px;
+    width: clamp(90px, 10vw, 150px);
+    animation-duration: 7s;
+  }
+  .lab-ocean .oc-skills-note {
+    margin-top: 16px;
+  }
+  .lab-ocean .oc-garden {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-auto-flow: dense;
+    gap: 34px 14px;
+    margin-top: 44px;
+  }
+  /* The group wrapper is transparent to the grid so a bubble list can span a whole row. */
+  .lab-ocean .oc-colony {
+    display: contents;
+  }
+  .lab-ocean .oc-colony-head {
+    font: inherit;
+  }
+  .lab-ocean .oc-colony-head button {
+    display: grid;
+    justify-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 6px 2px;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+  .lab-ocean .oc-colony-head img {
+    width: auto;
+    height: clamp(84px, 9vw, 122px);
+    filter: var(--oc-shadow);
+    animation: oc-bob 4s ease-in-out infinite alternate;
+    transition: scale 0.35s cubic-bezier(0.3, 1.6, 0.5, 1);
+  }
+  .lab-ocean .oc-colony-head span {
+    padding: 5px 12px 6px;
+    background: var(--oc-foam);
+    font: 800 clamp(13px, 1.15vw, 15.5px) / 1.15 var(--oc-body);
+    text-align: center;
+    text-wrap: balance;
+    clip-path: polygon(0 7%, 50% 0, 100% 6%, 99% 93%, 49% 100%, 1% 92%);
+    transition: background-color 0.25s ease;
+  }
+  .lab-ocean .oc-colony-head button:hover img {
+    scale: 1.12;
+  }
+  .lab-ocean .oc-garden.is-live .oc-colony-head button[aria-expanded='true'] img {
+    scale: 1.2;
+  }
+  .lab-ocean .oc-garden.is-live .oc-colony-head button[aria-expanded='true'] span {
+    background: var(--oc-sun);
+  }
+  .lab-ocean .oc-bubbles {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px 12px;
+    padding: 4px 0 12px;
+  }
+  .lab-ocean .oc-bubbles[hidden] {
+    display: none;
+  }
+  .lab-ocean .oc-bubbles li {
+    padding: 11px 20px 12px;
+    border: 2px solid var(--oc-foam);
+    border-radius: 999px;
+    background:
+      radial-gradient(circle at 13px 9px, #fff 0 2.5px, transparent 3.5px), rgb(255 247 230 / 86%);
+    font: 700 15px/1.15 var(--oc-body);
+    box-shadow: 0 5px 0 rgb(18 38 58 / 12%);
+  }
+  .lab-ocean .oc-bubbles li:nth-child(3n) {
+    padding-block: 15px 16px;
+  }
+  .lab-ocean .oc-bubbles li:nth-child(4n + 1) {
+    background-color: rgb(205 240 234 / 90%);
+  }
+  /* Bubbles pop out one after another, then keep bobbing. The bob uses `translate` so it does not
+     fight the pop, which uses `transform`. */
+  .lab-ocean .oc-garden.is-live .oc-bubbles li {
+    animation:
+      oc-pop 0.55s cubic-bezier(0.3, 1.5, 0.5, 1) backwards,
+      oc-float 3.6s ease-in-out infinite alternate;
+    animation-delay: calc(var(--i) * 32ms), calc(var(--i) * -470ms);
+  }
+  @keyframes oc-pop {
+    from {
+      opacity: 0;
+      transform: translateY(-46px) scale(0.2);
+    }
+  }
+  @keyframes oc-float {
+    from {
+      translate: 0 -4px;
+    }
+    to {
+      translate: 0 5px;
+    }
+  }
+  @media (max-width: 860px) {
+    .lab-ocean .oc-garden {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 26px 8px;
+    }
+    .lab-ocean .oc-bubbles {
+      gap: 8px;
+    }
+    .lab-ocean .oc-bubbles li {
+      padding: 9px 15px 10px;
+      font-size: 14px;
+    }
+    .lab-ocean .oc-skills-reef {
+      width: 70vw;
+      right: -20vw;
+    }
+    .lab-ocean .oc-skills-fan {
+      display: none;
+    }
+  }
+</style>

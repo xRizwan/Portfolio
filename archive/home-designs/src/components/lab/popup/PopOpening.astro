@@ -1,0 +1,479 @@
+---
+// The opening: the closed book (cover with the name in cut-paper letters and the portrait held
+// by photo corners), then the first spread, a little town that stands up layer by layer with
+// the greeting on a banner and the role on a card that slides out of a pocket.
+import { Image } from 'astro:assets';
+import portrait from '../../../assets/portrait.png';
+import { site } from '../../../data/site';
+import Piece from './Piece.astro';
+
+// Each cut-out letter gets its own paper colour and a slight tilt, set by eye.
+const letterPaint = ['#faf5ea', 'var(--pb-sun)', 'var(--pb-blue)', '#faf5ea', 'var(--pb-green)'];
+const letterTilt = [-5, 3, -2, 4, -4];
+const letters = [...site.shortName].map((char, index) => ({
+  char,
+  paint: letterPaint[index % letterPaint.length] ?? '#faf5ea',
+  tilt: letterTilt[index % letterTilt.length] ?? 0,
+}));
+---
+
+<div class="pb-opening" data-pb-opening>
+  <div class="pb-opening__pin">
+    <section
+      class="pb-spread pb-spread--cover"
+      id="top"
+      data-spread="cover"
+      data-len="95"
+      data-rise="0"
+      data-fold="0"
+      data-turn="72"
+      aria-label="Front cover"
+    >
+      <div class="pb-page pb-page--r pb-cover">
+        <div class="pb-cover__frame">
+          <p class="pb-cover__kicker">A pop-up portfolio</p>
+          <p class="pb-cover__title" aria-label={site.shortName}>
+            {letters.map((letter) => (
+              <span aria-hidden="true" style={`--paint:${letter.paint};--tilt:${letter.tilt}deg`}>
+                {letter.char}
+              </span>
+            ))}
+          </p>
+          <figure class="pb-cover__photo">
+            <Image
+              src={portrait}
+              alt={`Portrait of ${site.name}`}
+              width={520}
+              loading="eager"
+              fetchpriority="high"
+            />
+            <i></i>
+            <i></i>
+            <i></i>
+            <i></i>
+          </figure>
+          <p class="pb-cover__role">{site.jobTitle}</p>
+          <p class="pb-cover__hint">Scroll to open the book</p>
+        </div>
+      </div>
+    </section>
+
+    <section
+      class="pb-spread pb-spread--intro"
+      id="intro"
+      data-spread="intro"
+      data-len="330"
+      data-rise="200"
+      aria-labelledby="pb-hello"
+    >
+      <div class="pb-page pb-page--l"></div>
+      <div class="pb-page pb-page--r"></div>
+
+      <div
+        class="pb-pop pb-across pb-banner"
+        style="--x:170;--y:66;--w:860;--h:238;--a:50;--z:1"
+        data-at="0.55"
+        data-dur="0.2"
+        data-noshadow
+      >
+        <i class="pb-banner__pole"></i>
+        <i class="pb-banner__pole"></i>
+        <div class="pb-banner__roll" data-at="0.68" data-dur="0.22">
+          <h1 class="pb-banner__ribbon pb-paint" id="pb-hello">
+            Hi, I&rsquo;m <span>{site.shortName}</span>
+          </h1>
+        </div>
+      </div>
+
+      <div class="pb-scene pb-across" style="--sh:615;--sy:-62" aria-hidden="true">
+        <div class="pb-scene__in">
+          <Piece name="sun" x={820} y={150} w={190} a={58} at={0} spin class="pb-across" lean={0} />
+          <Piece name="mountains" x={70} y={205} w={560} a={60} at={0.04} class="pb-across" />
+          <Piece
+            name="mountains"
+            x={570}
+            y={205}
+            w={560}
+            a={60}
+            at={0.09}
+            class="pb-across pb-flip"
+          />
+          <Piece name="hills" x={10} y={295} w={640} a={64} at={0.16} z={2} class="pb-across" />
+          <Piece
+            name="hills"
+            x={550}
+            y={300}
+            w={640}
+            a={64}
+            at={0.21}
+            z={2}
+            class="pb-across pb-flip"
+          />
+          <Piece name="street" x={310} y={405} w={520} a={66} at={0.3} z={3} class="pb-across" />
+          <div
+            class="pb-pop pb-pop--art pb-across pb-legs"
+            style="--x:938;--y:425;--w:150;--h:150;--a:62;--z:3;--lean:1"
+            data-at="0.36"
+            data-dur="0.3"
+            data-noshadow
+          ></div>
+          <Piece
+            name="wheel"
+            x={898}
+            y={420}
+            w={230}
+            a={62}
+            at={0.4}
+            z={4}
+            spin
+            class="pb-across"
+            lean={1}
+          />
+          <Piece name="tree" x={140} y={440} w={132} a={70} at={0.44} z={4} class="pb-across" />
+          <Piece name="tree" x={236} y={470} w={96} a={72} at={0.48} z={5} class="pb-across" />
+          <Piece name="cat" x={548} y={548} w={104} a={66} at={0.6} z={5} cat class="pb-across" />
+          <Piece name="grass" x={24} y={552} w={500} a={74} at={0.52} z={6} class="pb-across" />
+          <Piece
+            name="cat"
+            x={1050}
+            y={500}
+            w={90}
+            a={66}
+            at={0.6}
+            z={5}
+            cat
+            class="pb-across pb-flip"
+          />
+        </div>
+      </div>
+
+      <div
+        class="pb-pop pb-across pb-pocket"
+        style="--x:700;--y:618;--w:460;--h:196;--a:50;--z:7"
+        data-at="0.78"
+        data-dur="0.14"
+      >
+        <div class="pb-pull" data-at="0.86" data-dur="0.14">
+          <span class="pb-pull__tab" aria-hidden="true"></span>
+          <p class="pb-pull__role">{site.intro.role}</p>
+          <p class="pb-pull__summary">{site.intro.summary}</p>
+        </div>
+        <span class="pb-pocket__front pb-paint" aria-hidden="true"></span>
+      </div>
+    </section>
+  </div>
+</div>
+
+<style is:global>
+  /* ---------- Cover ---------- */
+  .lab-popup .pb-spread--cover {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0;
+    background: none;
+    box-shadow: none;
+  }
+  .lab-popup .pb-spread--cover::before {
+    content: none;
+  }
+  .lab-popup .pb-cover {
+    display: block;
+    padding: clamp(14px, 3vw, 26px);
+    border-radius: 6px;
+    background: var(--pb-red) url('/lab/popup/cover.webp') center / cover;
+    box-shadow:
+      0 0 0 1px rgb(28 37 64 / 30%),
+      0 8px 0 -1px #f3ecdb,
+      0 10px 0 -1px #b93a2c,
+      0 30px 44px -16px rgb(15 25 35 / 60%);
+  }
+  .lab-popup .pb-cover__frame {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 10px;
+    padding: clamp(22px, 5vw, 40px) clamp(14px, 4vw, 40px) clamp(20px, 4vw, 34px);
+    text-align: center;
+    color: var(--pb-card);
+  }
+  .lab-popup .pb-cover__kicker {
+    font: 700 clamp(24px, 4vw, 30px) / 1 var(--pb-hand);
+    color: var(--pb-sun);
+  }
+  .lab-popup .pb-cover__title {
+    display: flex;
+    justify-content: center;
+    gap: 0.02em;
+    font: 800 clamp(64px, 19vw, 150px) / 0.9 var(--pb-display);
+    letter-spacing: -0.02em;
+  }
+  /* Letters cut from painted paper: the colour sits on the glyph, the navy offset is its shadow
+     on the cloth. */
+  .lab-popup .pb-cover__title span {
+    display: inline-block;
+    color: var(--paint);
+    rotate: var(--tilt);
+    text-shadow:
+      1px 1px 0 #fffdf6,
+      -1px -1px 0 #fffdf6,
+      4px 5px 0 rgb(28 37 64 / 55%);
+  }
+  .lab-popup .pb-cover__photo {
+    position: relative;
+    width: min(250px, 58%);
+    margin-top: 6px;
+    padding: 9px 9px 30px;
+    background: #fffdf6;
+    box-shadow: 3px 5px 0 rgb(28 37 64 / 40%);
+    rotate: -4deg;
+  }
+  .lab-popup .pb-cover__photo img {
+    width: 100%;
+    aspect-ratio: 4 / 4.6;
+    object-fit: cover;
+    object-position: 50% 46%;
+  }
+  /* Photo corners: four little paper triangles holding the picture. */
+  .lab-popup .pb-cover__photo i {
+    position: absolute;
+    width: 34px;
+    height: 34px;
+    background: var(--pb-sun);
+    box-shadow: 0 1px 0 rgb(28 37 64 / 30%);
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+  }
+  .lab-popup .pb-cover__photo i:nth-of-type(1) {
+    left: -7px;
+    top: -7px;
+  }
+  .lab-popup .pb-cover__photo i:nth-of-type(2) {
+    right: -7px;
+    top: -7px;
+    rotate: 90deg;
+  }
+  .lab-popup .pb-cover__photo i:nth-of-type(3) {
+    right: -7px;
+    bottom: -7px;
+    rotate: 180deg;
+  }
+  .lab-popup .pb-cover__photo i:nth-of-type(4) {
+    left: -7px;
+    bottom: -7px;
+    rotate: 270deg;
+  }
+  .lab-popup .pb-cover__role {
+    margin-top: 8px;
+    font: 600 17px/1.2 var(--pb-display);
+    letter-spacing: 0.01em;
+  }
+  .lab-popup .pb-cover__hint {
+    display: none;
+    font: 700 24px/1 var(--pb-hand);
+    color: var(--pb-sun);
+  }
+  html:is(.pb-m-book, .pb-m-fx) .lab-popup .pb-cover__hint {
+    display: block;
+  }
+
+  /* ---------- First spread ---------- */
+  .lab-popup .pb-spread--intro {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+  .lab-popup .pb-spread--intro::before {
+    content: none;
+  }
+  .lab-popup .pb-banner__pole {
+    display: none;
+  }
+  .lab-popup .pb-banner__roll {
+    clip-path: inset(-20% calc((1 - var(--o, 1)) * 50%));
+  }
+  .lab-popup .pb-banner__ribbon {
+    --paint: var(--pb-red);
+    padding: 0.16em 0.72em 0.2em;
+    color: #fffdf6;
+    font: 800 clamp(30px, 8.6vw, 78px) / 1 var(--pb-display);
+    letter-spacing: -0.02em;
+    text-align: center;
+    white-space: nowrap;
+    /* Swallow-tail ends, cut by eye. */
+    clip-path: polygon(0 0, 100% 0, calc(100% - 0.42em) 50%, 100% 100%, 0 100%, 0.42em 50%);
+  }
+  .lab-popup .pb-banner__ribbon span {
+    color: var(--pb-sun);
+  }
+  .lab-popup .pb-flip img {
+    scale: -1 1;
+  }
+  .lab-popup .pb-legs {
+    background:
+      linear-gradient(var(--pb-ink), var(--pb-ink)) 50% 100% / 100% 7px no-repeat,
+      linear-gradient(to top left, transparent 46%, var(--pb-ink) 47% 53%, transparent 54%) 0 0 /
+        50% 100% no-repeat,
+      linear-gradient(to top right, transparent 46%, var(--pb-ink) 47% 53%, transparent 54%) 100%
+        0 / 50% 100% no-repeat;
+  }
+  @media (max-width: 700px) {
+    /* On a phone the scene shows the middle of the town rather than shrinking all of it. */
+    .lab-popup .pb-spread--intro .pb-scene {
+      --sw: 800;
+      --sx: 200;
+    }
+  }
+  @keyframes pb-spin {
+    to {
+      rotate: 360deg;
+    }
+  }
+  html:is(.pb-m-book, .pb-m-fx) .lab-popup .pb-spin img {
+    animation: pb-spin 70s linear infinite;
+  }
+  .lab-popup .pb-pocket {
+    position: relative;
+    max-width: 520px;
+    margin: 0 auto;
+    overflow: hidden;
+  }
+  .lab-popup .pb-pull {
+    position: relative;
+    padding: 30px 22px 44px;
+    border-radius: 6px 8px 0 0;
+    background-color: #fffdf6;
+    background-image: var(--pb-grain);
+    box-shadow: 0 0 0 1px rgb(28 37 64 / 14%) inset;
+    transform: translateY(calc((1 - var(--o, 1)) * 74%));
+  }
+  .lab-popup .pb-pull__tab {
+    position: absolute;
+    left: 50%;
+    top: 8px;
+    width: 74px;
+    height: 12px;
+    translate: -50% 0;
+    border-radius: 8px;
+    border: 2px dashed var(--pb-pencil);
+  }
+  .lab-popup .pb-pull__role {
+    font: 800 clamp(19px, 3vw, 23px) / 1.1 var(--pb-display);
+    color: var(--pb-red);
+  }
+  .lab-popup .pb-pull__summary {
+    margin-top: 8px;
+    font-size: 18px;
+    line-height: 1.38;
+  }
+  .lab-popup .pb-pocket__front {
+    --paint: var(--pb-blue);
+    position: absolute;
+    inset: auto 0 0;
+    height: 30px;
+    border-top: 2px dashed rgb(255 253 246 / 80%);
+    box-shadow: 0 -2px 0 rgb(28 37 64 / 18%);
+  }
+
+  /* ---------- Small screens with motion: the opening is pinned and plays with scroll ---------- */
+  html.pb-m-fx .lab-popup {
+    .pb-opening {
+      display: block;
+      height: 330vh;
+      height: 330svh;
+    }
+    .pb-opening__pin {
+      position: sticky;
+      top: 0;
+      display: block;
+      height: 100vh;
+      height: 100svh;
+      overflow: clip;
+      perspective: 1500px;
+    }
+    .pb-spread--cover,
+    .pb-spread--intro {
+      position: absolute;
+      inset: 62px 0 74px;
+    }
+    .pb-spread--intro {
+      align-content: center;
+      padding: 18px 14px;
+    }
+    .pb-spread--cover {
+      z-index: 2;
+      display: block;
+      transform-origin: 0 50%;
+      transform: rotateY(calc(var(--open, 0) * -118deg));
+    }
+    .pb-cover {
+      display: grid;
+      align-content: center;
+      height: 100%;
+    }
+  }
+
+  /* ---------- In the book ---------- */
+  html.pb-m-book .lab-popup {
+    /* The cover is a board, a little larger than the page block it closes over. */
+    .pb-page.pb-cover {
+      top: -16px;
+      width: 618px;
+      height: 672px;
+      padding: 22px;
+      border-radius: 0 6px 6px 0;
+      background: var(--pb-red) url('/lab/popup/cover.webp') center / 108% 108%;
+      box-shadow:
+        0 0 0 1px rgb(28 37 64 / 30%),
+        3px 3px 0 #b93a2c;
+    }
+    .pb-cover__frame {
+      height: 100%;
+      align-content: center;
+      padding: 20px 30px;
+    }
+    .pb-cover__title {
+      font-size: 148px;
+    }
+    .pb-cover__photo {
+      width: 214px;
+    }
+    .pb-banner {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .pb-banner__pole {
+      display: block;
+      position: absolute;
+      top: 30px;
+      bottom: 0;
+      width: 7px;
+      border-radius: 3px;
+      background: var(--pb-ink);
+      box-shadow: 0 0 0 2px #fffdf6;
+    }
+    .pb-banner__pole:nth-of-type(1) {
+      left: 70px;
+    }
+    .pb-banner__pole:nth-of-type(2) {
+      right: 70px;
+    }
+    .pb-banner__roll {
+      position: relative;
+    }
+    .pb-banner__ribbon {
+      font-size: 76px;
+      box-shadow: 0 0 0 3px #fffdf6;
+    }
+    .pb-pocket {
+      max-width: none;
+    }
+    .pb-legs {
+      opacity: calc(var(--o, 0) * 9);
+    }
+    .pb-pull {
+      height: 100%;
+      padding: 30px 26px 40px;
+    }
+    .pb-pull__summary {
+      font-size: 18.5px;
+    }
+  }
+</style>

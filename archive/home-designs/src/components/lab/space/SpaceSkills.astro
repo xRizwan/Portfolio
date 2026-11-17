@@ -1,0 +1,401 @@
+---
+// Skills as a small solar system printed on cream paper. Every skill group is a planet on one of
+// four orbits around the sun. Pointing at the system holds it still; picking a planet opens its
+// read-out, with the skills as satellites. Without scripts the same markup is a plain grid of
+// cards, one per group, with every skill listed.
+import { skillGroups } from '../../../data/skills';
+import { art, type ArtName } from './art';
+import { roughEdge } from './edge';
+
+// Which painted planet, how big, and which orbit each group gets (inner orbit first).
+const looks: { planet: ArtName; size: number; ring: number }[] = [
+  { planet: 'green', size: 62, ring: 0 },
+  { planet: 'ring', size: 92, ring: 1 },
+  { planet: 'gas', size: 84, ring: 2 },
+  { planet: 'ice', size: 58, ring: 1 },
+  { planet: 'night', size: 70, ring: 2 },
+  { planet: 'desert', size: 78, ring: 3 },
+  { planet: 'moon', size: 54, ring: 0 },
+  { planet: 'ring', size: 76, ring: 3 },
+  { planet: 'gas', size: 64, ring: 1 },
+  { planet: 'night', size: 56, ring: 3 },
+  { planet: 'moon', size: 46, ring: 2 },
+];
+const ringSizes = [0, 0, 0, 0];
+const groups = skillGroups.map((group, index) => {
+  const look = looks[index % looks.length] ?? { planet: 'moon' as ArtName, size: 56, ring: 0 };
+  const place = ringSizes[look.ring] ?? 0;
+  ringSizes[look.ring] = place + 1;
+  return { ...group, ...look, place };
+});
+const placed = groups.map((group) => ({
+  ...group,
+  // Spread the planets of one orbit evenly, and start each orbit at a different angle.
+  phase: (group.place / (ringSizes[group.ring] ?? 1)) * 360 + group.ring * 47,
+  moons: Array.from({ length: Math.min(group.items.length, 9) }, (_, index) => index),
+}));
+---
+
+<section
+  class="sp-section sp-paper sp-skills"
+  id="skills"
+  data-sp-stop
+  aria-labelledby="sp-skills-title"
+  style={{ '--sp-edge': roughEdge(311) }}
+>
+  <div class="sp-wrap">
+    <p class="sp-label" data-rise>
+      The whole system
+    </p>
+    <h2 class="sp-h2" id="sp-skills-title" data-rise>
+      Skills
+    </h2>
+    <p class="sp-hint sp-skills-hint" data-rise>
+      Each planet is one group of skills. Pick a planet to see what is on it.
+    </p>
+
+    <div class="sp-orrery" data-sp-orrery>
+      <div class="sp-orbits" data-sp-orbits>
+        <span class="sp-orbit" data-sp-orbit aria-hidden="true"></span>
+        <span class="sp-orbit" data-sp-orbit aria-hidden="true"></span>
+        <span class="sp-orbit" data-sp-orbit aria-hidden="true"></span>
+        <span class="sp-orbit" data-sp-orbit aria-hidden="true"></span>
+        <img class="sp-orrery-sun sp-spin" {...art('sun')} alt="" loading="lazy" />
+        <ul class="sp-groups">
+          {placed.map((group) => (
+            <li
+              class="sp-group"
+              data-sp-group
+              data-ring={group.ring}
+              data-phase={group.phase}
+              style={{ '--size': `${group.size}px` }}
+            >
+              <button
+                class="sp-planet"
+                type="button"
+                data-sp-planet
+                aria-expanded="false"
+                aria-controls={`sp-panel-${group.id}`}
+              >
+                <span class="sp-planet-moons" aria-hidden="true">
+                  {group.moons.map((moon) => (
+                    <i style={{ '--turn': `${(moon / group.moons.length) * 360}deg` }} />
+                  ))}
+                </span>
+                <img {...art(group.planet)} alt="" loading="lazy" />
+                <span class="sp-planet-name">{group.title}</span>
+              </button>
+              <div class="sp-panel" id={`sp-panel-${group.id}`} data-sp-panel>
+                <div class="sp-panel-head">
+                  <img class="sp-spin" {...art(group.planet)} alt="" loading="lazy" />
+                  <h3>{group.name}</h3>
+                </div>
+                <ul class="sp-sats">
+                  {group.items.map((item, index) => (
+                    <li style={{ '--i': index }}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div class="sp-readout" data-sp-readout>
+        <div class="sp-readout-slot" data-sp-readout-slot></div>
+        <div class="sp-readout-nav">
+          <button class="sp-btn sp-btn--cream" type="button" data-sp-prev>
+            <svg viewBox="0 0 22 16" width="18" height="13" aria-hidden="true">
+              <path
+                d="M21 8H2m0 0 6-6M2 8l6 6"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.4"
+              ></path>
+            </svg>
+            Previous planet
+          </button>
+          <button class="sp-btn" type="button" data-sp-next>
+            Next planet
+            <svg viewBox="0 0 22 16" width="18" height="13" aria-hidden="true">
+              <path
+                d="M1 8h19m0 0-6-6m6 6-6 6"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.4"
+              ></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .lab-space .sp-skills-hint {
+    opacity: 1;
+  }
+
+  /* Shared look of a group's read-out: a dark card on the cream paper. */
+  .lab-space .sp-panel {
+    padding: clamp(20px, 2.4vw, 30px);
+    border-radius: 26px;
+    background: var(--sp-space);
+    color: var(--sp-cream);
+    box-shadow: 8px 8px 0 var(--sp-tomato);
+  }
+  .lab-space .sp-panel-head {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .lab-space .sp-panel-head img {
+    flex: none;
+    width: clamp(58px, 6vw, 84px);
+    --spin: 50s;
+  }
+  .lab-space .sp-panel h3 {
+    font: 800 clamp(26px, 2.9vw, 40px) / 1 var(--sp-display);
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+  /* Each skill is a small satellite: a body with two panels, then its name. */
+  .lab-space .sp-sats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 20px;
+  }
+  .lab-space .sp-sats li {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 6px 13px 6px 10px;
+    border: 1.5px solid rgb(246 236 215 / 34%);
+    border-radius: 999px;
+    font: 600 14px/1.3 var(--sp-body);
+  }
+  .lab-space .sp-sats li::before {
+    content: '';
+    flex: none;
+    width: 17px;
+    height: 7px;
+    border-radius: 2px;
+    background: linear-gradient(
+      90deg,
+      var(--sp-mint) 0 5px,
+      transparent 5px 6px,
+      var(--sp-mustard) 6px 11px,
+      transparent 11px 12px,
+      var(--sp-mint) 12px
+    );
+  }
+  .lab-space .sp-sats li:nth-child(3n + 2)::before {
+    background: linear-gradient(
+      90deg,
+      var(--sp-mustard) 0 5px,
+      transparent 5px 6px,
+      var(--sp-tomato) 6px 11px,
+      transparent 11px 12px,
+      var(--sp-mustard) 12px
+    );
+  }
+
+  /* Without scripts: a plain grid of the cards. The orbit furniture is not shown. */
+  .lab-space .sp-orrery {
+    margin-top: 44px;
+  }
+  .lab-space .sp-groups {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr));
+    gap: 22px;
+  }
+  .lab-space .sp-planet,
+  .lab-space .sp-orbit,
+  .lab-space .sp-orrery-sun,
+  .lab-space .sp-readout {
+    display: none;
+  }
+
+  /* With scripts: the system on the left, the read-out of the chosen planet on the right.
+     skills.ts moves the cards into the read-out and steers the planets round their orbits. */
+  .sp-js .lab-space .sp-orrery {
+    display: grid;
+    grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(24px, 4vw, 60px);
+  }
+  .sp-js .lab-space .sp-orbits {
+    position: relative;
+    aspect-ratio: 1.08;
+  }
+  .sp-js .lab-space .sp-groups {
+    display: block;
+    position: absolute;
+    inset: 0;
+  }
+  .sp-js .lab-space .sp-group {
+    display: contents;
+  }
+  .sp-js .lab-space .sp-orbit {
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    border: 2px dotted rgb(27 24 64 / 42%);
+    border-radius: 50%;
+    translate: -50% -50%;
+  }
+  .sp-js .lab-space .sp-orrery-sun {
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 13%;
+    translate: -50% -50%;
+    --spin: 80s;
+  }
+  .sp-js .lab-space .sp-planet {
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: calc(var(--size) * 0.88);
+    height: calc(var(--size) * 0.88);
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    cursor: pointer;
+    will-change: transform;
+  }
+  .sp-js .lab-space .sp-planet img {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 100%;
+    max-width: none;
+    translate: -50% -50%;
+    transition: scale 0.35s cubic-bezier(0.3, 1.6, 0.5, 1);
+  }
+  .sp-js .lab-space .sp-planet:hover img,
+  .sp-js .lab-space .sp-planet:focus-visible img {
+    scale: 1.14;
+  }
+  .sp-js .lab-space .sp-planet.is-active img {
+    scale: 1.26;
+  }
+  .sp-js .lab-space .sp-planet:focus-visible {
+    border-radius: 50%;
+    outline-offset: 8px;
+  }
+  /* The chosen planet gets a ring of little moons, one per skill (up to nine). */
+  .lab-space .sp-planet-moons {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    animation: sp-spin 14s linear infinite;
+  }
+  .lab-space .sp-planet.is-active .sp-planet-moons {
+    opacity: 1;
+  }
+  .lab-space .sp-planet-moons i {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 7px;
+    height: 7px;
+    margin: -3.5px;
+    border-radius: 50%;
+    background: var(--sp-tomato);
+    transform: rotate(var(--turn)) translateX(calc(var(--size) * 0.63 + 12px));
+  }
+  .lab-space .sp-planet-moons i:nth-child(odd) {
+    background: var(--sp-ink);
+  }
+  .lab-space .sp-planet-name {
+    position: absolute;
+    left: 50%;
+    top: calc(100% + 16px);
+    padding: 4px 8px;
+    background: var(--sp-ink);
+    color: var(--sp-cream);
+    font: 700 11px/1.2 var(--sp-mono);
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    translate: -50% 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .lab-space .sp-planet:hover .sp-planet-name,
+  .lab-space .sp-planet:focus-visible .sp-planet-name,
+  .lab-space .sp-planet.is-active .sp-planet-name {
+    opacity: 1;
+  }
+
+  .sp-js .lab-space .sp-readout {
+    display: grid;
+    gap: 22px;
+  }
+  .sp-js .lab-space .sp-panel {
+    display: none;
+  }
+  .sp-js .lab-space .sp-panel.is-active {
+    display: block;
+  }
+  .sp-motion .lab-space .sp-panel.is-active {
+    animation: sp-panel-in 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+  }
+  .sp-motion .lab-space .sp-panel.is-active .sp-sats li {
+    animation: sp-sat-in 0.4s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+    animation-delay: calc(var(--i) * 26ms + 80ms);
+  }
+  @keyframes sp-panel-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px) rotate(-1deg);
+    }
+  }
+  @keyframes sp-sat-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.8);
+    }
+  }
+  .lab-space .sp-readout-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  @media (max-width: 900px) {
+    .sp-js .lab-space .sp-orrery {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 30px;
+    }
+    /* A tall ellipse gives the planets more room on a narrow screen. */
+    .sp-js .lab-space .sp-orbits {
+      aspect-ratio: 0.78;
+    }
+    .sp-js .lab-space .sp-orrery-sun {
+      width: 20%;
+    }
+    /* Planets are drawn at about two thirds of their size on a phone. */
+    .sp-js .lab-space .sp-planet {
+      width: calc(var(--size) * 0.62);
+      height: calc(var(--size) * 0.62);
+    }
+    .lab-space .sp-planet-moons i {
+      width: 5px;
+      height: 5px;
+      margin: -2.5px;
+      transform: rotate(var(--turn)) translateX(calc(var(--size) * 0.4 + 8px));
+    }
+    .lab-space .sp-planet-name {
+      top: calc(100% + 10px);
+      font-size: 10px;
+    }
+  }
+</style>

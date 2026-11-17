@@ -1,0 +1,78 @@
+---
+// Fixed, decorative layers that stay alive over the whole page (see life.ts).
+---
+
+<canvas class="oc-school" data-oc-school aria-hidden="true"></canvas>
+<div class="oc-turtle" data-oc-turtle aria-hidden="true">
+  <img src="/lab/ocean/turtle.webp" width="560" height="373" alt="" loading="lazy" />
+</div>
+<div class="oc-octopus" data-oc-octopus aria-hidden="true">
+  <img src="/lab/ocean/octopus.webp" width="560" height="560" alt="" loading="lazy" />
+</div>
+
+<style is:global>
+  .lab-ocean .oc-school {
+    position: fixed;
+    inset: 0;
+    z-index: 3;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .lab-ocean .oc-turtle {
+    position: fixed;
+    left: 0;
+    top: 40%;
+    z-index: 3;
+    width: clamp(150px, 17vw, 250px);
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .lab-ocean .oc-turtle.is-swimming {
+    visibility: visible;
+  }
+  .lab-ocean .oc-turtle img {
+    width: 100%;
+    filter: var(--oc-shadow);
+    scale: var(--flip, 1) 1;
+    animation: oc-paddle 3.4s ease-in-out infinite alternate;
+  }
+  @keyframes oc-paddle {
+    from {
+      transform: translateY(-9px) rotate(-5deg);
+    }
+    to {
+      transform: translateY(9px) rotate(4deg);
+    }
+  }
+  /* The octopus waits below the bottom-left corner and climbs up once the page is underwater. */
+  .lab-ocean .oc-octopus {
+    position: fixed;
+    left: clamp(6px, 1.4vw, 26px);
+    bottom: 8px;
+    z-index: 6;
+    width: clamp(84px, 9vw, 132px);
+    pointer-events: none;
+    transform: translateY(130%);
+    transition: transform 0.9s cubic-bezier(0.3, 1.3, 0.5, 1);
+  }
+  .lab-ocean .oc-octopus.is-out {
+    transform: translateY(0);
+  }
+  .lab-ocean .oc-octopus.is-out.is-shy {
+    transform: translateY(46%) scale(0.92);
+  }
+  .lab-ocean .oc-octopus img {
+    width: 100%;
+    filter: var(--tone, none) drop-shadow(0 6px 5px rgb(18 38 58 / 22%));
+    transition: filter 1.1s ease;
+    animation: oc-bob 3.8s ease-in-out infinite alternate;
+  }
+  /* On small screens it sits behind the content (and above the preview switcher). */
+  @media (max-width: 1100px) {
+    .lab-ocean .oc-octopus {
+      z-index: 4;
+      bottom: 62px;
+    }
+  }
+</style>

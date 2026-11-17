@@ -11,14 +11,6 @@ import Icon from './Icon.astro';
     <p class="micro identity-role">
       {site.name} / {site.role}
     </p>
-    <button
-      aria-pressed="false"
-      class="motion-toggle motion-toggle-phone"
-      data-motion
-      type="button"
-    >
-      Pause motion
-    </button>
   </div>
   <nav aria-label="Main navigation" class="main-nav">
     {mainNav.map((link) => (
@@ -26,9 +18,6 @@ import Icon from './Icon.astro';
     ))}
   </nav>
   <div class="nav-actions">
-    <button aria-pressed="false" class="motion-toggle" data-motion type="button">
-      Pause motion
-    </button>
     <button aria-label="Switch to dark theme" class="theme-toggle" data-theme-toggle type="button">
       <Icon name="sun" size={14} />
       <Icon name="moon" size={14} />

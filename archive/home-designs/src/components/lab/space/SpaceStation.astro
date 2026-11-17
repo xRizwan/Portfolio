@@ -1,0 +1,380 @@
+---
+// Certificates, pinned up on the wall of a small space station. Nothing is fastened very well in
+// zero gravity, so the frames drift a little; pointing at one steadies it, and picking it shows
+// the document full size in a dialog with previous and next. Without scripts each frame is a
+// plain link to the large image.
+import { Image, getImage } from 'astro:assets';
+import { credentialAlt, credentials } from '../../../data/certificates';
+import { art } from './art';
+
+const items = await Promise.all(
+  credentials.map(async (credential, index) => {
+    const full = await getImage({
+      src: credential.image,
+      width: 1600,
+      format: 'webp',
+      quality: 85,
+    });
+    return {
+      ...credential,
+      alt: credentialAlt(credential),
+      full: full.src,
+      fullWidth: Number(full.attributes.width),
+      fullHeight: Number(full.attributes.height),
+      // A small, repeatable lean and drift so the wall does not look like a spreadsheet.
+      lean: ((index * 37) % 9) - 4,
+      bob: 5 + ((index * 53) % 5),
+      wait: -((index * 29) % 11),
+    };
+  }),
+);
+const first = items[0];
+---
+
+<section
+  class="sp-section sp-station"
+  id="certificates"
+  data-sp-stop
+  aria-labelledby="sp-station-title"
+>
+  <div class="sp-clip" aria-hidden="true">
+    <img class="sp-art sp-station-gas sp-spin" {...art('gas')} alt="" loading="lazy" />
+  </div>
+  <div class="sp-wrap">
+    <div class="sp-station-top">
+      <div>
+        <p class="sp-label" data-rise>
+          On the station wall
+        </p>
+        <h2 class="sp-h2" id="sp-station-title" data-rise>
+          Certificates
+        </h2>
+        <p class="sp-hint" data-rise>
+          Pick one to see it full size.
+        </p>
+      </div>
+      <div class="sp-station-art" aria-hidden="true" data-drift="-60">
+        <img class="sp-station-hub sp-bob" {...art('station')} alt="" loading="lazy" />
+        <svg class="sp-station-tether" viewBox="0 0 100 60" preserveAspectRatio="none">
+          <path d="M96 8C70 2 60 46 34 34S14 40 6 52" fill="none"></path>
+        </svg>
+        <img class="sp-station-walker sp-bob" {...art('astronaut')} alt="" loading="lazy" />
+      </div>
+    </div>
+
+    <ul class="sp-wall">
+      {items.map((item, index) => (
+        <li data-rise style={{ '--rise-i': index % 4 }}>
+          <a
+            class:list={['sp-frame', { 'sp-frame--badge': item.kind === 'badge' }]}
+            href={item.full}
+            data-sp-cert
+            data-title={item.title}
+            data-issuer={item.issuer}
+            data-alt={item.alt}
+            data-width={item.fullWidth}
+            data-height={item.fullHeight}
+            style={{
+              '--lean': `${item.lean}deg`,
+              '--bob': `${item.bob}s`,
+              '--wait': `${item.wait}s`,
+            }}
+          >
+            <span class="sp-frame-sheet">
+              <Image src={item.image} width={460} alt={item.alt} loading="lazy" />
+            </span>
+            <span class="sp-frame-tag">
+              <strong>{item.title}</strong>
+              <span>{item.issuer}</span>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <dialog class="sp-cert-dialog" data-sp-cert-dialog aria-labelledby="sp-cert-dialog-title">
+    <div class="sp-cert-sheet">
+      <img
+        src={first?.full}
+        width={first?.fullWidth ?? 1600}
+        height={first?.fullHeight ?? 1200}
+        alt=""
+        loading="lazy"
+        data-cert-image
+      />
+      <div class="sp-cert-bar">
+        <p>
+          <strong id="sp-cert-dialog-title" data-cert-title></strong>
+          <span data-cert-issuer></span>
+        </p>
+        <div class="sp-cert-buttons">
+          <button type="button" class="sp-btn sp-btn--cream" data-cert-prev>
+            Previous
+          </button>
+          <button type="button" class="sp-btn sp-btn--cream" data-cert-next>
+            Next
+          </button>
+          <button type="button" class="sp-btn sp-btn--tomato" data-cert-close>
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+</section>
+
+<style is:global>
+  .lab-space .sp-station-gas {
+    left: -150px;
+    top: 34%;
+    width: clamp(220px, 26vw, 400px);
+    opacity: 0.5;
+    --spin: 200s;
+  }
+  .lab-space .sp-station-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+    align-items: center;
+    gap: 30px;
+  }
+  /* The station with an astronaut out on a tether. Both bob at their own pace, so the tether
+     (a fixed line between them) seems to go slack and tight. */
+  .lab-space .sp-station-art {
+    position: relative;
+    aspect-ratio: 1.75;
+  }
+  .lab-space .sp-station-hub {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 66%;
+    --bob: 7s;
+  }
+  .lab-space .sp-station-walker {
+    position: absolute;
+    left: 2%;
+    bottom: 0;
+    width: 25%;
+    --bob: 4.6s;
+  }
+  .lab-space .sp-station-tether {
+    position: absolute;
+    left: 18%;
+    top: 38%;
+    width: 34%;
+    height: 44%;
+    overflow: visible;
+    stroke: var(--sp-cream);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-dasharray: 1 7;
+    vector-effect: non-scaling-stroke;
+  }
+  .lab-space .sp-station-tether path {
+    vector-effect: non-scaling-stroke;
+  }
+
+  /* The wall: one riveted panel of the station's hull. */
+  .lab-space .sp-wall {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(26px, 3vw, 44px) clamp(16px, 2.2vw, 30px);
+    margin-top: clamp(40px, 5vw, 64px);
+    padding: clamp(26px, 3.4vw, 46px);
+    border: 3px solid rgb(246 236 215 / 80%);
+    border-radius: 34px;
+    background:
+      radial-gradient(circle, rgb(246 236 215 / 62%) 0 2.5px, transparent 3.5px) 9px 9px / 34px 34px,
+      var(--sp-panel);
+    background-clip: border-box;
+    box-shadow: 10px 10px 0 var(--sp-mint);
+  }
+  /* The rivets run round the rim only: an inner plate covers the rest of the dot pattern. */
+  .lab-space .sp-wall::before {
+    content: '';
+    position: absolute;
+    inset: 20px;
+    border-radius: 18px;
+    background: var(--sp-panel);
+  }
+  .lab-space .sp-wall li {
+    position: relative;
+  }
+  .lab-space .sp-frame {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    text-decoration: none;
+    rotate: var(--lean, 0deg);
+    transition: rotate 0.45s cubic-bezier(0.3, 1.5, 0.5, 1);
+  }
+  .sp-motion .lab-space .sp-frame {
+    animation: sp-float var(--bob, 6s) ease-in-out var(--wait, 0s) infinite alternate;
+  }
+  @keyframes sp-float {
+    from {
+      transform: translate3d(-3px, -7px, 0) rotate(-1.2deg);
+    }
+    to {
+      transform: translate3d(3px, 7px, 0) rotate(1.2deg);
+    }
+  }
+  .lab-space .sp-frame:hover,
+  .lab-space .sp-frame:focus-visible {
+    rotate: 0deg;
+    animation-play-state: paused;
+  }
+  .lab-space .sp-frame-sheet {
+    position: relative;
+    display: grid;
+    grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+    place-items: center;
+    aspect-ratio: 4 / 3;
+    padding: 8px;
+    background: var(--sp-cream);
+    box-shadow: 5px 6px 0 rgb(20 17 51 / 60%);
+    transition:
+      scale 0.4s cubic-bezier(0.3, 1.5, 0.5, 1),
+      box-shadow 0.3s ease;
+  }
+  /* A strip of tape holds each sheet to the wall. */
+  .lab-space .sp-frame-sheet::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: -9px;
+    z-index: 1;
+    width: 54px;
+    height: 18px;
+    background: rgb(242 177 52 / 88%);
+    translate: -50% 0;
+    rotate: -3deg;
+  }
+  .lab-space .sp-wall li:nth-child(3n + 1) .sp-frame-sheet::before {
+    background: rgb(228 87 46 / 88%);
+    rotate: 4deg;
+  }
+  .lab-space .sp-wall li:nth-child(3n + 2) .sp-frame-sheet::before {
+    background: rgb(118 199 176 / 90%);
+  }
+  .lab-space .sp-frame-sheet img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .lab-space .sp-frame:hover .sp-frame-sheet,
+  .lab-space .sp-frame:focus-visible .sp-frame-sheet {
+    scale: 1.07;
+    box-shadow: 9px 11px 0 var(--sp-tomato);
+  }
+  .lab-space .sp-frame-tag {
+    display: grid;
+    gap: 3px;
+  }
+  .lab-space .sp-frame-tag strong {
+    font: 800 15px/1.2 var(--sp-display);
+    text-wrap: balance;
+  }
+  .lab-space .sp-frame-tag span {
+    font: 400 11.5px/1.35 var(--sp-mono);
+    color: var(--sp-mustard);
+  }
+
+  .lab-space .sp-cert-dialog {
+    max-width: min(1100px, 100vw - 24px);
+    max-height: calc(100dvh - 24px);
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--sp-ink);
+    overflow: visible;
+  }
+  .lab-space .sp-cert-dialog::backdrop {
+    background: rgb(20 17 51 / 86%);
+  }
+  .lab-space .sp-cert-sheet {
+    display: grid;
+    gap: 14px;
+    padding: clamp(10px, 1.6vw, 18px);
+    border: 2px solid var(--sp-ink);
+    background: var(--sp-paper);
+    box-shadow: 10px 10px 0 var(--sp-tomato);
+  }
+  .sp-motion .lab-space .sp-cert-dialog[open] .sp-cert-sheet {
+    animation: sp-cert-in 0.45s cubic-bezier(0.3, 1.3, 0.5, 1);
+  }
+  @keyframes sp-cert-in {
+    from {
+      opacity: 0;
+      transform: translateY(50px) rotate(-3deg) scale(0.9);
+    }
+  }
+  .lab-space .sp-cert-sheet > img {
+    width: auto;
+    max-width: 100%;
+    max-height: calc(100dvh - 200px);
+    margin-inline: auto;
+    object-fit: contain;
+  }
+  .lab-space .sp-cert-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 20px;
+  }
+  .lab-space .sp-cert-bar p {
+    display: grid;
+    gap: 2px;
+  }
+  .lab-space .sp-cert-bar strong {
+    font: 800 19px/1.2 var(--sp-display);
+  }
+  .lab-space .sp-cert-bar p span {
+    font: 400 12.5px/1.3 var(--sp-mono);
+  }
+  .lab-space .sp-cert-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 0 6px 6px 0;
+  }
+  .lab-space .sp-cert-buttons .sp-btn {
+    padding: 10px 15px;
+  }
+  .lab-space .sp-cert-dialog :focus-visible {
+    outline-color: var(--sp-tomato);
+  }
+
+  @media (max-width: 1000px) {
+    .lab-space .sp-wall {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 760px) {
+    .lab-space .sp-station-top {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .lab-space .sp-station-art {
+      max-width: 340px;
+    }
+    .lab-space .sp-wall {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 26px 14px;
+      padding: 30px 16px 22px;
+      border-radius: 24px;
+      box-shadow: 6px 6px 0 var(--sp-mint);
+    }
+    .lab-space .sp-wall::before {
+      inset: 14px;
+    }
+    .lab-space .sp-frame-tag strong {
+      font-size: 13.5px;
+    }
+    .lab-space .sp-station-gas {
+      display: none;
+    }
+  }
+</style>

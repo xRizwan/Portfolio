@@ -1,0 +1,69 @@
+---
+// Footer: the end of the road, with the way back to the title screen.
+import { site } from '../../../data/site';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="qg-footer qg-dark">
+  <span class="qg-tear" aria-hidden="true"></span>
+  <div class="qg-inner qg-footer__inner">
+    <p class="qg-footer__end">That’s the end of the road, for now.</p>
+    <a class="qg-btn" href="#top">
+      Back to the title screen
+    </a>
+    <ul class="qg-footer__links">
+      <li>
+        <a href={`mailto:${site.email}`}>Email</a>
+      </li>
+      <li>
+        <a href={site.github}>GitHub</a>
+      </li>
+      <li>
+        <a href={site.linkedin}>LinkedIn</a>
+      </li>
+      <li>
+        <a href={site.resume}>Resume</a>
+      </li>
+      <li>
+        <a href="/blog/">Blog</a>
+      </li>
+    </ul>
+    <p class="qg-footer__legal">
+      © {year} {site.name}
+    </p>
+  </div>
+</footer>
+
+<style is:global>
+  .lab-game footer.qg-footer .qg-footer__inner {
+    display: grid;
+    justify-items: start;
+    gap: 20px;
+    padding: clamp(50px, 7vw, 90px) 0 110px;
+  }
+  .lab-game .qg-footer__end {
+    font: 500 italic clamp(32px, 5vw, 60px) / 1.05 var(--q-display);
+    text-wrap: balance;
+  }
+  .lab-game .qg-footer__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 22px;
+    margin-top: 10px;
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .lab-game .qg-footer__links a {
+    text-decoration: none;
+    opacity: 0.86;
+  }
+  .lab-game .qg-footer__links a:hover {
+    color: var(--q-gold);
+    opacity: 1;
+  }
+  .lab-game .qg-footer__legal {
+    color: rgb(239 226 196 / 60%);
+    font-size: 13.5px;
+  }
+</style>

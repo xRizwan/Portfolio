@@ -1,0 +1,310 @@
+---
+// About: the reading corner. The calico starts her day asleep in the armchair and later moves
+// to whatever card is being read (see residents.ts).
+import { experienceIntro } from '../../../data/experience';
+import Art from './Art.astro';
+
+const { about } = experienceIntro;
+---
+
+<section id="about" class="cat-sec cat-about" data-thread="left">
+  <div class="cat-wrap">
+    <div class="cat-about-grid">
+      <div class="cat-about-text">
+        <p class="cat-note" data-cat-reveal>
+          About me
+        </p>
+        <h2 class="cat-about-lead" data-cat-reveal>
+          {about.lead}
+        </h2>
+        <p class="cat-about-body" data-cat-reveal>
+          {about.body}
+        </p>
+      </div>
+      <div class="cat-nook" aria-hidden="true">
+        <span class="cat-nook-glow"></span>
+        <Art name="lamp" class="cat-nook-lamp" data-cat-parallax="-0.05" />
+        <Art name="plant" class="cat-nook-plant" data-cat-parallax="0.07" />
+        <div class="cat-nook-chair">
+          <Art name="armchair" />
+          <div class="cat-nook-seat" data-cat-perch>
+            <div class="cat-napper is-in" data-cat-napper data-pose="sleep">
+              <Art name="calico-sleep" data-pose="sleep" />
+              <Art name="calico-startled" data-pose="startled" />
+              <Art name="calico-sit" data-pose="sit" />
+              <Art name="calico-blink" data-pose="blink" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ul class="cat-traits">
+      {about.traits.map((trait, index) => (
+        <li class="cat-trait" data-cat-perch data-cat-reveal style={`--i:${index}`}>
+          <h3>{trait.title}</h3>
+          <p>{trait.text}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+  <span class="cat-peek cat-peek-about" data-cat-peek data-pose="peek" aria-hidden="true">
+    <Art name="grey-peek" data-pose="peek" />
+    <Art name="grey-peek-blink" data-pose="blink" />
+  </span>
+</section>
+
+<style is:global>
+  .lab-cat .cat-about {
+    position: relative;
+    background: linear-gradient(#f0dcc0, var(--cream) 120px, #f3e4cd);
+  }
+  .lab-cat .cat-about-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: clamp(28px, 5vw, 80px);
+    align-items: end;
+  }
+  .lab-cat .cat-about-lead {
+    margin-top: 8px;
+    font: 500 clamp(34px, 4.5vw, 60px) / 1.04 var(--serif);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  .lab-cat .cat-about-body {
+    max-width: 58ch;
+    margin-top: 26px;
+    font-size: 18px;
+  }
+
+  /* Reading corner */
+  .lab-cat .cat-nook {
+    position: relative;
+    width: min(100%, 430px);
+    aspect-ratio: 1 / 0.92;
+    margin-left: auto;
+  }
+  .lab-cat .cat-nook-glow {
+    position: absolute;
+    left: -8%;
+    top: -4%;
+    width: 70%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(rgb(255 214 140 / 75%), rgb(255 214 140 / 0%) 68%);
+  }
+  .lab-cat .cat-nook-lamp {
+    position: absolute;
+    left: 6%;
+    bottom: 0;
+    width: 30%;
+  }
+  .lab-cat .cat-nook-plant {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 27%;
+  }
+  .lab-cat .cat-nook-chair {
+    position: absolute;
+    left: 24%;
+    bottom: 0;
+    width: 56%;
+  }
+  .lab-cat .cat-nook-chair > img {
+    display: block;
+    width: 100%;
+  }
+  /* An invisible line at cushion height for the calico to lie on. */
+  .lab-cat .cat-nook-seat {
+    position: absolute;
+    left: 22%;
+    right: 22%;
+    top: 62%;
+    height: 0;
+    --perch-x: 16%;
+    --perch-w: 68%;
+  }
+
+  /* Calico: sits on the top edge of whichever perch she has been moved into. */
+  .lab-cat .cat-napper {
+    position: absolute;
+    right: var(--perch-x, 22px);
+    bottom: calc(100% - 7px);
+    z-index: 3;
+    width: var(--perch-w, 92px);
+    aspect-ratio: 300 / 245;
+    pointer-events: none;
+  }
+  .lab-cat .cat-napper img {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 100%;
+    max-width: none;
+    transform: translateX(-50%);
+    transform-origin: 50% 100%;
+    opacity: 0;
+  }
+  .lab-cat .cat-napper img[data-pose='sit'],
+  .lab-cat .cat-napper img[data-pose='blink'] {
+    width: 74%;
+  }
+  .lab-cat .cat-napper img[data-pose='startled'] {
+    width: 128%;
+  }
+  .lab-cat .cat-napper[data-pose='sleep'] img[data-pose='sleep'],
+  .lab-cat .cat-napper[data-pose='startled'] img[data-pose='startled'],
+  .lab-cat .cat-napper[data-pose='sit'] img[data-pose='sit'],
+  .lab-cat .cat-napper[data-pose='blink'] img[data-pose='blink'] {
+    opacity: 1;
+  }
+  .lab-cat.cat-motion .cat-napper {
+    opacity: 0;
+    translate: 0 -22px;
+    transition:
+      opacity 0.18s ease,
+      translate 0.18s ease;
+  }
+  .lab-cat.cat-motion .cat-napper.is-in {
+    opacity: 1;
+    translate: 0 0;
+    transition:
+      opacity 0.2s ease,
+      translate 0.5s cubic-bezier(0.3, 1.6, 0.5, 1);
+  }
+  .lab-cat.cat-motion .cat-napper img[data-pose='sleep'] {
+    animation: cat-breathe 3.4s ease-in-out infinite;
+  }
+  .lab-cat.cat-motion .cat-napper.is-jolted {
+    animation: cat-jolt 0.5s ease-out;
+  }
+  @keyframes cat-breathe {
+    50% {
+      transform: translateX(-50%) scale(1.015, 1.045);
+    }
+  }
+  @keyframes cat-jolt {
+    30% {
+      translate: 0 -26px;
+    }
+  }
+
+  /* Traits: notes taped to the wall */
+  .lab-cat .cat-traits {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(18px, 3vw, 40px);
+    margin-top: 110px;
+  }
+  .lab-cat .cat-trait {
+    position: relative;
+    padding: 30px 26px 28px;
+    background: #f7dfa0;
+    box-shadow: 3px 6px 0 rgb(59 42 63 / 14%);
+    rotate: -1.6deg;
+    --tilt-from: -5deg;
+  }
+  .lab-cat .cat-trait:nth-child(2) {
+    background: #eac1bb;
+    rotate: 1.2deg;
+    translate: 0 18px;
+    --tilt-from: 4deg;
+  }
+  .lab-cat .cat-trait:nth-child(3) {
+    background: #c3d1b3;
+    rotate: -0.6deg;
+    --tilt-from: -3deg;
+  }
+  /* Masking tape */
+  .lab-cat .cat-trait::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: -13px;
+    width: 92px;
+    height: 26px;
+    translate: -50% 0;
+    rotate: -3deg;
+    background: rgb(251 245 232 / 78%);
+    border-left: 2px dotted rgb(59 42 63 / 25%);
+    border-right: 2px dotted rgb(59 42 63 / 25%);
+  }
+  .lab-cat .cat-trait h3 {
+    font: 700 34px/1 var(--hand);
+  }
+  .lab-cat .cat-trait p {
+    margin-top: 10px;
+    font: 500 19px/1.35 var(--serif);
+  }
+
+  /* Grey cat peeking over the ledge of the next section. */
+  .lab-cat .cat-peek {
+    position: absolute;
+    bottom: 0;
+    z-index: 0;
+    width: 150px;
+    aspect-ratio: 255 / 167;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .lab-cat .cat-peek img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    opacity: 0;
+    translate: 0 4%;
+  }
+  .lab-cat .cat-peek[data-pose='peek'] img[data-pose='peek'],
+  .lab-cat .cat-peek[data-pose='blink'] img[data-pose='blink'] {
+    opacity: 1;
+  }
+  .lab-cat.cat-motion .cat-peek img {
+    translate: 0 104%;
+    transition: translate 0.55s cubic-bezier(0.3, 1.4, 0.5, 1) 0.35s;
+  }
+  .lab-cat.cat-motion .cat-peek.is-up img {
+    translate: 0 4%;
+  }
+  .lab-cat.cat-motion .cat-peek.is-ducked img {
+    translate: 0 104%;
+    transition: translate 0.14s ease-in;
+  }
+  .lab-cat .cat-peek-about {
+    right: 16%;
+  }
+  /* Wooden ledge along the top of a section, for the grey cat to hang on to. */
+  .lab-cat .cat-ledge {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 18px;
+    background: linear-gradient(#d19b63, var(--wood) 55%, var(--wood-dark));
+    border-top: 2px solid var(--plum);
+    border-bottom: 2px solid var(--plum);
+  }
+
+  @media (max-width: 859px) {
+    .lab-cat .cat-about-grid {
+      grid-template-columns: 1fr;
+    }
+    .lab-cat .cat-nook {
+      width: min(86%, 340px);
+      margin: 10px auto 0;
+    }
+    .lab-cat .cat-traits {
+      grid-template-columns: 1fr;
+      gap: 76px;
+      margin-top: 96px;
+    }
+    .lab-cat .cat-trait:nth-child(2) {
+      translate: 0 0;
+    }
+    .lab-cat .cat-peek {
+      width: 112px;
+    }
+    .lab-cat .cat-peek-about {
+      right: 10%;
+    }
+  }
+</style>

@@ -1,0 +1,363 @@
+---
+// Experience as the flight path so far, newest stop first. Each role is a waypoint (a small
+// world) with a mission-log card. flight.ts draws the route through the waypoints, fills it in
+// as you scroll, and sends the cat along it; the fuller log (what I did, and the stack) opens on
+// demand. Without scripts there is no route line, just the cards in order.
+import { roles } from '../../../data/experience';
+import { art, type ArtName } from './art';
+import { roughEdge } from './edge';
+
+const worlds: ArtName[] = ['night', 'desert', 'moon'];
+---
+
+<section
+  class="sp-section sp-paper sp-flight-section"
+  id="experience"
+  data-sp-stop
+  aria-labelledby="sp-flight-title"
+  style={{ '--sp-edge': roughEdge(733) }}
+>
+  <div class="sp-wrap">
+    <p class="sp-label" data-rise>
+      Flight path
+    </p>
+    <h2 class="sp-h2" id="sp-flight-title" data-rise>
+      Experience
+    </h2>
+    <p class="sp-hint" data-rise>
+      Where I have worked, newest first. Open a log for the detail.
+    </p>
+
+    <div class="sp-flight" data-sp-flight>
+      <svg class="sp-flight-route" data-sp-route aria-hidden="true">
+        <path class="sp-flight-plan" data-sp-route-plan></path>
+        <path class="sp-flight-done" data-sp-route-done></path>
+      </svg>
+      <img class="sp-flight-rider" {...art('cat')} alt="" loading="lazy" data-sp-rider />
+      <ol class="sp-ways">
+        {roles.map((role, index) => (
+          <li class="sp-way" data-sp-way>
+            <span class="sp-way-dot" data-sp-way-dot aria-hidden="true">
+              <img {...art(worlds[index % worlds.length] ?? 'moon')} alt="" loading="lazy" />
+            </span>
+            <article class="sp-log" data-rise>
+              <p class="sp-log-dates">{role.dates}</p>
+              <h3>{role.company}</h3>
+              <p class="sp-log-kind">{role.kind}</p>
+              <ul class="sp-log-titles">
+                {role.titles.map((title) => (
+                  <li>
+                    <strong>{title.title}</strong>
+                    {role.titles.length > 1 && <span>{title.dates}</span>}
+                  </li>
+                ))}
+              </ul>
+              <p class="sp-log-summary">{role.summary}</p>
+              <details class="sp-log-more">
+                <summary>
+                  <span class="sp-log-open">Open the mission log</span>
+                  <span class="sp-log-close">Close the mission log</span>
+                </summary>
+                <ul class="sp-log-points">
+                  {role.points.map((point) => (
+                    <li>{point}</li>
+                  ))}
+                </ul>
+                {role.contributed.length > 0 && (
+                  <div class="sp-log-row">
+                    <p>Contributed to</p>
+                    <ul class="sp-log-chips">
+                      {role.contributed.map((name) => (
+                        <li>{name}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                <div class="sp-log-row">
+                  <p>Stack</p>
+                  <ul class="sp-log-chips">
+                    {role.stack.map((name) => (
+                      <li>{name}</li>
+                    ))}
+                  </ul>
+                </div>
+              </details>
+            </article>
+          </li>
+        ))}
+      </ol>
+    </div>
+
+    <p class="sp-flight-end" data-rise>
+      <a class="sp-btn sp-btn--tomato" href="/experience/">
+        See the full experience page
+      </a>
+    </p>
+  </div>
+</section>
+
+<style is:global>
+  .lab-space .sp-flight {
+    position: relative;
+    margin-top: clamp(50px, 7vw, 90px);
+  }
+  .lab-space .sp-flight-route {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .lab-space .sp-flight-route path {
+    fill: none;
+    stroke-linecap: round;
+  }
+  .lab-space .sp-flight-plan {
+    stroke: rgb(27 24 64 / 34%);
+    stroke-width: 3;
+    stroke-dasharray: 2 12;
+  }
+  .lab-space .sp-flight-done {
+    stroke: var(--sp-tomato);
+    stroke-width: 5;
+  }
+  /* The cat rides the front of the route. Hidden until flight.ts has somewhere to put it. */
+  .lab-space .sp-flight-rider {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 3;
+    width: clamp(46px, 5.4vw, 74px);
+    opacity: 0;
+    pointer-events: none;
+    will-change: transform;
+  }
+  .lab-space .sp-flight-rider.is-riding {
+    opacity: 1;
+  }
+
+  .lab-space .sp-ways {
+    position: relative;
+    display: grid;
+    gap: clamp(60px, 8vw, 110px);
+  }
+  .lab-space .sp-way {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: clamp(20px, 4vw, 60px);
+  }
+  .lab-space .sp-way-dot {
+    position: relative;
+    z-index: 2;
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: start;
+    width: clamp(64px, 7.5vw, 104px);
+    margin: 26px 0 0 14%;
+    padding: 7px;
+    border: 3px solid var(--sp-ink);
+    border-radius: 50%;
+    background: var(--sp-paper);
+    transition:
+      scale 0.5s cubic-bezier(0.3, 1.6, 0.5, 1),
+      box-shadow 0.4s ease;
+  }
+  .lab-space .sp-way:nth-child(even) .sp-way-dot {
+    grid-column: 1;
+    justify-self: end;
+    margin: 26px 14% 0 0;
+  }
+  .lab-space .sp-way .sp-log {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .lab-space .sp-way:nth-child(even) .sp-log {
+    grid-column: 2;
+  }
+  /* A waypoint the route has reached pops and gets its colour block. */
+  .sp-motion .lab-space .sp-way-dot {
+    scale: 0.7;
+  }
+  .sp-motion .lab-space .sp-way.is-reached .sp-way-dot {
+    scale: 1;
+    box-shadow: 6px 6px 0 var(--sp-tomato);
+  }
+
+  /* Mission-log card: typed dates, a heavy company name, and a block of colour printed off
+     register behind the sheet. */
+  .lab-space .sp-log {
+    position: relative;
+    padding: clamp(20px, 2.6vw, 32px);
+    border: 2px solid var(--sp-ink);
+    background: #fbf3df;
+    box-shadow: 8px 8px 0 var(--sp-tomato);
+  }
+  .lab-space .sp-way:nth-child(3n + 2) .sp-log {
+    box-shadow: 8px 8px 0 var(--sp-mustard);
+  }
+  .lab-space .sp-way:nth-child(3n + 3) .sp-log {
+    box-shadow: 8px 8px 0 var(--sp-mint);
+  }
+  .lab-space .sp-log-dates {
+    display: inline-block;
+    padding: 5px 10px;
+    background: var(--sp-ink);
+    color: var(--sp-cream);
+    font: 700 12.5px/1.3 var(--sp-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .lab-space .sp-log h3 {
+    margin-top: 14px;
+    font: 800 clamp(38px, 4.6vw, 64px) / 0.95 var(--sp-display);
+    letter-spacing: -0.04em;
+  }
+  .lab-space .sp-log-kind {
+    margin-top: 8px;
+    font: 700 13px/1.4 var(--sp-mono);
+    color: #a8371a;
+  }
+  .lab-space .sp-log-titles {
+    display: grid;
+    gap: 4px;
+    margin-top: 16px;
+  }
+  .lab-space .sp-log-titles li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 12px;
+  }
+  .lab-space .sp-log-titles strong {
+    font: 800 18px/1.25 var(--sp-display);
+  }
+  .lab-space .sp-log-titles span {
+    font: 400 12.5px/1.3 var(--sp-mono);
+  }
+  .lab-space .sp-log-summary {
+    margin-top: 12px;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+  .lab-space .sp-log-more {
+    margin-top: 18px;
+  }
+  .lab-space .sp-log-more summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 15px;
+    border: 2px solid var(--sp-ink);
+    border-radius: 999px;
+    font: 700 13px/1.1 var(--sp-mono);
+    cursor: pointer;
+    list-style: none;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
+  }
+  .lab-space .sp-log-more summary::-webkit-details-marker {
+    display: none;
+  }
+  .lab-space .sp-log-more summary::before {
+    content: '+';
+    font-size: 17px;
+    line-height: 0.8;
+  }
+  .lab-space .sp-log-more[open] summary::before {
+    content: '\2212';
+  }
+  .lab-space .sp-log-more summary:hover,
+  .lab-space .sp-log-more[open] summary {
+    background: var(--sp-ink);
+    color: var(--sp-cream);
+  }
+  .lab-space .sp-log-more summary:focus-visible {
+    border-radius: 999px;
+  }
+  .lab-space .sp-log-close,
+  .lab-space .sp-log-more[open] .sp-log-open {
+    display: none;
+  }
+  .lab-space .sp-log-more[open] .sp-log-close {
+    display: inline;
+  }
+  .lab-space .sp-log-points {
+    display: grid;
+    gap: 10px;
+    margin-top: 18px;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  .lab-space .sp-log-points li {
+    position: relative;
+    padding-left: 22px;
+  }
+  .lab-space .sp-log-points li::before {
+    content: '';
+    position: absolute;
+    left: 2px;
+    top: 0.52em;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--sp-tomato);
+  }
+  .lab-space .sp-log-row {
+    margin-top: 18px;
+  }
+  .lab-space .sp-log-row p {
+    font: 700 12px/1.3 var(--sp-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .lab-space .sp-log-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .lab-space .sp-log-chips li {
+    padding: 4px 10px;
+    border: 1.5px solid rgb(27 24 64 / 45%);
+    border-radius: 999px;
+    font: 600 13px/1.3 var(--sp-body);
+  }
+  .lab-space .sp-flight-end {
+    display: flex;
+    justify-content: center;
+    margin-top: clamp(50px, 7vw, 84px);
+  }
+
+  /* Phones: the route runs down the left edge and the cards sit to its right. */
+  @media (max-width: 760px) {
+    .lab-space .sp-way,
+    .lab-space .sp-way:nth-child(even) {
+      grid-template-columns: 52px minmax(0, 1fr);
+      gap: 12px;
+    }
+    .lab-space .sp-way .sp-way-dot,
+    .lab-space .sp-way:nth-child(even) .sp-way-dot {
+      grid-column: 1;
+      justify-self: start;
+      width: 52px;
+      margin: 18px 0 0;
+      padding: 4px;
+    }
+    .lab-space .sp-way:nth-child(even) .sp-way-dot {
+      margin-top: 60px;
+    }
+    .lab-space .sp-way .sp-log,
+    .lab-space .sp-way:nth-child(even) .sp-log {
+      grid-column: 2;
+    }
+    .lab-space .sp-log {
+      box-shadow: 5px 5px 0 var(--sp-tomato);
+    }
+    .lab-space .sp-flight-rider {
+      width: 40px;
+    }
+  }
+</style>

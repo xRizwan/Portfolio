@@ -1,0 +1,266 @@
+---
+// Work: the dining car. Three covered dishes on the long table; lifting a cover shows the
+// project underneath with its link (cases.ts). The folded newspaper at the end is the blog.
+// Without scripts the covers are already off.
+import { workRows } from '../../../data/work';
+import { getProjects } from '../../../lib/collections';
+import { projectHref } from '../../../lib/content';
+import TrCar from './TrCar.astro';
+import { art } from './art';
+
+const projects = await getProjects();
+const dishes = workRows.map((row) => ({
+  row,
+  description: projects.find((project) => project.id === row.id)?.data.description,
+}));
+---
+
+<TrCar id="work">
+  <header class="tr-plate tr-sway">
+    <p class="tr-kicker">Dining car</p>
+    <h2 class="tr-h2" id="tr-work-title">
+      Three things <em>I made</em>
+    </h2>
+    <p class="tr-hint">They are on the table, under covers. Lift one to see it.</p>
+  </header>
+
+  <figure class="tr-view tr-view--dining">
+    <img
+      src={art.dining.src}
+      width={art.dining.width}
+      height={art.dining.height}
+      loading="lazy"
+      alt="A table in the dining car at night: white cloth, a shaded lamp, a teapot and two cups by the window."
+    />
+  </figure>
+
+  <div class="tr-dishes">
+    {dishes.map(({ row, description }) => (
+      <article class="tr-dish is-open" data-tr-auto>
+        <div class="tr-dish-card tr-paper" id={`tr-dish-${row.id}`}>
+          <p class="tr-dish-label">{row.label}</p>
+          <h3>{row.title}</h3>
+          {description && <p class="tr-dish-text">{description}</p>}
+          <a class="tr-btn" href={projectHref(row.id)}>
+            Open the project
+            <svg viewBox="0 0 22 12" aria-hidden="true">
+              <path d="M1 6h19M15 1l5 5-5 5" />
+            </svg>
+          </a>
+        </div>
+        <button
+          type="button"
+          class="tr-dish-cover"
+          aria-expanded="true"
+          aria-controls={`tr-dish-${row.id}`}
+          data-tr-toggle
+        >
+          <span class="tr-sr">Cover for {row.title}</span>
+          <img
+            src={art.cloche.src}
+            width={art.cloche.width}
+            height={art.cloche.height}
+            loading="lazy"
+            alt=""
+          />
+        </button>
+        <span class="tr-dish-plate" aria-hidden="true" />
+      </article>
+    ))}
+    <a class="tr-news tr-paper" href="/blog/">
+      <span class="tr-news-kicker">Also on the table</span>
+      <strong>The blog</strong>
+      <span class="tr-news-text">Longer write-ups of what I build and what I learn from it.</span>
+      <span class="tr-news-rule" aria-hidden="true"></span>
+    </a>
+    <span class="tr-cloth" aria-hidden="true"></span>
+  </div>
+</TrCar>
+
+<style is:global>
+  .lab-train .tr-dishes {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 34px clamp(30px, 4vw, 60px);
+    padding: 0 30px 46px;
+    max-width: 100%;
+  }
+  html.tr-pin .lab-train .tr-dishes {
+    flex-wrap: nowrap;
+    align-self: stretch;
+    padding: 0 clamp(40px, 5vw, 80px) 46px;
+  }
+  /* The tablecloth along the foot of the car. */
+  .lab-train .tr-cloth {
+    position: absolute;
+    inset: auto 0 0;
+    height: 52px;
+    background:
+      radial-gradient(circle at 50% 100%, #0000 0 11px, #efe0bd 11.5px) 0 100% / 26px 14px repeat-x,
+      linear-gradient(
+        180deg,
+        #fbf1d8 0 5px,
+        #efe0bd 5px calc(100% - 13px),
+        #0000 calc(100% - 13px)
+      );
+    box-shadow: 0 -3px 0 #b9a377 inset;
+  }
+  .lab-train .tr-dish {
+    position: relative;
+    z-index: 1;
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    width: min(330px, 100vw - 60px);
+    min-height: 230px;
+  }
+  html.tr-pin .lab-train .tr-dish {
+    height: 100%;
+  }
+  .lab-train .tr-dish-card {
+    position: relative;
+    width: 100%;
+    margin-bottom: 14px;
+    padding: 20px 22px 22px;
+    border-radius: 4px;
+    box-shadow:
+      inset 0 0 0 5px #f8ebcd,
+      inset 0 0 0 6.5px rgb(42 33 24 / 55%),
+      0 12px 0 -7px rgb(0 0 0 / 35%);
+    transform-origin: 50% 100%;
+    transition:
+      transform 0.55s cubic-bezier(0.3, 1.35, 0.5, 1),
+      opacity 0.3s ease;
+  }
+  .lab-train .tr-dish-label {
+    color: #a1361f;
+    font: 700 11px/1.3 var(--tr-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .lab-train .tr-dish-card h3 {
+    margin-top: 8px;
+    font: 600 clamp(21px, 1.8vw, 26px) / 1.12 var(--tr-serif);
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  .lab-train .tr-dish-text {
+    margin-top: 9px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #3b2f22;
+  }
+  .lab-train .tr-dish-card .tr-btn {
+    margin-top: 15px;
+  }
+  .lab-train .tr-dish-card .tr-btn:hover {
+    background: var(--tr-indigo);
+    border-color: var(--tr-indigo);
+    color: var(--tr-cream);
+  }
+  .lab-train .tr-dish-plate {
+    width: 78%;
+    height: 12px;
+    border-radius: 50%;
+    background: #fbf1d8;
+    box-shadow:
+      inset 0 -3px 0 #9fb4cc,
+      0 5px 0 -2px rgb(42 33 24 / 25%);
+  }
+  /* The cover. Off (the default without scripts) it is not shown at all. */
+  .lab-train .tr-dish-cover {
+    display: none;
+  }
+  html.tr-js .lab-train .tr-dish-cover {
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    z-index: 2;
+    display: block;
+    width: 74%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    transform: translateX(-50%);
+    transform-origin: 50% 100%;
+    transition: transform 0.6s cubic-bezier(0.3, 1.3, 0.5, 1);
+  }
+  .lab-train .tr-dish-cover img {
+    width: 100%;
+  }
+  /* Lifted: the cover is held up small beside the card, ready to go back on. */
+  html.tr-js .lab-train .tr-dish.is-open .tr-dish-cover {
+    transform: translate(34%, calc(var(--tr-lift, -250px))) rotate(16deg) scale(0.34);
+  }
+  html.tr-js .lab-train .tr-dish:not(.is-open) .tr-dish-card {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(30%) scale(0.3);
+    transition:
+      transform 0.4s ease,
+      opacity 0.25s ease,
+      visibility 0s 0.4s;
+  }
+  html.tr-js .lab-train .tr-dish:not(.is-open) .tr-dish-cover:hover {
+    transform: translateX(-50%) translateY(-8px) rotate(-3deg);
+  }
+
+  /* The newspaper: the blog. */
+  .lab-train .tr-news {
+    position: relative;
+    z-index: 1;
+    flex: none;
+    display: grid;
+    gap: 6px;
+    width: min(250px, 100vw - 60px);
+    margin-bottom: -6px;
+    padding: 16px 18px 18px;
+    border-radius: 2px;
+    box-shadow: 0 8px 0 -4px rgb(0 0 0 / 30%);
+    text-decoration: none;
+    transform: rotate(-4deg);
+    transition: transform 0.3s ease;
+  }
+  .lab-train .tr-news:hover {
+    transform: rotate(-1deg) translateY(-6px);
+  }
+  .lab-train .tr-news-kicker {
+    color: var(--tr-ink-soft);
+    font: 700 10px/1.2 var(--tr-mono);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .lab-train .tr-news strong {
+    padding-bottom: 6px;
+    border-bottom: 3px double var(--tr-ink);
+    font: 600 34px/1 var(--tr-serif);
+    letter-spacing: -0.02em;
+  }
+  .lab-train .tr-news-text {
+    font-size: 13.5px;
+    line-height: 1.45;
+  }
+  /* Lines of print. */
+  .lab-train .tr-news-rule {
+    height: 34px;
+    margin-top: 4px;
+    background: repeating-linear-gradient(180deg, rgb(42 33 24 / 30%) 0 2px, #0000 2px 8px);
+  }
+  .lab-train .tr-view--dining {
+    display: block;
+  }
+  @media (max-width: 700px) {
+    html.tr-pin .lab-train .tr-dishes {
+      padding: 0 20px 44px;
+    }
+    .lab-train .tr-dish-card {
+      padding: 16px 18px 18px;
+    }
+  }
+</style>

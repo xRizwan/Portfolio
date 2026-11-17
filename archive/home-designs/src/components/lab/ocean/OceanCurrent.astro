@@ -1,0 +1,451 @@
+---
+// The current: scrolling down carries the page sideways past one marker per role (see
+// initCurrent in scenes.ts). Without scripts or with reduced motion the roles are a plain
+// vertical list.
+import { roles } from '../../../data/experience';
+import { art } from './art';
+import { cutPanel, edgeMask } from './paper';
+
+const bedMask = edgeMask({ seed: 91, height: 130, swell: 12, jitter: 5 });
+const tints = ['#fff7e6', '#ffd98a', '#cdf0ea'];
+---
+
+<section
+  class="oc-current"
+  id="experience"
+  data-oc-current
+  data-tone="sand"
+  data-octopus-away
+  aria-labelledby="oc-current-title"
+>
+  <div class="oc-current-stage" data-oc-current-stage>
+    <div class="oc-clip" aria-hidden="true">
+      <div class="oc-stream oc-stream--a">
+        <span></span>
+      </div>
+      <div class="oc-stream oc-stream--b">
+        <span></span>
+      </div>
+      <div class="oc-current-far">
+        <img class="oc-art" {...art('reef-left')} alt="" loading="lazy" />
+        <img class="oc-art" {...art('reef-right')} alt="" loading="lazy" />
+        <img class="oc-art" {...art('reef-left')} alt="" loading="lazy" />
+      </div>
+      <div class="oc-bed" style={{ '--mask': bedMask }}></div>
+      <div class="oc-current-near">
+        <img class="oc-art oc-sway" {...art('seaweed')} alt="" loading="lazy" />
+        <img class="oc-art" {...art('starfish')} alt="" loading="lazy" />
+        <img class="oc-art oc-sway" {...art('anemone')} alt="" loading="lazy" />
+        <img class="oc-art oc-sway" {...art('seaweed')} alt="" loading="lazy" />
+        <img class="oc-art" {...art('crab')} alt="" loading="lazy" />
+        <img class="oc-art oc-sway" {...art('fan')} alt="" loading="lazy" />
+      </div>
+      <div class="oc-current-ray">
+        <img class="oc-art oc-bob" {...art('ray')} alt="" loading="lazy" />
+      </div>
+    </div>
+    <div class="oc-wrap oc-current-head">
+      <p class="oc-place">The current</p>
+      <h2 class="oc-h2" id="oc-current-title">
+        Experience
+      </h2>
+    </div>
+    <ol class="oc-current-track" data-oc-track>
+      <li class="oc-current-line" aria-hidden="true">
+        <svg viewBox="0 0 20 1000" preserveAspectRatio="none">
+          <path
+            data-draw
+            pathLength="1"
+            d="M10 0c-12 60 12 110 0 170s12 110 0 170 12 110 0 170 12 110 0 170 12 110 0 170 8 100 0 150"
+          ></path>
+        </svg>
+      </li>
+      {roles.map((role, index) => (
+        <li class="oc-stop" data-oc-stop>
+          <article
+            class="oc-paper oc-role"
+            data-rise
+            style={{
+              '--cut': cutPanel(100 + index),
+              '--oc-paper-tint': tints[index % tints.length],
+            }}
+          >
+            <p class="oc-role-dates">{role.dates}</p>
+            <div class="oc-role-main">
+              <h3>{role.company}</h3>
+              <p class="oc-role-kind">{role.kind}</p>
+              <ul class="oc-role-titles">
+                {role.titles.map((title) => (
+                  <li>
+                    <strong>{title.title}</strong>
+                    <span>{title.dates}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div class="oc-role-side">
+              <p class="oc-role-summary">{role.summary}</p>
+              <details class="oc-role-more">
+                <summary>What I did there</summary>
+                <div class="oc-role-scroll">
+                  <ul class="oc-role-points">
+                    {role.points.map((point) => (
+                      <li>{point}</li>
+                    ))}
+                  </ul>
+                  {role.contributed.length > 0 && (
+                    <div class="oc-role-also">
+                      <p>Codebases contributed to</p>
+                      <ul>
+                        {role.contributed.map((name) => (
+                          <li>{name}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </details>
+            </div>
+          </article>
+        </li>
+      ))}
+      <li class="oc-stop oc-stop--end" data-oc-stop>
+        <p class="oc-note">That is the short version.</p>
+        <a class="oc-btn oc-btn--coral" href="/experience/">
+          See the full experience page
+        </a>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<style is:global>
+  .lab-ocean .oc-current {
+    position: relative;
+  }
+  .lab-ocean .oc-current-stage {
+    --flow: 0;
+    position: relative;
+    padding: clamp(90px, 14vh, 150px) 0 190px;
+  }
+  .lab-ocean .oc-current-head {
+    flex: none;
+  }
+  .lab-ocean .oc-current-track {
+    position: relative;
+    display: grid;
+    gap: 54px;
+    width: min(880px, 100% - clamp(40px, 9vw, 112px));
+    margin: 56px auto 0;
+  }
+  /* Phone layout: a wavy line of current runs down the left and is drawn as the roles pass. */
+  .lab-ocean .oc-current-line {
+    position: absolute;
+    left: -6px;
+    top: -30px;
+    bottom: -30px;
+    width: 20px;
+  }
+  .lab-ocean .oc-current-line svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    fill: none;
+    stroke: var(--oc-foam);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+  }
+  .lab-ocean .oc-current-line path {
+    vector-effect: non-scaling-stroke;
+  }
+  .lab-ocean .oc-current:not(.is-pinned) .oc-current-track {
+    padding-left: 30px;
+  }
+  .lab-ocean .oc-role {
+    display: grid;
+    gap: 6px 34px;
+    padding: 40px clamp(22px, 3vw, 36px) 28px;
+  }
+  .lab-ocean .oc-role-dates {
+    position: absolute;
+    left: 20px;
+    top: -17px;
+    padding: 6px 14px 7px;
+    background: var(--oc-ink);
+    color: var(--oc-foam);
+    font:
+      700 13.5px/1.1 'Space Mono',
+      monospace;
+    transform: rotate(-2.5deg);
+    transition: background-color 0.4s ease;
+  }
+  .lab-ocean .oc-role h3 {
+    font: 800 clamp(40px, 4.6vw, 62px) / 0.95 var(--oc-display);
+    letter-spacing: -0.04em;
+  }
+  .lab-ocean .oc-role-kind {
+    margin-top: 8px;
+    font: 700 13px/1.3 var(--oc-body);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .lab-ocean .oc-role-titles {
+    display: grid;
+    gap: 4px;
+    margin-top: 16px;
+    padding-left: 14px;
+    border-left: 4px solid var(--oc-coral);
+  }
+  .lab-ocean .oc-role-titles li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 12px;
+    align-items: baseline;
+    line-height: 1.3;
+  }
+  .lab-ocean .oc-role-titles span {
+    font:
+      400 13px/1.3 'Space Mono',
+      monospace;
+  }
+  .lab-ocean .oc-role-summary {
+    margin-top: 16px;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  .lab-ocean .oc-role-more {
+    margin-top: 14px;
+  }
+  .lab-ocean .oc-role-more summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px 10px;
+    background: var(--oc-ink);
+    color: var(--oc-foam);
+    font: 700 14.5px/1.1 var(--oc-body);
+    cursor: pointer;
+    list-style: none;
+  }
+  .lab-ocean .oc-role-more summary::-webkit-details-marker {
+    display: none;
+  }
+  .lab-ocean .oc-role-more summary::after {
+    content: '+';
+    font: 800 18px/0.8 var(--oc-display);
+  }
+  .lab-ocean .oc-role-more[open] summary::after {
+    content: '\2212';
+  }
+  .lab-ocean .oc-role-points {
+    display: grid;
+    gap: 10px;
+    margin-top: 16px;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .lab-ocean .oc-role-points li {
+    padding-left: 22px;
+    background: radial-gradient(circle at 6px 0.75em, var(--oc-coral) 0 5px, transparent 5.5px)
+      no-repeat;
+  }
+  .lab-ocean .oc-role-also {
+    margin-top: 16px;
+  }
+  .lab-ocean .oc-role-also p {
+    font: 700 13px/1.3 var(--oc-body);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .lab-ocean .oc-role-also ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .lab-ocean .oc-role-also li {
+    padding: 4px 11px 5px;
+    border: 2px solid var(--oc-ink);
+    border-radius: 999px;
+    font: 700 13.5px/1.1 var(--oc-body);
+  }
+  .lab-ocean .oc-stop--end {
+    display: grid;
+    justify-items: start;
+    align-content: center;
+    gap: 14px;
+  }
+  /* Scenery that only makes sense when the stage is pinned. */
+  .lab-ocean .oc-stream,
+  .lab-ocean .oc-current-far,
+  .lab-ocean .oc-current-near,
+  .lab-ocean .oc-current-ray {
+    display: none;
+  }
+
+  /* Pinned mode: the stage sticks and the track becomes one long row. */
+  .lab-ocean .oc-current.is-pinned .oc-current-stage {
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    height: calc(100 * var(--oc-vh));
+    padding: 92px 0 0;
+    overflow: hidden;
+  }
+  .lab-ocean .oc-current.is-pinned .oc-current-track {
+    display: flex;
+    align-items: flex-start;
+    gap: clamp(40px, 7vw, 110px);
+    width: max-content;
+    margin: 44px 0 0;
+    padding: 0 16vw 0 max(clamp(20px, 4.5vw, 56px), calc((100vw - 1180px) / 2));
+    will-change: transform;
+  }
+  .lab-ocean .oc-current.is-pinned .oc-stop {
+    flex: none;
+    width: min(860px, 86vw);
+    transform-origin: 50% 20%;
+    transition: transform 0.5s cubic-bezier(0.3, 1.2, 0.5, 1);
+  }
+  .lab-ocean .oc-current.is-pinned .oc-stop:not(.is-here) {
+    transform: scale(0.94) rotate(-1deg);
+  }
+  .lab-ocean .oc-current.is-pinned .oc-stop.is-here .oc-role-dates {
+    background: var(--oc-coral);
+    color: var(--oc-ink);
+  }
+  .lab-ocean .oc-current.is-pinned .oc-stop--end {
+    width: auto;
+    min-height: 260px;
+  }
+  /* A tall list of points scrolls inside its card instead of falling off the pinned stage. */
+  .lab-ocean .oc-current.is-pinned .oc-role-scroll {
+    max-height: calc(100 * var(--oc-vh) - 585px);
+    min-height: 110px;
+    padding-right: 10px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--oc-ink) transparent;
+  }
+  .lab-ocean .oc-current.is-pinned .oc-current-line {
+    display: none;
+  }
+  .lab-ocean .oc-current.is-pinned .oc-stream {
+    position: absolute;
+    left: 0;
+    display: block;
+    width: 100%;
+    height: 120px;
+    transform: translate3d(calc(var(--flow) * -60vw), 0, 0);
+  }
+  /* Streamlines: wavy dashes that always drift, faster while the page is scrolling. */
+  .lab-ocean .oc-stream span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: calc(260vw + 600px);
+    height: 100%;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='120' fill='none' stroke='%23fff7e6' stroke-width='5' stroke-linecap='round'%3E%3Cpath d='M20 34c50-22 90 20 150 0s110-14 160 2' stroke-dasharray='70 46'/%3E%3Cpath d='M250 84c60-20 100 18 160 0s90-12 150 0' stroke-dasharray='90 60' opacity='.6'/%3E%3C/svg%3E")
+      0 0 / 600px 120px repeat-x;
+    opacity: 0.55;
+    animation: oc-stream 9s linear infinite;
+  }
+  .lab-ocean .oc-stream--a {
+    top: 15%;
+  }
+  .lab-ocean .oc-stream--b {
+    bottom: 150px;
+  }
+  .lab-ocean .oc-stream--b span {
+    animation-duration: 13s;
+    opacity: 0.4;
+  }
+  @keyframes oc-stream {
+    to {
+      transform: translate3d(-600px, 0, 0);
+    }
+  }
+  .lab-ocean .oc-current.is-pinned .oc-current-far,
+  .lab-ocean .oc-current.is-pinned .oc-current-near {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    display: block;
+    height: 100%;
+  }
+  .lab-ocean .oc-current-far {
+    width: 220vw;
+    transform: translate3d(calc(var(--flow) * -90vw), 0, 0);
+  }
+  .lab-ocean .oc-current-far img {
+    bottom: 60px;
+    width: min(38vw, 420px);
+    filter: saturate(0.45) brightness(1.08) opacity(0.45);
+  }
+  .lab-ocean .oc-current-far img:nth-child(1) {
+    left: 30vw;
+  }
+  .lab-ocean .oc-current-far img:nth-child(2) {
+    left: 95vw;
+  }
+  .lab-ocean .oc-current-far img:nth-child(3) {
+    left: 170vw;
+  }
+  /* The nearest layer moves fastest, which is what gives the feeling of being carried along. */
+  .lab-ocean .oc-current-near {
+    width: 420vw;
+    transform: translate3d(calc(var(--flow) * -300vw), 0, 0);
+  }
+  .lab-ocean .oc-current-near img {
+    bottom: 34px;
+    width: clamp(70px, 8vw, 118px);
+  }
+  .lab-ocean .oc-current-near img:nth-child(1) {
+    left: 22vw;
+  }
+  .lab-ocean .oc-current-near img:nth-child(2) {
+    left: 84vw;
+    bottom: 22px;
+    width: clamp(48px, 5vw, 74px);
+  }
+  .lab-ocean .oc-current-near img:nth-child(3) {
+    left: 150vw;
+  }
+  .lab-ocean .oc-current-near img:nth-child(4) {
+    left: 228vw;
+  }
+  .lab-ocean .oc-current-near img:nth-child(5) {
+    left: 300vw;
+    bottom: 24px;
+  }
+  .lab-ocean .oc-current-near img:nth-child(6) {
+    left: 372vw;
+  }
+  /* The ray rides the current beside the heading and edges forward as the roles go by. */
+  .lab-ocean .oc-current.is-pinned .oc-current-ray {
+    position: absolute;
+    left: 46vw;
+    top: 84px;
+    display: block;
+    width: clamp(120px, 15vw, 220px);
+    transform: translate3d(calc(var(--flow) * 30vw), 0, 0) scaleX(-1);
+  }
+  .lab-ocean .oc-current-ray img {
+    position: relative;
+    width: 100%;
+  }
+
+  @media (min-width: 861px) {
+    .lab-ocean .oc-role {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+      align-items: start;
+    }
+    .lab-ocean .oc-role-summary {
+      margin-top: 6px;
+      font-size: 17px;
+    }
+  }
+</style>

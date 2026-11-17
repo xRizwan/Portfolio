@@ -1,0 +1,230 @@
+---
+// Certificates: a concertina of framed certificates that pulls out of a pocket on the left
+// page. A few panels are open at a time and the rest stay pleated at either end; pulling moves
+// the open part along. Any frame can be enlarged (dialog in PopDialogs.astro). In the flat
+// layout the strip is a row that scrolls sideways, and without scripts each frame is a link to
+// its image.
+import { Image, getImage } from 'astro:assets';
+import { credentialAlt, credentials } from '../../data/certificates';
+import Piece from './Piece.astro';
+
+const items = await Promise.all(
+  credentials.map(async (credential) => ({
+    credential,
+    full: await getImage({
+      src: credential.image,
+      width: Math.min(1500, credential.image.width),
+      format: 'webp',
+    }),
+  })),
+);
+const mats = ['var(--pb-sun)', 'var(--pb-blue)', 'var(--pb-red)', 'var(--pb-green)'];
+---
+
+<section
+  class="pb-spread pb-spread--certs"
+  id="certificates"
+  data-spread="certificates"
+  data-len="200"
+  data-rise="62"
+  aria-labelledby="pb-certs-title"
+>
+  <div class="pb-page pb-page--l">
+    <div
+      class="pb-pop pb-card pb-certs__pocket"
+      style="--x:22;--y:560;--w:262;--h:372;--a:50;--z:4"
+      data-at="0.08"
+      data-dur="0.4"
+    >
+      <p class="pb-kicker">Certificates</p>
+      <h2 class="pb-h2" id="pb-certs-title">
+        Courses I finished
+      </h2>
+      <p class="pb-note pb-certs__hint">Pull the strip along. Pick a frame for a closer look.</p>
+      <div class="pb-certs__ctl">
+        <button class="pb-btn pb-btn--plain" type="button" data-pb-strip-step="-1">
+          Back
+        </button>
+        <button class="pb-btn" type="button" data-pb-strip-step="1">
+          Pull
+        </button>
+      </div>
+    </div>
+    <Piece name="cat" x={110} y={170} w={90} a={64} at={0.5} z={1} cat />
+  </div>
+  <div class="pb-page pb-page--r">
+    <Piece name="tree" x={470} y={190} w={104} a={70} at={0.1} />
+    <Piece name="cat" x={440} y={612} w={84} a={64} at={0.6} z={4} cat class="pb-flip" />
+  </div>
+
+  <div
+    class="pb-pop pb-across pb-certs__run"
+    style="--x:262;--y:500;--w:912;--h:292;--a:50;--z:3"
+    data-at="0.3"
+    data-dur="0.45"
+  >
+    <ul class="pb-strip" data-pb-strip>
+      {items.map(({ credential, full }, index) => (
+        <li class="pb-frame" style={`--mat:${mats[index % mats.length]}`}>
+          <a
+            href={full.src}
+            data-pb-cert
+            data-title={credential.title}
+            data-issuer={credential.issuer}
+            data-alt={credentialAlt(credential)}
+          >
+            <span class:list={['pb-frame__mat', credential.kind === 'badge' && 'is-badge']}>
+              <Image
+                src={credential.image}
+                alt={credentialAlt(credential)}
+                width={credential.kind === 'badge' ? 240 : 400}
+                loading="lazy"
+              />
+            </span>
+            <span class="pb-frame__plate">
+              <strong>{credential.title}</strong>
+              <span>{credential.issuer}</span>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style is:global>
+  .home-book .pb-spread--certs::before {
+    content: none;
+  }
+  .home-book .pb-certs__pocket {
+    display: grid;
+    gap: 8px;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+  }
+  .home-book .pb-certs__hint,
+  .home-book .pb-certs__ctl {
+    display: none;
+  }
+  html.pb-js .home-book .pb-certs__hint {
+    display: block;
+  }
+  .home-book .pb-certs__run {
+    min-width: 0;
+  }
+  .home-book .pb-strip {
+    display: flex;
+    gap: 0;
+    padding: 10px 4px 18px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    perspective: 1300px;
+  }
+  .home-book .pb-frame {
+    flex: 0 0 min(230px, 62vw);
+    scroll-snap-align: center;
+    transform-origin: 50% 50%;
+  }
+  /* Alternate panels lean opposite ways, like a strip folded back and forth. */
+  html:is(.pb-m-fx, .pb-m-book) .home-book .pb-frame {
+    transform: rotateY(16deg);
+  }
+  html:is(.pb-m-fx, .pb-m-book) .home-book .pb-frame:nth-child(even) {
+    transform: rotateY(-16deg);
+  }
+  .home-book .pb-frame a {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    height: 100%;
+    padding: 12px 12px 14px;
+    border: 2px solid var(--pb-ink);
+    margin-right: -2px;
+    background-color: #fffdf6;
+    background-image: var(--pb-grain);
+    text-decoration: none;
+  }
+  .home-book .pb-frame__mat {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 4 / 3;
+    padding: 9px;
+    background: var(--mat);
+    box-shadow: 0 0 0 1.5px rgb(28 37 64 / 60%) inset;
+  }
+  .home-book .pb-frame__mat img {
+    max-height: 100%;
+    width: auto;
+    box-shadow: 0 1px 0 rgb(28 37 64 / 40%);
+  }
+  .home-book .pb-frame__mat.is-badge {
+    padding: 4px;
+    background: #fffdf6;
+  }
+  .home-book .pb-frame__plate strong {
+    display: block;
+    font: 800 14px/1.14 var(--pb-display);
+  }
+  .home-book .pb-frame__plate span {
+    display: block;
+    margin-top: 2px;
+    font: 500 17px/1.05 var(--pb-hand);
+    color: rgb(28 37 64 / 80%);
+  }
+  .home-book .pb-frame a:hover .pb-frame__mat {
+    rotate: -2deg;
+  }
+
+  html.pb-m-book .home-book {
+    .pb-certs__pocket {
+      display: flex;
+      justify-content: flex-end;
+      padding: 16px 16px 18px;
+      border: 2px solid var(--pb-ink);
+      border-radius: 4px 10px 4px 4px;
+      background-color: #fffdf6;
+      background-image: var(--pb-grain);
+    }
+    .pb-certs__pocket .pb-h2 {
+      font-size: 31px;
+    }
+    .pb-certs__ctl {
+      display: flex;
+      gap: 12px;
+      margin-top: 6px;
+    }
+    /* The concertina is laid out by certificates.ts: every frame is placed and pleated from its
+       left edge. */
+    .pb-strip {
+      position: relative;
+      display: block;
+      height: 100%;
+      padding: 0;
+      overflow: visible;
+      perspective: 1500px;
+    }
+    .pb-frame,
+    .pb-frame:nth-child(even) {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 190px;
+      height: 262px;
+      transform: translateX(var(--fx, 0)) rotateY(var(--fa, 0deg));
+      transition: transform 0.75s cubic-bezier(0.3, 1.2, 0.5, 1);
+    }
+    .pb-frame a {
+      padding: 10px 10px 12px;
+    }
+    .pb-frame.is-shut a {
+      background-color: var(--mat);
+    }
+    .pb-frame.is-shut a > * {
+      visibility: hidden;
+    }
+    .pb-frame__plate strong {
+      font-size: 13px;
+    }
+  }
+</style>

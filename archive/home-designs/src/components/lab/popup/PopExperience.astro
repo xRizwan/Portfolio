@@ -1,0 +1,339 @@
+---
+// Experience: a pop-out staircase across the spread, one landing per role, climbing from the
+// first job at the front left to the current one at the back right. Scrolling raises the steps
+// one at a time. Each has a pull tab for the detail: a plain <details> in the flat layout, a
+// pulled-out sheet (dialog) in the book, where there is no room on the step itself.
+import { roles } from '../../../data/experience';
+import Piece from './Piece.astro';
+
+const stepPaint = ['var(--pb-red)', 'var(--pb-sun)', 'var(--pb-blue)'];
+// roles are newest first; the newest stands highest and furthest back.
+const steps = roles.map((role, index) => ({
+  role,
+  paint: stepPaint[index % stepPaint.length] ?? 'var(--pb-red)',
+  x: 806 - index * 388,
+  y: 436 + index * 88,
+  at: 0.62 - index * 0.26,
+}));
+---
+
+<section
+  class="pb-spread pb-spread--exp"
+  id="experience"
+  data-spread="experience"
+  data-len="250"
+  data-rise="105"
+  aria-labelledby="pb-exp-title"
+>
+  <div class="pb-page pb-page--l"></div>
+  <div class="pb-page pb-page--r"></div>
+
+  <div
+    class="pb-pop pb-across pb-exp__sign"
+    style="--x:36;--y:246;--w:400;--h:310;--a:50;--z:1"
+    data-at="0"
+    data-dur="0.2"
+  >
+    <div class="pb-card">
+      <p class="pb-kicker">Experience</p>
+      <h2 class="pb-h2" id="pb-exp-title">
+        Three jobs, one step at a time
+      </h2>
+    </div>
+  </div>
+
+  <ol class="pb-steps pb-across" reversed>
+    {steps.map((step, index) => (
+      <li
+        class="pb-pop pb-across pb-step"
+        style={`--x:${step.x};--y:${step.y};--w:364;--h:318;--a:50;--z:${2 + index};--paint:${step.paint}`}
+        data-at={step.at}
+        data-dur="0.3"
+      >
+        <span class="pb-step__tread pb-paint" aria-hidden="true" />
+        <div class="pb-step__face">
+          <p class="pb-step__dates">{step.role.dates}</p>
+          <h3 class="pb-step__company">{step.role.company}</h3>
+          <p class="pb-step__kind">{step.role.kind}</p>
+          <ul class="pb-step__titles">
+            {step.role.titles.map((title) => (
+              <li>
+                <strong>{title.title}</strong>
+                {step.role.titles.length > 1 && <span>{title.dates}</span>}
+              </li>
+            ))}
+          </ul>
+          <p class="pb-step__summary">{step.role.summary}</p>
+          <details class="pb-step__more" data-pb-role>
+            <summary class="pb-btn">Pull for the detail</summary>
+            <div class="pb-step__detail" data-pb-role-detail>
+              <p class="pb-step__detail-head">
+                <strong>{step.role.company}</strong>
+                <span>{step.role.dates}</span>
+              </p>
+              <ul class="pb-step__points">
+                {step.role.points.map((point) => (
+                  <li>{point}</li>
+                ))}
+              </ul>
+              {step.role.contributed.length > 0 && (
+                <p class="pb-step__contrib">
+                  <strong>Codebases I contributed to:</strong> {step.role.contributed.join(', ')}
+                </p>
+              )}
+              <ul class="pb-step__stack">
+                {step.role.stack.map((item) => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+            </div>
+          </details>
+        </div>
+      </li>
+    ))}
+  </ol>
+  <div
+    class="pb-pop pb-across pb-exp__more"
+    style="--x:800;--y:616;--w:368;--h:62;--a:50;--z:6"
+    data-at="0.8"
+    data-dur="0.2"
+  >
+    <a class="pb-exp__link" href="/experience/">
+      Read the full story on the experience page
+    </a>
+  </div>
+  <Piece name="cat" x={470} y={420} w={92} a={64} at={0.5} z={1} cat class="pb-across" />
+  <Piece name="cat" x={96} y={500} w={92} a={64} at={0.3} z={1} cat class="pb-across pb-flip" />
+</section>
+
+<style is:global>
+  .lab-popup .pb-spread--exp::before {
+    content: none;
+  }
+  .lab-popup .pb-exp__sign .pb-card {
+    display: grid;
+    gap: 8px;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+  }
+  .lab-popup .pb-exp__link {
+    font: 600 17px/1.2 var(--pb-display);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--pb-red);
+  }
+  .lab-popup .pb-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(290px, 100%), 1fr));
+    gap: 22px;
+    align-items: start;
+  }
+  .lab-popup .pb-step {
+    position: relative;
+    border: 2px solid var(--pb-ink);
+    border-radius: 4px 6px 5px 7px;
+    background-color: #fffdf6;
+    background-image: var(--pb-grain);
+  }
+  /* The painted band along the top is the edge of the tread. */
+  .lab-popup .pb-step__tread {
+    display: block;
+    height: 14px;
+    border-bottom: 2px solid var(--pb-ink);
+  }
+  .lab-popup .pb-step__face {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    padding: 12px 16px 16px;
+  }
+  .lab-popup .pb-step__dates {
+    font: 700 12.5px/1.2 var(--pb-mono);
+    letter-spacing: 0.02em;
+  }
+  .lab-popup .pb-step__company {
+    font: 800 34px/1 var(--pb-display);
+    letter-spacing: -0.02em;
+  }
+  .lab-popup .pb-step__kind {
+    font: 500 19px/1.1 var(--pb-hand);
+    color: rgb(28 37 64 / 80%);
+  }
+  .lab-popup .pb-step__titles li {
+    font: 600 15.5px/1.25 var(--pb-display);
+  }
+  .lab-popup .pb-step__titles span {
+    margin-left: 6px;
+    font: 400 11.5px/1 var(--pb-mono);
+    white-space: nowrap;
+  }
+  .lab-popup .pb-step__summary {
+    font-size: 15.5px;
+    line-height: 1.34;
+  }
+  .lab-popup .pb-step__more {
+    margin-top: 6px;
+    width: 100%;
+  }
+  .lab-popup .pb-step__more summary {
+    width: max-content;
+    list-style: none;
+    cursor: pointer;
+  }
+  .lab-popup .pb-step__more summary::-webkit-details-marker {
+    display: none;
+  }
+  .lab-popup .pb-step__detail {
+    margin-top: 14px;
+  }
+  .lab-popup .pb-step__detail-head {
+    display: none;
+  }
+  .lab-popup .pb-step__points {
+    display: grid;
+    gap: 8px;
+    padding-left: 18px;
+    list-style: disc;
+    font-size: 16px;
+    line-height: 1.36;
+  }
+  .lab-popup .pb-step__contrib {
+    margin-top: 12px;
+    font-size: 16px;
+  }
+  .lab-popup .pb-step__stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+  }
+  .lab-popup .pb-step__stack li {
+    padding: 3px 9px 4px;
+    border: 1.5px solid rgb(28 37 64 / 70%);
+    border-radius: 3px 8px 8px 3px;
+    background: var(--pb-card-2);
+    font: 600 13.5px/1.15 var(--pb-display);
+  }
+
+  /* The pulled-out sheet. */
+  .lab-popup .pb-sheet {
+    width: min(680px, 100vw - 24px);
+    max-height: min(86vh, 760px);
+    padding: 34px clamp(18px, 4vw, 34px) 24px;
+    border: 2px solid var(--pb-ink);
+    border-radius: 6px 9px 7px 10px;
+    background-color: #fffdf6;
+    background-image: var(--pb-grain);
+    color: var(--pb-ink);
+    box-shadow: 8px 10px 0 rgb(28 37 64 / 55%);
+    overflow: auto;
+  }
+  .lab-popup .pb-sheet::backdrop {
+    background: rgb(40 58 64 / 72%);
+  }
+  .lab-popup .pb-sheet[open] {
+    animation: pb-sheet-in 0.45s cubic-bezier(0.3, 1.2, 0.5, 1);
+  }
+  @keyframes pb-sheet-in {
+    from {
+      opacity: 0;
+      transform: translateY(60px) rotate(-2deg);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .lab-popup .pb-sheet[open] {
+      animation: none;
+    }
+  }
+  .lab-popup .pb-sheet__tab {
+    position: absolute;
+    left: 50%;
+    top: 10px;
+    width: 84px;
+    height: 12px;
+    translate: -50% 0;
+    border: 2px dashed var(--pb-pencil);
+    border-radius: 8px;
+  }
+  .lab-popup .pb-sheet .pb-step__detail {
+    margin: 0 0 20px;
+  }
+  .lab-popup .pb-sheet .pb-step__detail-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 14px;
+    margin-bottom: 14px;
+  }
+  .lab-popup .pb-sheet .pb-step__detail-head strong {
+    font: 800 34px/1 var(--pb-display);
+    letter-spacing: -0.02em;
+  }
+  .lab-popup .pb-sheet .pb-step__detail-head span {
+    font: 700 13px/1 var(--pb-mono);
+  }
+
+  html.pb-m-book .lab-popup {
+    .pb-steps {
+      display: block;
+      position: absolute;
+      inset: 0;
+      transform-style: preserve-3d;
+    }
+    .pb-step {
+      display: block;
+      transform-style: preserve-3d;
+    }
+    /* In the book the tread is a real strip of paper running back from the top of the riser,
+       level with the page. */
+    .pb-step__tread {
+      position: absolute;
+      left: -2px;
+      right: -2px;
+      bottom: 100%;
+      height: 78px;
+      border: 2px solid var(--pb-ink);
+      transform-origin: 50% 100%;
+      transform: rotateX(calc(var(--o, 0) * 50deg));
+    }
+    .pb-step__face {
+      height: 100%;
+      padding: 14px 18px 16px;
+      gap: 4px;
+    }
+    .pb-step__company {
+      font-size: 32px;
+    }
+    .pb-step__summary {
+      font-size: 14.5px;
+    }
+    .pb-step__more {
+      margin-top: auto;
+    }
+    .pb-step__more > .pb-step__detail {
+      display: none;
+    }
+    .pb-exp__sign .pb-h2 {
+      font-size: 30px;
+    }
+    .pb-exp__sign .pb-card {
+      align-content: start;
+      height: 100%;
+      padding: 14px 18px;
+      background-color: #fffdf6;
+      background-image: var(--pb-grain);
+      box-shadow: 0 0 0 1px rgb(28 37 64 / 12%);
+    }
+    .pb-exp__more {
+      display: grid;
+      place-items: center;
+      padding: 8px 14px;
+      border-radius: 4px 6px 5px 7px;
+      background-color: #fffdf6;
+      background-image: var(--pb-grain);
+      box-shadow: 0 0 0 1px rgb(28 37 64 / 12%);
+    }
+  }
+</style>

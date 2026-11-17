@@ -1,0 +1,242 @@
+---
+// Trial home page "Night train": a sleeper train crossing a country overnight. The page opens on
+// a wet platform, the train pulls out, and from then on scrolling down walks you sideways through
+// the carriages while the land goes by outside. Artwork is in the manner of shin-hanga woodblock
+// night prints. This is the dark design of the set.
+import TrArrival from '../../components/lab/train/TrArrival.astro';
+import TrHeader from '../../components/lab/train/TrHeader.astro';
+import TrOpening from '../../components/lab/train/TrOpening.astro';
+import TrTrain from '../../components/lab/train/TrTrain.astro';
+import LabLayout from '../../layouts/LabLayout.astro';
+---
+
+<LabLayout slug="train" themeColor="#0e1a33">
+  <!-- Marks the page as scripted before first paint. Pinned scenes and sideways travel are only
+       switched on when motion is welcome; otherwise the carriages stack as an ordinary page. -->
+  <script is:inline slot="head">
+    document.documentElement.classList.add('tr-js');
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.documentElement.classList.add('tr-pin');
+    }
+  </script>
+  <TrHeader />
+  <main id="main">
+    <TrOpening />
+    <TrTrain />
+    <TrArrival />
+  </main>
+</LabLayout>
+
+<script>
+  import '../../components/lab/train/main.ts';
+</script>
+
+<style is:global>
+  .lab-train {
+    --tr-indigo: #0e1a33;
+    --tr-deep: #0a1326;
+    --tr-prussian: #1f3a5f;
+    --tr-amber: #f2b65a;
+    --tr-cream: #f6e7c8;
+    --tr-red: #d8452e;
+    --tr-moon: #dfe9f3;
+    --tr-wood: #4a2c1c;
+    --tr-wood-dark: #2b190f;
+    --tr-wood-light: #8a5a34;
+    --tr-brass: #c99a4e;
+    --tr-paper: #f3e3c0;
+    --tr-ink: #2a2118;
+    --tr-ink-soft: #5d4c3a;
+    --tr-serif: Newsreader, Georgia, 'Times New Roman', serif;
+    --tr-mono: 'Space Mono', ui-monospace, Consolas, monospace;
+    --tr-sans: Manrope, system-ui, sans-serif;
+    --tr-vh: 1vh;
+    /* Printing grain: pale specks for dark blocks, dark specks for paper. */
+    --tr-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9 0.35' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.9 0 0 0 0 0.93 0 0 0 0 1 0 0 0 0.11 0'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)'/%3E%3C/svg%3E");
+    --tr-grain-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8 0.4' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.3 0 0 0 0 0.2 0 0 0 0 0.1 0 0 0 0.2 0'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)'/%3E%3C/svg%3E");
+    /* The carriage wall. A window repeats every --tr-tile; panels start at --tr-top. */
+    --tr-tile: 560px;
+    --tr-win-top: 118px;
+    --tr-win-h: calc(var(--tr-vh) * 46);
+    --tr-top: 132px;
+    --tr-bottom: 66px;
+    --tr-pad: clamp(40px, 6vw, 110px);
+    --tr-gap: clamp(60px, 9vw, 150px);
+    --tr-zone: calc(var(--tr-vh) * 100 - var(--tr-top) - var(--tr-bottom));
+    background: var(--tr-deep);
+    color: var(--tr-cream);
+    font-family: var(--tr-sans);
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  @supports (height: 1svh) {
+    .lab-train {
+      --tr-vh: 1svh;
+    }
+  }
+  @media (max-width: 700px) {
+    .lab-train {
+      /* Phones: one ribbon of windows along the top, everything else underneath it. */
+      --tr-tile: 300px;
+      --tr-win-top: 100px;
+      --tr-win-h: 150px;
+      --tr-top: 268px;
+      --tr-pad: 24px;
+      --tr-gap: 44px;
+      font-size: 15px;
+    }
+  }
+  .lab-train :where(h1, h2, h3, h4, p, ul, ol, figure, dl, dd, blockquote) {
+    margin: 0;
+    padding: 0;
+  }
+  .lab-train :where(ul, ol) {
+    list-style: none;
+  }
+  .lab-train :where(a) {
+    color: inherit;
+  }
+  .lab-train :where(img) {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+  .lab-train :where(button) {
+    font: inherit;
+    color: inherit;
+  }
+  .lab-train :focus-visible {
+    outline: 3px solid var(--tr-amber);
+    outline-offset: 3px;
+    border-radius: 3px;
+  }
+  .lab-train .tr-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* An enamel station sign: the heading of every carriage. */
+  .lab-train .tr-plate {
+    position: relative;
+    flex: none;
+    width: clamp(270px, 25vw, 360px);
+    padding: 22px 24px 24px;
+    border-radius: 5px;
+    background: var(--tr-grain), var(--tr-indigo);
+    box-shadow:
+      inset 0 0 0 2px var(--tr-indigo),
+      inset 0 0 0 4px var(--tr-cream),
+      0 14px 0 -8px rgb(0 0 0 / 28%);
+    transform-origin: 50% -30px;
+  }
+  /* The two chains it hangs from. */
+  .lab-train .tr-plate::before,
+  .lab-train .tr-plate::after {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    width: 3px;
+    height: 400px;
+    background: repeating-linear-gradient(180deg, var(--tr-brass) 0 5px, #6b4a22 5px 8px);
+  }
+  .lab-train .tr-plate::before {
+    left: 26px;
+  }
+  .lab-train .tr-plate::after {
+    right: 26px;
+  }
+  .lab-train .tr-kicker {
+    color: var(--tr-amber);
+    font: 700 11px/1.3 var(--tr-mono);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .lab-train .tr-h2 {
+    margin-top: 10px;
+    font: 500 clamp(34px, 3.5vw, 50px) / 1.02 var(--tr-serif);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  .lab-train .tr-h2 em {
+    color: var(--tr-amber);
+    font-style: italic;
+  }
+  .lab-train .tr-hint {
+    margin-top: 14px;
+    color: rgb(246 231 200 / 82%);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  /* Cream paper with printing grain. */
+  .lab-train .tr-paper {
+    background: var(--tr-grain-dark), linear-gradient(180deg, #f8ebcd, var(--tr-paper));
+    color: var(--tr-ink);
+  }
+
+  .lab-train .tr-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 16px 12px;
+    border: 2px solid currentColor;
+    border-radius: 4px;
+    background: transparent;
+    font: 700 12px/1 var(--tr-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      transform 0.2s ease;
+  }
+  .lab-train .tr-btn:hover {
+    background: var(--tr-amber);
+    border-color: var(--tr-amber);
+    color: var(--tr-indigo);
+    transform: translateY(-2px);
+  }
+  .lab-train .tr-btn svg {
+    width: 20px;
+    height: 10px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Hanging things rock a little with the carriage. Each sets its own pace and reach. */
+  @keyframes tr-sway {
+    from {
+      transform: rotate(calc(var(--tr-reach, 1deg) * -1));
+    }
+    to {
+      transform: rotate(var(--tr-reach, 1deg));
+    }
+  }
+  .lab-train .tr-sway {
+    animation: tr-sway var(--tr-pace, 3.4s) ease-in-out infinite alternate;
+    transform-origin: 50% 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lab-train *,
+    .lab-train *::before,
+    .lab-train *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+  .lab-train.motion-off *,
+  .lab-train.motion-off *::before,
+  .lab-train.motion-off *::after {
+    animation-play-state: paused !important;
+  }
+</style>

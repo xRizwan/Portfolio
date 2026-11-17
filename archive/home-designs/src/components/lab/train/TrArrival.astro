@@ -1,0 +1,179 @@
+---
+// Contact and footer: the last stop, at dawn. The links are the rows of the arrivals board, and
+// the first light comes up behind it as the section scrolls into view (main.ts).
+import { site } from '../../../data/site';
+import { art } from './art';
+
+const handle = (url: string): string => url.replace(/\/$/, '').split('/').pop() ?? url;
+const rows = [
+  { label: 'Email', value: site.email, href: `mailto:${site.email}` },
+  { label: 'GitHub', value: handle(site.github), href: site.github },
+  { label: 'LinkedIn', value: handle(site.linkedin), href: site.linkedin },
+  { label: 'Resume', value: 'PDF', href: site.resume },
+];
+---
+
+<section class="tr-arrival" id="contact" data-tr-arrival aria-labelledby="tr-contact-title">
+  <div class="tr-arrival-art" aria-hidden="true">
+    <img
+      src={art.dawn.src}
+      width={art.dawn.width}
+      height={art.dawn.height}
+      loading="lazy"
+      alt=""
+      data-tr-dawn-art
+    />
+    <span class="tr-arrival-light"></span>
+  </div>
+
+  <div class="tr-arrivals">
+    <p class="tr-kicker">Arrivals</p>
+    <h2 class="tr-h2" id="tr-contact-title">
+      Last stop. <em>Say hello.</em>
+    </h2>
+    <p class="tr-hint">The train ends here and it is morning. These are the ways to reach me.</p>
+    <ul>
+      {rows.map((row) => (
+        <li>
+          <a href={row.href}>
+            <span class="tr-arrivals-label">{row.label}</span>
+            <span class="tr-arrivals-value">{row.value}</span>
+            <svg viewBox="0 0 22 12" aria-hidden="true">
+              <path d="M1 6h19M15 1l5 5-5 5" />
+            </svg>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <footer class="tr-footer">
+    <p>
+      © {new Date().getFullYear()} {site.name}
+    </p>
+    <a href="#top">Back to the platform</a>
+  </footer>
+</section>
+
+<style is:global>
+  .lab-train .tr-arrival {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    justify-items: center;
+    min-height: calc(var(--tr-vh) * 100);
+    padding: clamp(96px, 15vh, 150px) 16px 0;
+    overflow: hidden;
+    background: #1b3254;
+    border-top: 3px solid var(--tr-brass);
+    scroll-margin-top: 0;
+  }
+  .lab-train .tr-arrival-art {
+    position: absolute;
+    inset: 0;
+  }
+  .lab-train .tr-arrival-art img {
+    width: 100%;
+    height: 108%;
+    object-fit: cover;
+    object-position: 30% 100%;
+    will-change: transform;
+  }
+  /* First light: bands of peach that rise behind the hills as the section comes into view. */
+  .lab-train .tr-arrival-light {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      0deg,
+      rgb(246 220 182 / 60%) 0 12%,
+      rgb(244 201 160 / 42%) 12% 24%,
+      rgb(244 201 160 / 22%) 24% 38%,
+      rgb(244 201 160 / 9%) 38% 52%,
+      #0000 52%
+    );
+    mix-blend-mode: screen;
+    opacity: var(--tr-rise, 1);
+    transform: translateY(calc((1 - var(--tr-rise, 1)) * 30%));
+  }
+  .lab-train .tr-arrivals {
+    position: relative;
+    align-self: start;
+    width: min(620px, 100%);
+    padding: clamp(22px, 3vw, 34px) clamp(18px, 3vw, 36px) clamp(20px, 3vw, 30px);
+    border-radius: 6px;
+    background: var(--tr-grain), var(--tr-deep);
+    box-shadow:
+      inset 0 0 0 2px var(--tr-deep),
+      inset 0 0 0 4px var(--tr-cream),
+      0 18px 0 -10px rgb(0 0 0 / 35%);
+  }
+  .lab-train .tr-arrivals .tr-h2 {
+    font-size: clamp(38px, 5vw, 64px);
+  }
+  .lab-train .tr-arrivals ul {
+    margin-top: 22px;
+    border-top: 1px solid rgb(246 231 200 / 35%);
+  }
+  .lab-train .tr-arrivals a {
+    display: grid;
+    grid-template-columns: 96px 1fr auto;
+    align-items: baseline;
+    gap: 12px;
+    padding: 13px 4px 14px;
+    border-bottom: 1px solid rgb(246 231 200 / 35%);
+    text-decoration: none;
+    transition:
+      background-color 0.2s ease,
+      padding 0.2s ease;
+  }
+  .lab-train .tr-arrivals a:hover {
+    padding-left: 12px;
+    background: rgb(242 182 90 / 12%);
+  }
+  .lab-train .tr-arrivals-label {
+    color: var(--tr-amber);
+    font: 700 11.5px/1 var(--tr-mono);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .lab-train .tr-arrivals-value {
+    font: 400 clamp(15px, 1.9vw, 21px) / 1.2 var(--tr-mono);
+    overflow-wrap: anywhere;
+  }
+  .lab-train .tr-arrivals svg {
+    width: 22px;
+    height: 12px;
+    fill: none;
+    stroke: var(--tr-amber);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .lab-train .tr-footer {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 24px;
+    width: min(1100px, 100%);
+    margin-top: clamp(140px, 30vh, 300px);
+    padding: 14px 4px 84px;
+    color: var(--tr-indigo);
+    font: 700 11.5px/1.3 var(--tr-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .lab-train .tr-footer p,
+  .lab-train .tr-footer a {
+    padding: 6px 10px;
+    border-radius: 3px;
+    background: var(--tr-cream);
+  }
+  @media (max-width: 520px) {
+    .lab-train .tr-arrivals a {
+      grid-template-columns: 78px 1fr auto;
+      gap: 8px;
+    }
+  }
+</style>

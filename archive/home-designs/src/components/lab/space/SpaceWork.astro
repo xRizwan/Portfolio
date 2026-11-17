@@ -1,0 +1,326 @@
+---
+// Work as three missions. Each has an embroidered-style mission patch (a planet, a tiny rocket in
+// orbit, the project's label stitched round the rim) on top of a cream mission card. On a
+// pointer device the card opens to show the write-up when you point at it or tab to it; on touch
+// screens and without scripts it is simply open. The whole card is the link to the project.
+import { workRows } from '../../../data/work';
+import { getProjects } from '../../../lib/collections';
+import { projectHref } from '../../../lib/content';
+import { art, type ArtName } from './art';
+
+const projects = await getProjects();
+const looks: Record<string, { planet: ArtName; tint: string }> = {
+  triage: { planet: 'gas', tint: 'var(--sp-tomato)' },
+  architecture: { planet: 'ring', tint: 'var(--sp-mustard)' },
+  vision: { planet: 'ice', tint: 'var(--sp-mint)' },
+};
+const missions = workRows.map((row, index) => {
+  const project = projects.find((entry) => entry.id === row.id);
+  const look = looks[row.preview] ?? { planet: 'moon' as ArtName, tint: 'var(--sp-mint)' };
+  const word = row.label.toUpperCase();
+  // Enough repeats of the label to go once round the rim of the patch.
+  const repeats = Math.max(1, Math.round(46 / (word.length + 3)));
+  return {
+    ...row,
+    ...look,
+    href: projectHref(row.id),
+    description: project?.data.description ?? '',
+    rim: Array.from({ length: repeats }, () => `${word} ✦ `).join(''),
+    arc: `sp-patch-arc-${index}`,
+  };
+});
+---
+
+<section class="sp-section sp-work" id="work" data-sp-stop aria-labelledby="sp-work-title">
+  <div class="sp-clip" aria-hidden="true">
+    <img class="sp-art sp-work-comet" {...art('comet')} alt="" loading="lazy" data-drift="140" />
+    <img
+      class="sp-art sp-work-planet sp-spin"
+      {...art('desert')}
+      alt=""
+      loading="lazy"
+      data-drift="-90"
+    />
+  </div>
+  <div class="sp-wrap">
+    <p class="sp-label" data-rise>
+      Three missions
+    </p>
+    <h2 class="sp-h2" id="sp-work-title" data-rise>
+      Work
+    </h2>
+    <ul class="sp-missions">
+      {missions.map((mission, index) => (
+        <li data-rise style={{ '--rise-i': index, '--rise-tilt': `${index % 2 ? 3 : -3}deg` }}>
+          <a class="sp-mission" href={mission.href} style={{ '--tint': mission.tint }} data-sp-tilt>
+            <span class="sp-patch" aria-hidden="true">
+              <svg class="sp-patch-rim" viewBox="0 0 200 200">
+                <defs>
+                  <path id={mission.arc} d="M100 100m-80 0a80 80 0 1 1 160 0a80 80 0 1 1-160 0" />
+                </defs>
+                <text textLength="496" lengthAdjust="spacing">
+                  <textPath href={`#${mission.arc}`}>{mission.rim}</textPath>
+                </text>
+              </svg>
+              <span class="sp-patch-sky">
+                <img class="sp-patch-planet" {...art(mission.planet)} alt="" loading="lazy" />
+                <span class="sp-patch-orbit">
+                  <img {...art('rocket')} alt="" loading="lazy" />
+                </span>
+              </span>
+            </span>
+            <span class="sp-mission-card">
+              <span class="sp-mission-label">{mission.label}</span>
+              <strong class="sp-mission-title">{mission.title}</strong>
+              <span class="sp-mission-more">
+                <span>
+                  <span class="sp-mission-desc">{mission.description}</span>
+                </span>
+              </span>
+              <span class="sp-mission-go">
+                Open the project
+                <svg viewBox="0 0 22 16" width="18" height="13" aria-hidden="true">
+                  <path
+                    d="M1 8h19m0 0-6-6m6 6-6 6"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.4"
+                  />
+                </svg>
+              </span>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+    <div class="sp-work-blog" data-rise>
+      <p>The longer write-ups, and everything else I have written, are on the blog.</p>
+      <a class="sp-btn" href="/blog/">
+        Read the blog
+      </a>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .lab-space .sp-work-comet {
+    right: 4vw;
+    top: 70px;
+    width: clamp(120px, 17vw, 250px);
+    opacity: 0.95;
+  }
+  .lab-space .sp-work-planet {
+    left: -70px;
+    bottom: 60px;
+    width: clamp(120px, 15vw, 220px);
+    --spin: 140s;
+  }
+  .lab-space .sp-missions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+    gap: clamp(18px, 2.6vw, 38px);
+    margin-top: clamp(100px, 13vw, 150px);
+  }
+  .lab-space .sp-mission {
+    position: relative;
+    display: block;
+    text-decoration: none;
+    perspective: 900px;
+  }
+
+  /* The patch: a stitched rim in the mission's colour round a disc of night sky. */
+  .lab-space .sp-patch {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    z-index: 2;
+    display: block;
+    width: min(62%, 220px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--tint);
+    box-shadow:
+      0 0 0 3px var(--sp-ink),
+      6px 7px 0 3px rgb(20 17 51 / 55%);
+    translate: -50% -58%;
+    /* --tilt-x / --tilt-y are set from the pointer by scenes.ts. */
+    transform: rotateX(calc(var(--tilt-y, 0) * -16deg)) rotateY(calc(var(--tilt-x, 0) * 16deg));
+    transition: transform 0.25s ease-out;
+  }
+  /* The stitching. */
+  .lab-space .sp-patch::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border: 2px dashed rgb(27 24 64 / 70%);
+    border-radius: 50%;
+  }
+  .lab-space .sp-patch-rim {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    fill: var(--sp-ink);
+    font: 700 12.5px var(--sp-mono);
+    animation: sp-spin 60s linear infinite;
+  }
+  .lab-space .sp-patch-sky {
+    position: absolute;
+    inset: 15.5%;
+    overflow: hidden;
+    border: 3px solid var(--sp-ink);
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 22% 28%, var(--sp-cream) 0 1.5px, transparent 2px),
+      radial-gradient(circle at 78% 20%, var(--sp-mustard) 0 1.5px, transparent 2px),
+      radial-gradient(circle at 84% 70%, var(--sp-cream) 0 1.2px, transparent 2px),
+      radial-gradient(circle at 16% 76%, var(--sp-mint) 0 1.5px, transparent 2px),
+      radial-gradient(circle at 50% 10%, var(--sp-cream) 0 1px, transparent 2px), var(--sp-space);
+  }
+  .lab-space .sp-patch-planet {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 60%;
+    max-width: none;
+    translate: -50% -50%;
+    transition: scale 0.4s cubic-bezier(0.3, 1.5, 0.5, 1);
+  }
+  .lab-space .sp-patch-orbit {
+    position: absolute;
+    inset: 5%;
+    animation: sp-spin 9s linear infinite;
+  }
+  .lab-space .sp-patch-orbit img {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 13%;
+    /* Nose along the direction of travel. */
+    transform: translate(-50%, -10%) rotate(90deg);
+  }
+  .lab-space .sp-mission:hover .sp-patch-planet,
+  .lab-space .sp-mission:focus-visible .sp-patch-planet {
+    scale: 1.14;
+  }
+  .lab-space .sp-mission:hover .sp-patch-orbit,
+  .lab-space .sp-mission:focus-visible .sp-patch-orbit {
+    animation-duration: 2.6s;
+  }
+
+  .lab-space .sp-mission-card {
+    position: relative;
+    display: grid;
+    padding: clamp(86px, 9.5vw, 120px) clamp(18px, 2vw, 26px) 24px;
+    border: 2px solid var(--sp-ink);
+    background: var(--sp-paper);
+    color: var(--sp-ink);
+    box-shadow: 8px 8px 0 var(--tint);
+    transition:
+      translate 0.3s ease,
+      box-shadow 0.3s ease;
+  }
+  .lab-space .sp-mission-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--sp-grain);
+    opacity: 0.2;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+  }
+  .lab-space .sp-mission:hover .sp-mission-card,
+  .lab-space .sp-mission:focus-visible .sp-mission-card {
+    translate: -3px -4px;
+    box-shadow: 13px 14px 0 var(--tint);
+  }
+  .lab-space .sp-mission-label {
+    font: 700 12px/1.3 var(--sp-mono);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sp-tomato);
+  }
+  .lab-space .sp-mission-title {
+    margin-top: 8px;
+    font: 800 clamp(22px, 2.15vw, 30px) / 1.06 var(--sp-display);
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+  /* The write-up folds open. Rows animate from 0fr to 1fr, so no height has to be known. */
+  .lab-space .sp-mission-more {
+    display: grid;
+    grid-template-rows: 1fr;
+    transition: grid-template-rows 0.45s cubic-bezier(0.3, 1, 0.4, 1);
+  }
+  .lab-space .sp-mission-more > span {
+    overflow: hidden;
+  }
+  .lab-space .sp-mission-desc {
+    display: block;
+    padding-top: 12px;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .sp-js .lab-space .sp-mission-more {
+      grid-template-rows: 0fr;
+    }
+    .sp-js .lab-space .sp-mission:hover .sp-mission-more,
+    .sp-js .lab-space .sp-mission:focus-visible .sp-mission-more {
+      grid-template-rows: 1fr;
+    }
+  }
+  .lab-space .sp-mission-go {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 18px;
+    font: 700 13px/1 var(--sp-mono);
+    letter-spacing: 0.04em;
+  }
+  .lab-space .sp-mission-go svg {
+    transition: translate 0.25s ease;
+  }
+  .lab-space .sp-mission:hover .sp-mission-go svg,
+  .lab-space .sp-mission:focus-visible .sp-mission-go svg {
+    translate: 6px 0;
+  }
+  .lab-space .sp-mission:focus-visible {
+    border-radius: 2px;
+    outline-offset: 10px;
+  }
+
+  .lab-space .sp-work-blog {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px 26px;
+    margin-top: clamp(50px, 7vw, 80px);
+  }
+  .lab-space .sp-work-blog p {
+    max-width: 34ch;
+    font: 600 clamp(18px, 1.7vw, 23px) / 1.35 var(--sp-display);
+  }
+
+  @media (max-width: 900px) {
+    .lab-space .sp-missions {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 130px;
+      margin-top: 130px;
+    }
+    .lab-space .sp-patch {
+      width: 180px;
+    }
+    .lab-space .sp-mission-card {
+      padding-top: 96px;
+    }
+    .lab-space .sp-work-comet {
+      top: 30px;
+      right: 12vw;
+    }
+    .lab-space .sp-work-planet {
+      display: none;
+    }
+  }
+</style>

@@ -12,7 +12,7 @@ interface YarnBallDetail {
 }
 
 interface WindowEventMap {
-  /** Fired whenever the page's motion preference changes (pause button or OS setting). */
+  /** Fired whenever the page's motion preference changes (the OS reduced-motion setting). */
   'portfolio-motion-change': Event;
   /** Fired when the light/dark theme changes, so canvases can redraw with the new colours. */
   'portfolio-theme-change': CustomEvent<'light' | 'dark'>;

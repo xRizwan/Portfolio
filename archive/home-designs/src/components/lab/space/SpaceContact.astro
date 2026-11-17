@@ -1,0 +1,174 @@
+---
+// Last stop: a radio dish on a small moon, sending a signal. The links are plain links.
+import { site } from '../../../data/site';
+import { art } from './art';
+
+const rings = [16, 32, 48, 64, 80];
+---
+
+<section class="sp-section sp-contact" id="contact" data-sp-stop aria-labelledby="sp-contact-title">
+  <div class="sp-clip" aria-hidden="true">
+    <img
+      class="sp-art sp-contact-ring sp-bob"
+      {...art('ring')}
+      alt=""
+      loading="lazy"
+      data-drift="-80"
+    />
+  </div>
+  <div class="sp-wrap sp-contact-grid">
+    <div class="sp-dish" aria-hidden="true" data-drift="50">
+      <img {...art('dish')} alt="" loading="lazy" />
+      <!-- Quarter circles spreading from the receiver at the tip of the dish. -->
+      <svg class="sp-dish-signal" viewBox="0 0 100 100">
+        {rings.map((radius, index) => (
+          <path
+            d={`M0 ${100 - radius}A${radius} ${radius} 0 0 1 ${radius} 100`}
+            style={{ '--i': index }}
+          />
+        ))}
+      </svg>
+    </div>
+    <div class="sp-contact-text">
+      <p class="sp-label" data-rise>
+        Radio home
+      </p>
+      <h2 class="sp-h2" id="sp-contact-title" data-rise>
+        Say hello
+      </h2>
+      <p class="sp-contact-line" data-rise>
+        Email is the quickest way to reach me.
+      </p>
+      <p data-rise>
+        <a class="sp-contact-mail" href={`mailto:${site.email}`}>
+          {site.email}
+        </a>
+      </p>
+      <ul class="sp-contact-links" data-rise>
+        <li>
+          <a class="sp-btn" href={site.github}>
+            GitHub
+          </a>
+        </li>
+        <li>
+          <a class="sp-btn sp-btn--cream" href={site.linkedin}>
+            LinkedIn
+          </a>
+        </li>
+        <li>
+          <a class="sp-btn sp-btn--tomato" href={site.resume}>
+            Resume
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .lab-space .sp-section.sp-contact {
+    padding-bottom: clamp(60px, 8vw, 100px);
+  }
+  .lab-space .sp-contact-ring {
+    right: calc(var(--sp-lane) + 2vw);
+    top: 70px;
+    width: clamp(110px, 15vw, 230px);
+    --bob: 8s;
+  }
+  .lab-space .sp-contact-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.7fr) minmax(0, 1fr);
+    align-items: end;
+    gap: clamp(24px, 5vw, 80px);
+  }
+  .lab-space .sp-dish {
+    position: relative;
+    width: 100%;
+    max-width: 320px;
+    justify-self: center;
+  }
+  /* The receiver (the red ball) is at 87% / 12% of the painting; the signal starts there. */
+  .lab-space .sp-dish-signal {
+    position: absolute;
+    left: 87%;
+    bottom: 88%;
+    width: 46%;
+    aspect-ratio: 1;
+    overflow: visible;
+  }
+  .lab-space .sp-dish-signal path {
+    fill: none;
+    stroke: var(--sp-mustard);
+    stroke-width: 2.6;
+    stroke-linecap: round;
+    stroke-dasharray: 9 7;
+    opacity: 0.75;
+  }
+  .lab-space .sp-dish-signal path:nth-child(even) {
+    stroke: var(--sp-mint);
+  }
+  .sp-motion .lab-space .sp-dish-signal path {
+    opacity: 0;
+    animation: sp-signal 2.5s linear infinite;
+    animation-delay: calc(var(--i) * 0.5s);
+  }
+  @keyframes sp-signal {
+    0%,
+    100% {
+      opacity: 0;
+    }
+    18%,
+    42% {
+      opacity: 1;
+    }
+    70% {
+      opacity: 0;
+    }
+  }
+  .lab-space .sp-contact-line {
+    margin-top: 22px;
+    font-size: clamp(17px, 1.5vw, 20px);
+  }
+  .lab-space .sp-contact-mail {
+    display: inline-block;
+    margin-top: 6px;
+    font: 800 clamp(25px, 4.4vw, 64px) / 1.1 var(--sp-display);
+    letter-spacing: -0.035em;
+    color: var(--sp-mustard);
+    text-decoration: underline;
+    text-decoration-thickness: 0.07em;
+    text-underline-offset: 0.14em;
+    text-decoration-color: var(--sp-tomato);
+    overflow-wrap: anywhere;
+    transition: color 0.2s ease;
+  }
+  .lab-space .sp-contact-mail:hover {
+    color: var(--sp-cream);
+  }
+  .lab-space .sp-contact-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 34px;
+    padding-bottom: 8px;
+  }
+  .lab-space .sp-contact .sp-btn {
+    border-color: var(--sp-cream);
+  }
+  @media (max-width: 760px) {
+    .lab-space .sp-contact-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .lab-space .sp-dish {
+      order: 2;
+      width: 56%;
+      justify-self: start;
+      margin-top: 60px;
+    }
+    .lab-space .sp-contact-ring {
+      top: 26px;
+      right: 14vw;
+      width: 96px;
+    }
+  }
+</style>

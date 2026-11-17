@@ -1,0 +1,31 @@
+---
+// One painted sprite from public/lab/cat/, with its real pixel size so the page never shifts.
+import { artSizes, type ArtName } from './art';
+
+interface Props {
+  name: ArtName;
+  class?: string;
+  alt?: string;
+  /** Load straight away (opening scene); everything else is lazy. */
+  eager?: boolean;
+  /** Defaults to `--w`, the sprite's pixel width, which pose stacks use to keep poses in scale. */
+  style?: string;
+  [key: `data-${string}`]: string | undefined;
+}
+
+const { name, class: className, alt = '', eager = false, style, ...rest } = Astro.props;
+const [width, height] = artSizes[name];
+---
+
+<img
+  class={className}
+  src={`/lab/cat/${name}.webp`}
+  width={width}
+  height={height}
+  alt={alt}
+  style={style ?? `--w:${width}`}
+  loading={eager ? 'eager' : 'lazy'}
+  decoding="async"
+  draggable="false"
+  {...rest}
+/>

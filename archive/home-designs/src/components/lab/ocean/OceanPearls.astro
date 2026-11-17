@@ -1,0 +1,288 @@
+---
+// The oyster bed: each certificate stands in an open shell. Picking one up shows it full size in
+// a dialog; without scripts the link opens the large image itself.
+import { Image, getImage } from 'astro:assets';
+import { credentialAlt, credentials } from '../../../data/certificates';
+import { art } from './art';
+import { edgeMask } from './paper';
+
+const items = await Promise.all(
+  credentials.map(async (credential, index) => {
+    const full = await getImage({
+      src: credential.image,
+      width: 1600,
+      format: 'webp',
+      quality: 85,
+    });
+    return {
+      ...credential,
+      alt: credentialAlt(credential),
+      full: full.src,
+      fullWidth: Number(full.attributes.width),
+      fullHeight: Number(full.attributes.height),
+      // A small, repeatable lean so the sheets do not line up like a spreadsheet.
+      lean: ((index * 37) % 9) - 4,
+    };
+  }),
+);
+const bedMask = edgeMask({ seed: 121, height: 130, swell: 14, jitter: 5 });
+---
+
+<section
+  class="oc-section oc-pearls"
+  id="certificates"
+  data-tone="sun"
+  aria-labelledby="oc-pearls-title"
+>
+  <div class="oc-clip" aria-hidden="true">
+    <div class="oc-bed" style={{ '--mask': bedMask }}></div>
+    <img
+      class="oc-art oc-pearls-star"
+      {...art('starfish')}
+      alt=""
+      loading="lazy"
+      data-drift-x="-120"
+      data-drift-turn="80"
+    />
+    <img class="oc-art oc-pearls-crab" {...art('crab')} alt="" loading="lazy" data-drift-x="260" />
+    <img class="oc-art oc-pearls-anemone oc-sway" {...art('anemone')} alt="" loading="lazy" />
+    <img
+      class="oc-art oc-pearls-reef"
+      {...art('reef-left')}
+      alt=""
+      loading="lazy"
+      data-drift="70"
+    />
+  </div>
+  <div class="oc-wrap">
+    <p class="oc-place">The oyster bed</p>
+    <h2 class="oc-h2" id="oc-pearls-title">
+      Certificates
+    </h2>
+    <p class="oc-note oc-pearls-note">Pick one up to see it full size.</p>
+    <ul class="oc-oysters">
+      {items.map((item, index) => (
+        <li data-rise style={{ '--rise-i': index % 4, '--lean': `${item.lean}deg` }}>
+          <a
+            class="oc-pearl"
+            href={item.full}
+            data-cert={item.title}
+            data-issuer={item.issuer}
+            data-alt={item.alt}
+            data-width={item.fullWidth}
+            data-height={item.fullHeight}
+            data-touch-tone="sand"
+          >
+            <span class="oc-pearl-sheet">
+              <Image src={item.image} width={420} alt={item.alt} loading="lazy" />
+            </span>
+            <img class="oc-pearl-shell" {...art('shell')} alt="" loading="lazy" />
+            <span class="oc-pearl-tag">
+              <strong>{item.title}</strong>
+              <span>{item.issuer}</span>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <dialog class="oc-cert-dialog" data-oc-cert-dialog aria-labelledby="oc-cert-dialog-title">
+    <div class="oc-cert-sheet">
+      <img src={items[0]?.full} width="1600" height="1200" alt="" loading="lazy" />
+      <div class="oc-cert-bar">
+        <p>
+          <strong id="oc-cert-dialog-title" data-cert-title></strong>
+          <span data-cert-issuer></span>
+        </p>
+        <div class="oc-cert-buttons">
+          <button type="button" class="oc-btn" data-cert-prev>
+            Previous
+          </button>
+          <button type="button" class="oc-btn" data-cert-next>
+            Next
+          </button>
+          <button type="button" class="oc-btn oc-btn--coral" data-cert-close>
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+</section>
+
+<style is:global>
+  .lab-ocean .oc-section.oc-pearls {
+    padding-bottom: 220px;
+  }
+  .lab-ocean .oc-pearls-star {
+    left: 30vw;
+    bottom: 28px;
+    width: clamp(54px, 6vw, 86px);
+  }
+  .lab-ocean .oc-pearls-crab {
+    left: 46vw;
+    bottom: 34px;
+    width: clamp(64px, 7vw, 100px);
+  }
+  .lab-ocean .oc-pearls-anemone {
+    right: 6vw;
+    bottom: 44px;
+    width: clamp(90px, 10vw, 150px);
+  }
+  .lab-ocean .oc-pearls-reef {
+    left: -8vw;
+    bottom: 10px;
+    width: min(34vw, 420px);
+  }
+  .lab-ocean .oc-pearls-note {
+    margin-top: 16px;
+  }
+  .lab-ocean .oc-oysters {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 44px clamp(16px, 2.4vw, 34px);
+    margin-top: 54px;
+  }
+  .lab-ocean .oc-oysters li {
+    width: min(250px, 100%);
+  }
+  .lab-ocean .oc-pearl {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    text-decoration: none;
+  }
+  /* The certificate itself, on a white-ish sheet that leans a little in its shell. */
+  .lab-ocean .oc-pearl-sheet {
+    display: grid;
+    grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+    place-items: center;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    padding: 7px;
+    background: var(--oc-foam);
+    box-shadow:
+      0 4px 0 rgb(18 38 58 / 14%),
+      0 14px 18px rgb(18 38 58 / 18%);
+    transform: rotate(var(--lean, 0deg));
+    transform-origin: 50% 100%;
+    transition: transform 0.45s cubic-bezier(0.3, 1.5, 0.5, 1);
+  }
+  .lab-ocean .oc-pearl-sheet img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .lab-ocean .oc-pearl-shell {
+    position: relative;
+    width: 46%;
+    margin-top: -17%;
+    filter: var(--oc-shadow);
+    transition: transform 0.45s cubic-bezier(0.3, 1.5, 0.5, 1);
+  }
+  .lab-ocean .oc-oysters li:nth-child(3n) .oc-pearl-shell {
+    scale: -1 1;
+  }
+  .lab-ocean .oc-pearl:hover .oc-pearl-sheet,
+  .lab-ocean .oc-pearl:focus-visible .oc-pearl-sheet {
+    transform: translateY(-16px) rotate(0deg) scale(1.05);
+  }
+  .lab-ocean .oc-pearl:hover .oc-pearl-shell,
+  .lab-ocean .oc-pearl:focus-visible .oc-pearl-shell {
+    transform: translateY(6px) rotate(-6deg);
+  }
+  .lab-ocean .oc-pearl-tag {
+    display: grid;
+    gap: 2px;
+    margin-top: 8px;
+    padding: 7px 12px 8px;
+    background: var(--oc-foam);
+    text-align: center;
+    clip-path: polygon(0 5%, 50% 0, 100% 4%, 99% 95%, 49% 100%, 1% 94%);
+  }
+  .lab-ocean .oc-pearl-tag strong {
+    font: 800 14.5px/1.2 var(--oc-body);
+    text-wrap: balance;
+  }
+  .lab-ocean .oc-pearl-tag span {
+    font: 500 13px/1.25 var(--oc-body);
+  }
+
+  .lab-ocean .oc-cert-dialog {
+    max-width: min(1100px, 100vw - 24px);
+    max-height: calc(100dvh - 24px);
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--oc-ink);
+    overflow: visible;
+  }
+  .lab-ocean .oc-cert-dialog::backdrop {
+    background: rgb(12 52 74 / 78%);
+  }
+  .lab-ocean .oc-cert-sheet {
+    display: grid;
+    gap: 12px;
+    padding: clamp(10px, 1.6vw, 18px);
+    background: var(--oc-foam);
+    box-shadow: 0 24px 50px rgb(18 38 58 / 40%);
+  }
+  .lab-ocean .oc-cert-dialog[open] .oc-cert-sheet {
+    animation: oc-surface 0.45s cubic-bezier(0.3, 1.3, 0.5, 1);
+  }
+  @keyframes oc-surface {
+    from {
+      opacity: 0;
+      transform: translateY(60px) rotate(-3deg) scale(0.9);
+    }
+  }
+  .lab-ocean .oc-cert-sheet > img {
+    width: auto;
+    max-width: 100%;
+    max-height: calc(100dvh - 190px);
+    margin-inline: auto;
+    object-fit: contain;
+  }
+  .lab-ocean .oc-cert-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 20px;
+  }
+  .lab-ocean .oc-cert-bar p {
+    display: grid;
+    line-height: 1.25;
+  }
+  .lab-ocean .oc-cert-bar strong {
+    font: 800 18px/1.2 var(--oc-display);
+  }
+  .lab-ocean .oc-cert-bar span {
+    font-size: 14.5px;
+  }
+  .lab-ocean .oc-cert-buttons {
+    display: flex;
+    gap: 8px;
+  }
+  .lab-ocean .oc-cert-buttons .oc-btn {
+    border: 0;
+    cursor: pointer;
+  }
+  @media (max-width: 860px) {
+    .lab-ocean .oc-oysters {
+      gap: 34px 14px;
+    }
+    .lab-ocean .oc-oysters li {
+      width: calc(50% - 7px);
+    }
+    .lab-ocean .oc-pearl-tag strong {
+      font-size: 13.5px;
+    }
+    .lab-ocean .oc-pearls-reef {
+      width: 56vw;
+      left: -18vw;
+    }
+  }
+</style>

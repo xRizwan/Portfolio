@@ -1,0 +1,497 @@
+---
+// Pinned opening. Three scroll values drive the whole scene (set by intro.ts):
+//   --dive  the camera tips under the surface and the waterline sweeps up
+//   --reef  the sand floor rises and the reef slides in from both sides
+//   --pan   the camera travels sideways along the reef toward the cave
+// The CSS defaults below describe a finished underwater view, which is what a visitor without
+// scripts or with reduced motion sees.
+import { Image } from 'astro:assets';
+import portrait from '../../../assets/portrait.png';
+import { site } from '../../../data/site';
+import { edgeMask } from './paper';
+
+const floorMask = edgeMask({ seed: 5, height: 150, swell: 12, jitter: 4 });
+---
+
+<section class="oc-intro" id="top" data-oc-intro data-tone="sand">
+  <div class="oc-intro-stage" data-oc-stage>
+    <div class="oc-sky" aria-hidden="true">
+      <svg class="oc-sun" viewBox="-110 -110 220 220" width="220" height="220">
+        <filter id="oc-snip" x="-10%" y="-10%" width="120%" height="120%">
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.035"
+            numOctaves="2"
+            seed="3"
+          ></feTurbulence>
+          <feDisplacementMap in="SourceGraphic" scale="7"></feDisplacementMap>
+        </filter>
+        <g filter="url(#oc-snip)">
+          <g class="oc-sun-rays">
+            {Array.from({ length: 12 }, (_, index) => (
+              <path
+                d="M-9 -64 L0 -104 L9 -64 Z"
+                transform={`rotate(${index * 30 + (index % 2) * 4})`}
+              />
+            ))}
+          </g>
+          <circle r="50"></circle>
+        </g>
+      </svg>
+    </div>
+
+    <div class="oc-under" aria-hidden="true">
+      <div class="oc-pan oc-pan--far">
+        <img
+          class="oc-art oc-reef oc-reef--far-a"
+          src="/lab/ocean/reef-right.webp"
+          width="1100"
+          height="1100"
+          alt=""
+        />
+        <img
+          class="oc-art oc-reef oc-reef--far-b"
+          src="/lab/ocean/reef-left.webp"
+          width="1100"
+          height="1100"
+          alt=""
+        />
+      </div>
+      <div class="oc-floor-wrap">
+        <div class="oc-floor" style={{ '--mask': floorMask }}></div>
+      </div>
+      <div class="oc-pan oc-pan--near">
+        <div class="oc-reef oc-reef--left">
+          <img class="oc-art" src="/lab/ocean/reef-left.webp" width="1100" height="1100" alt="" />
+        </div>
+        <div class="oc-reef oc-reef--right">
+          <img class="oc-art" src="/lab/ocean/reef-right.webp" width="1100" height="1100" alt="" />
+        </div>
+        <div class="oc-reef oc-reef--weed">
+          <img
+            class="oc-art oc-sway"
+            src="/lab/ocean/seaweed.webp"
+            width="280"
+            height="420"
+            alt=""
+          />
+        </div>
+        <div class="oc-reef oc-reef--star">
+          <img class="oc-art" src="/lab/ocean/starfish.webp" width="420" height="420" alt="" />
+        </div>
+        <div class="oc-next">
+          <img class="oc-art" src="/lab/ocean/arch.webp" width="1300" height="867" alt="" />
+          <p class="oc-next-note oc-note">First stop, the cave</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="oc-surface">
+      <div class="oc-wave oc-wave--back" aria-hidden="true"></div>
+      <img
+        class="oc-boat"
+        src="/lab/ocean/boat.webp"
+        width="700"
+        height="358"
+        alt=""
+        aria-hidden="true"
+      />
+      <div class="oc-buoy">
+        <div class="oc-buoy-bob">
+          <Image
+            class="oc-buoy-face"
+            src={portrait}
+            width={420}
+            alt={`Portrait of ${site.name}`}
+            loading="eager"
+          />
+          <img
+            class="oc-buoy-ring"
+            src="/lab/ocean/lifebuoy.webp"
+            width="620"
+            height="620"
+            alt=""
+          />
+        </div>
+      </div>
+      <div class="oc-wave oc-wave--front" aria-hidden="true"></div>
+      <div class="oc-wave oc-wave--deep" aria-hidden="true"></div>
+    </div>
+
+    <div class="oc-hello">
+      <h1>
+        <span class="oc-hello-hi">Hi, I'm</span>
+        <span class="oc-hello-name">{site.shortName}</span>
+      </h1>
+      <p class="oc-hello-role">{site.intro.role}</p>
+      <p class="oc-hello-summary">{site.intro.summary}</p>
+    </div>
+
+    <p class="oc-hint oc-note" aria-hidden="true">
+      Scroll to dive in
+      <svg viewBox="0 0 24 40" width="20" height="34">
+        <path d="M12 3c-2 9 2 16 0 30m-8-9c3 3 6 7 8 10 2-4 5-7 8-10"></path>
+      </svg>
+    </p>
+  </div>
+</section>
+
+<style is:global>
+  .lab-ocean .oc-intro {
+    position: relative;
+    height: calc(100 * var(--oc-vh));
+  }
+  /* With scripts and motion, the section is tall and its stage stays pinned while it scrolls. */
+  .oc-js .lab-ocean .oc-intro:not(.is-still) {
+    height: calc(430 * var(--oc-vh));
+  }
+  .lab-ocean .oc-intro-stage {
+    --dive: 0.55;
+    --reef: 1;
+    --pan: 0;
+    --wl: calc(68 - 51 * var(--dive));
+    --pan-d: 88vw;
+    position: sticky;
+    top: 0;
+    height: calc(100 * var(--oc-vh));
+    overflow: hidden;
+  }
+
+  /* Sky: one sheet of sand paper whose bottom edge sits on the waterline. */
+  .lab-ocean .oc-sky {
+    position: absolute;
+    inset: 0;
+    background: #fbeed3 url('/lab/ocean/sand.webp') center / 760px;
+    background-blend-mode: soft-light;
+    transform: translate3d(0, calc((var(--wl) - 100) * var(--oc-vh)), 0);
+  }
+  .lab-ocean .oc-sun {
+    position: absolute;
+    right: 7vw;
+    bottom: calc(33 * var(--oc-vh));
+    width: clamp(120px, 15vw, 210px);
+    height: auto;
+    fill: var(--oc-sun);
+    overflow: visible;
+    /* The sun sets faster than the sky moves, so it reads as further away. */
+    transform: translate3d(0, calc(var(--dive) * -24 * var(--oc-vh)), 0);
+  }
+  .lab-ocean .oc-sun-rays {
+    fill: var(--oc-coral);
+    animation: oc-spin 70s linear infinite;
+  }
+  @keyframes oc-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Surface: paper wave strips, the boat and the buoy all ride on the waterline. */
+  .lab-ocean .oc-surface {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 0;
+    transform: translate3d(0, calc(var(--wl) * var(--oc-vh)), 0);
+  }
+  .lab-ocean .oc-wave {
+    --wave: #9be3da;
+    position: absolute;
+    left: 0;
+    width: calc(100% + 400px);
+    height: 64px;
+    background: var(--wave);
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='64'%3E%3Cpath d='M0 22C40 4 70 6 100 20c30 14 60 10 100-4 40-14 70-8 100 6 30 12 65 12 100 0v28c-50 10-80 8-100 0-40-12-70-8-100 2-40 10-70 6-100-4-40-10-70-6-100 2z'/%3E%3C/svg%3E")
+      0 0 / 400px 64px repeat-x;
+    animation: oc-wave 11s linear infinite;
+  }
+  .lab-ocean .oc-wave--back {
+    --wave: var(--oc-foam);
+    top: -40px;
+    animation-duration: 17s;
+    animation-direction: reverse;
+  }
+  .lab-ocean .oc-wave--front {
+    top: -24px;
+  }
+  .lab-ocean .oc-wave--deep {
+    --wave: #38a9b4;
+    top: -2px;
+    opacity: 0.55;
+    animation-duration: 23s;
+    animation-direction: reverse;
+  }
+  @keyframes oc-wave {
+    to {
+      transform: translate3d(-400px, 0, 0);
+    }
+  }
+  .lab-ocean .oc-boat {
+    position: absolute;
+    left: 47vw;
+    bottom: -16px;
+    width: clamp(110px, 13vw, 190px);
+    filter: var(--oc-shadow);
+    animation: oc-bob 5s ease-in-out infinite alternate;
+  }
+  .lab-ocean .oc-buoy {
+    position: absolute;
+    left: 83%;
+    top: 0;
+    width: min(calc(42 * var(--oc-vh)), 30vw);
+    transform: translate(-50%, -57%) scale(calc(1 - 0.38 * var(--dive)));
+  }
+  .lab-ocean .oc-buoy-bob {
+    position: relative;
+    filter: var(--oc-shadow);
+    animation: oc-buoy 4.6s ease-in-out infinite alternate;
+  }
+  @keyframes oc-buoy {
+    from {
+      transform: translateY(-2.5%) rotate(-5deg);
+    }
+    to {
+      transform: translateY(2.5%) rotate(4deg);
+    }
+  }
+  /* The photo sits in the hole of the ring, slightly larger so no gap shows at the cut edge. */
+  .lab-ocean .oc-buoy-face {
+    position: absolute;
+    left: 25.5%;
+    top: 26%;
+    width: 48%;
+    height: 48%;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: 46% 36%;
+  }
+  .lab-ocean .oc-buoy-ring {
+    position: relative;
+    width: 100%;
+  }
+
+  /* Words. Navy reads on both the sand sky and the turquoise water, so the text can stay put
+     while the waterline passes over it. */
+  .lab-ocean .oc-hello {
+    position: absolute;
+    left: clamp(20px, 6vw, 96px);
+    top: calc(13 * var(--oc-vh));
+    max-width: min(760px, 88vw);
+    transform: translate3d(
+      calc(var(--pan) * -1 * var(--pan-d)),
+      calc(var(--dive) * 6 * var(--oc-vh)),
+      0
+    );
+    opacity: calc(1 - var(--pan) * 1.8);
+  }
+  .lab-ocean .oc-hello h1 {
+    display: grid;
+    font: inherit;
+  }
+  .lab-ocean .oc-hello-hi {
+    font: 700 clamp(34px, 4.2vw, 54px) / 1 var(--oc-hand);
+    transform: rotate(-4deg);
+    transform-origin: 0 100%;
+  }
+  .lab-ocean .oc-hello-name {
+    margin-left: -0.04em;
+    font: 800 clamp(104px, 16vw, 224px) / 0.84 var(--oc-display);
+    letter-spacing: -0.055em;
+    /* A second, offset copy of the letters in coral: two sheets of paper, one on the other. */
+    text-shadow: 0.035em 0.035em 0 var(--oc-coral);
+  }
+  .lab-ocean .oc-hello-role {
+    display: inline-block;
+    margin-top: 22px;
+    padding: 5px 14px 6px;
+    background: var(--oc-sun);
+    font: 800 clamp(14px, 1.3vw, 17px) / 1.2 var(--oc-body);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transform: rotate(-1.5deg);
+    clip-path: polygon(0 8%, 50% 0, 100% 6%, 99% 94%, 48% 100%, 1% 90%);
+  }
+  .lab-ocean .oc-hello-summary {
+    max-width: 31em;
+    margin-top: 14px;
+    font: 600 clamp(17px, 1.55vw, 21px) / 1.45 var(--oc-body);
+    text-wrap: pretty;
+  }
+  .lab-ocean .oc-hint {
+    position: absolute;
+    left: 50%;
+    bottom: 74px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transform: translateX(-50%);
+    opacity: calc(1 - var(--dive) * 5);
+  }
+  .lab-ocean .oc-hint svg {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    animation: oc-nudge 1.3s ease-in-out infinite alternate;
+  }
+  @keyframes oc-nudge {
+    to {
+      transform: translateY(7px);
+    }
+  }
+  .lab-ocean .oc-intro.is-still .oc-hint,
+  html:not(.oc-js) .lab-ocean .oc-hint {
+    display: none;
+  }
+
+  /* Underwater layers. */
+  .lab-ocean .oc-under,
+  .lab-ocean .oc-pan {
+    position: absolute;
+    inset: 0;
+  }
+  .lab-ocean .oc-pan--far {
+    transform: translate3d(calc(var(--pan) * -0.4 * var(--pan-d)), 0, 0);
+  }
+  .lab-ocean .oc-pan--near {
+    transform: translate3d(calc(var(--pan) * -1 * var(--pan-d)), 0, 0);
+  }
+  .lab-ocean .oc-reef {
+    --away: calc(1 - var(--reef));
+    position: absolute;
+    bottom: 0;
+  }
+  .lab-ocean .oc-reef .oc-art,
+  .lab-ocean img.oc-reef {
+    position: relative;
+    width: 100%;
+  }
+  .lab-ocean .oc-reef--far-a {
+    position: absolute !important;
+    left: 14vw;
+    bottom: calc(6 * var(--oc-vh));
+    width: min(34vw, calc(46 * var(--oc-vh))) !important;
+    filter: saturate(0.45) brightness(1.08) opacity(0.42);
+    transform: translate3d(calc(var(--away) * -30vw), calc(var(--away) * 30vh), 0) scaleX(-1);
+  }
+  .lab-ocean .oc-reef--far-b {
+    position: absolute !important;
+    right: 20vw;
+    bottom: calc(5 * var(--oc-vh));
+    width: min(30vw, calc(40 * var(--oc-vh))) !important;
+    filter: saturate(0.45) brightness(1.08) opacity(0.42);
+    transform: translate3d(calc(var(--away) * 30vw), calc(var(--away) * 30vh), 0) scaleX(-1);
+  }
+  .lab-ocean .oc-reef--left {
+    left: -4vw;
+    bottom: calc(-13 * var(--oc-vh));
+    width: min(32vw, calc(40 * var(--oc-vh)));
+    transform: translate3d(calc(var(--away) * -55vw), calc(var(--away) * 12vh), 0)
+      rotate(calc(var(--away) * -14deg));
+  }
+  .lab-ocean .oc-reef--right {
+    right: -2vw;
+    width: min(50vw, calc(66 * var(--oc-vh)));
+    transform: translate3d(calc(var(--away) * 60vw), calc(var(--away) * 12vh), 0)
+      rotate(calc(var(--away) * 14deg));
+  }
+  .lab-ocean .oc-reef--weed {
+    left: 40vw;
+    bottom: calc(4 * var(--oc-vh));
+    width: clamp(70px, 8vw, 120px);
+    transform: translate3d(0, calc(var(--away) * 50vh), 0);
+  }
+  .lab-ocean .oc-reef--star {
+    left: 52vw;
+    bottom: calc(2.5 * var(--oc-vh));
+    width: clamp(50px, 5.5vw, 84px);
+    transform: translate3d(0, calc(var(--away) * 40vh), 0)
+      rotate(calc(var(--away) * 200deg + 12deg));
+  }
+  .lab-ocean .oc-floor-wrap {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: calc(15 * var(--oc-vh));
+    filter: drop-shadow(0 -5px 0 rgb(18 38 58 / 10%));
+    transform: translate3d(0, calc((1 - var(--reef)) * 110%), 0);
+  }
+  .lab-ocean .oc-floor {
+    position: absolute;
+    inset: 0;
+    background: var(--oc-sand) url('/lab/ocean/sand.webp') center / 700px;
+    mask: var(--mask) 0 0 / 100% 100% no-repeat;
+  }
+  /* The cave arch waits one camera-move to the right and arrives as the pan finishes. */
+  .lab-ocean .oc-next {
+    position: absolute;
+    left: calc(var(--pan-d) + 46vw);
+    bottom: calc(3 * var(--oc-vh));
+    width: min(52vw, calc(92 * var(--oc-vh)));
+  }
+  .lab-ocean .oc-next .oc-art {
+    position: relative;
+    width: 100%;
+  }
+  .lab-ocean .oc-next-note {
+    position: absolute;
+    left: 50%;
+    top: 58%;
+    padding: 4px 18px 6px;
+    background: var(--oc-foam);
+    white-space: nowrap;
+    transform: translate(-50%, -50%) rotate(-3deg);
+    clip-path: polygon(1% 8%, 46% 0, 99% 6%, 100% 92%, 52% 100%, 0 94%);
+  }
+
+  @media (max-width: 760px) {
+    .lab-ocean .oc-intro-stage {
+      --pan-d: 130vw;
+    }
+    .lab-ocean .oc-hello {
+      top: calc(11.5 * var(--oc-vh));
+    }
+    .lab-ocean .oc-hello-name {
+      font-size: 30vw;
+    }
+    .lab-ocean .oc-hello-summary {
+      max-width: 19em;
+    }
+    .lab-ocean .oc-buoy {
+      left: 58%;
+      width: 52vw;
+    }
+    .lab-ocean .oc-sun {
+      right: 4vw;
+      bottom: calc(13 * var(--oc-vh));
+      width: 78px;
+    }
+    .lab-ocean .oc-boat {
+      left: 6vw;
+    }
+    .lab-ocean .oc-reef--left {
+      bottom: 0;
+      width: 62vw;
+      left: -8vw;
+    }
+    .lab-ocean .oc-reef--right {
+      width: 72vw;
+      right: -8vw;
+    }
+    .lab-ocean .oc-reef--far-a,
+    .lab-ocean .oc-reef--far-b,
+    .lab-ocean .oc-reef--weed {
+      display: none;
+    }
+    .lab-ocean .oc-reef--star {
+      left: 46vw;
+    }
+    .lab-ocean .oc-next {
+      left: calc(var(--pan-d) + 4vw);
+      width: 92vw;
+    }
+  }
+</style>

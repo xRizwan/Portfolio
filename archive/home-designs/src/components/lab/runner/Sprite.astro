@@ -1,0 +1,37 @@
+---
+// One piece of level artwork, placed in level units. `x` is the sprite's centre and `y` the
+// height of its bottom edge above the bottom of the stage.
+import { art, sprites, type SpriteName } from './art';
+
+interface Props {
+  name: SpriteName;
+  x: number;
+  y: number;
+  /** Drawn width in level units; the height follows the artwork unless `h` squashes it. */
+  w: number;
+  h?: number;
+  class?: string;
+  flip?: boolean;
+  /** Hero position from which the engine marks this piece as "on" (and where that ends). */
+  from?: number;
+  to?: number;
+}
+
+const { name, x, y, w, h, class: className, flip = false, from, to } = Astro.props;
+const [width, height] = sprites[name];
+const drawnHeight = h ?? Math.round((w * height) / width);
+---
+
+<img
+  class:list={['rn-sprite', className, { 'rn-sprite--flip': flip }]}
+  src={art(name)}
+  width={width}
+  height={height}
+  alt=""
+  loading="lazy"
+  decoding="async"
+  draggable="false"
+  data-from={from}
+  data-to={to}
+  style={`left:${Math.round(x - w / 2)}px;bottom:${Math.round(y)}px;width:${w}px;height:${drawnHeight}px`}
+/>

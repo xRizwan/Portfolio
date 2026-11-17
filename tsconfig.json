@@ -1,7 +1,7 @@
 {
   "extends": "astro/tsconfigs/strict",
   "include": [".astro/types.d.ts", "src/**/*", "scripts/**/*", "*.mjs", "*.ts"],
-  "exclude": ["dist", "prototypes", "node_modules"],
+  "exclude": ["dist", "prototypes", "archive", "node_modules"],
   "compilerOptions": {
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,

@@ -1,36 +1,519 @@
 ---
-import nameFont from '@fontsource/bricolage-grotesque/files/bricolage-grotesque-latin-800-normal.woff2?url';
-import CatScene from '../components/home/CatScene.astro';
-import CertificateShowcase from '../components/home/CertificateShowcase.astro';
-import Hero from '../components/home/Hero.astro';
-import SkillNotes from '../components/home/SkillNotes.astro';
-import WorkList from '../components/home/WorkList.astro';
+// Home page: the whole site is a paper pop-up book lying open on a desk. On a wide screen the
+// book is one pinned 3D stage (book.ts): each section is a spread whose pieces stand up on their
+// fold lines, fold flat again, and the page turns to the next one. On small screens, with reduced
+// motion, or without scripts, the same markup is a plain stack of open pages with everything
+// visible. Experience and the blog are their own pages and keep the site's usual look.
+import PopAbout from '../components/book/PopAbout.astro';
+import PopBack from '../components/book/PopBack.astro';
+import PopCertificates from '../components/book/PopCertificates.astro';
+import PopDialogs from '../components/book/PopDialogs.astro';
+import PopContact from '../components/book/PopContact.astro';
+import PopExperience from '../components/book/PopExperience.astro';
+import PopHeader from '../components/book/PopHeader.astro';
+import PopLife from '../components/book/PopLife.astro';
+import PopOpening from '../components/book/PopOpening.astro';
+import PopSkills from '../components/book/PopSkills.astro';
+import PopWork from '../components/book/PopWork.astro';
 import { site } from '../data/site';
-import BaseLayout from '../layouts/BaseLayout.astro';
+import HomeLayout from '../layouts/HomeLayout.astro';
 import { profilePage } from '../lib/structured-data';
 
 const origin = Astro.site ?? new URL('http://localhost:4321');
-// These body classes switch on the home page's hero, notes, and yarn styles in global.css.
-const bodyClass =
-  'current exploration rizzy variation variation-studio variation-cute variation-frame variation-side variation-fit variation-arrive variation-yarn yarn-center';
 ---
 
-<BaseLayout
-  bodyClass={bodyClass}
-  description={site.description}
-  type="profile"
-  jsonLd={[profilePage(origin, '/')]}
->
-  <!-- The big name uses this font; preloading it stops the name from first drawing in a wider
-       fallback font and then shrinking when the real one arrives. -->
-  <link slot="head" rel="preload" as="font" type="font/woff2" href={nameFont} crossorigin />
+<HomeLayout description={site.description} type="profile" jsonLd={[profilePage(origin, '/')]}>
+  <!-- Pick the presentation before first paint so the flat fallback does not flash:
+       pb-m-book = the pinned 3D book, pb-m-fx = flat pages whose pieces stand up as they
+       scroll in. With neither class the page is static. main.ts keeps these in sync later. -->
+  <script is:inline slot="head">
+    (function () {
+      var root = document.documentElement;
+      root.classList.add('pb-js');
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var roomy = innerWidth >= 1180 && innerHeight >= 620;
+      var deep = window.CSS && CSS.supports('transform-style', 'preserve-3d');
+      root.classList.add(roomy && deep ? 'pb-m-book' : 'pb-m-fx');
+    })();
+  </script>
+  <PopLife />
+  <PopHeader />
   <main id="main">
-    <Hero />
-    <CatScene scene="chase" />
-    <SkillNotes />
-    <CatScene scene="nap" />
-    <WorkList />
-    <CatScene scene="tangle" />
-    <CertificateShowcase />
+    <div class="pb-track" data-pb-track>
+      <div class="pb-stage" data-pb-stage>
+        <div class="pb-cam" data-pb-cam>
+          <div class="pb-vol" data-pb-vol>
+            <div class="pb-board pb-board--l" data-pb-board="l" aria-hidden="true"></div>
+            <div class="pb-board pb-board--r" data-pb-board="r" aria-hidden="true"></div>
+            <PopOpening />
+            <PopAbout />
+            <PopSkills />
+            <PopWork />
+            <PopExperience />
+            <PopCertificates />
+            <PopContact />
+            <PopBack />
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
-</BaseLayout>
+  <PopDialogs />
+</HomeLayout>
+
+<script>
+  import '../components/book/main.ts';
+</script>
+
+<style is:global>
+  .home-book {
+    --pb-desk: #5f7f86;
+    --pb-desk-deep: #4f6d74;
+    --pb-card: #faf5ea;
+    --pb-card-2: #f1e9d6;
+    --pb-red: #e04b3a;
+    --pb-blue: #4a9fd8;
+    --pb-sun: #f4c13d;
+    --pb-green: #5aa469;
+    --pb-ink: #1c2540;
+    --pb-pencil: rgb(28 37 64 / 34%);
+    --pb-display: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif;
+    --pb-body: Newsreader, Georgia, 'Times New Roman', serif;
+    --pb-hand: Caveat, 'Comic Sans MS', cursive;
+    --pb-mono: 'Space Mono', ui-monospace, monospace;
+    /* Paper tooth: SVG noise drawn once as a tile and laid over flat colour. */
+    --pb-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.11 0 0 0 0 0.14 0 0 0 0 0.25 0 0 0 -0.5 0.27'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23g)'/%3E%3C/svg%3E");
+    /* Real brush texture (grey wash on watercolour paper), multiplied over CSS-coloured paper. */
+    --pb-wash: url('/book/wash.webp');
+    /* One design pixel. Scenes redefine it so their pieces scale with the page width. */
+    --u: 1px;
+    background-color: var(--pb-desk);
+    background-image: var(--pb-grain), radial-gradient(120% 90% at 50% 0%, #6c8d94, #557379);
+    background-attachment: fixed;
+    color: var(--pb-ink);
+    font-family: var(--pb-body);
+    font-size: 18px;
+    line-height: 1.5;
+  }
+  html:has(.home-book) {
+    scroll-padding-top: 84px;
+    background: #5f7f86;
+  }
+  .home-book :where(h1, h2, h3, p, ul, ol, figure, dl, dd) {
+    margin: 0;
+    padding: 0;
+  }
+  .home-book :where(ul, ol) {
+    list-style: none;
+  }
+  .home-book :where(a) {
+    color: inherit;
+  }
+  .home-book :where(button) {
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+  }
+  .home-book :where(img) {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+  .home-book :where(a, button, summary, [tabindex]):focus-visible {
+    outline: 3px solid var(--pb-ink);
+    outline-offset: 3px;
+    border-radius: 4px;
+    box-shadow: 0 0 0 6px var(--pb-sun);
+  }
+
+  /* ---------- Flat layout (default): a stack of open pages on the desk ---------- */
+  .home-book .pb-vol {
+    display: grid;
+    gap: clamp(28px, 5vw, 56px);
+    width: min(1120px, 100% - 28px);
+    margin: 0 auto;
+    padding: 96px 0 110px;
+  }
+  .home-book .pb-board {
+    display: none;
+  }
+  .home-book .pb-opening,
+  .home-book .pb-opening__pin {
+    display: grid;
+    gap: clamp(28px, 5vw, 56px);
+  }
+  .home-book .pb-spread {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 26px;
+    padding: clamp(22px, 4.4vw, 52px);
+    border-radius: 5px 7px 6px 8px;
+    background-color: var(--pb-card);
+    background-image: var(--pb-grain);
+    box-shadow:
+      0 1px 0 #fff inset,
+      0 3px 0 #e6dcc6,
+      0 6px 0 #f3ecdb,
+      0 9px 0 #ddd2ba,
+      0 26px 40px -18px rgb(20 30 40 / 55%);
+  }
+  .home-book .pb-page {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    min-width: 0;
+  }
+  .home-book .pb-page:empty {
+    display: none;
+  }
+  .home-book .pb-pop {
+    position: relative;
+    min-width: 0;
+  }
+  /* Loose scenery only exists where there is a scene box or a book to stand it in. */
+  .home-book .pb-pop--art {
+    display: none;
+    pointer-events: none;
+  }
+  .home-book .pb-pop--art img {
+    width: 100%;
+    height: 100%;
+    user-select: none;
+  }
+  .home-book .pb-shadow {
+    display: none;
+  }
+  @media (min-width: 900px) {
+    .home-book .pb-spread {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 30px 72px;
+    }
+    /* The gutter: a soft valley down the middle of every open spread. */
+    .home-book .pb-spread::before {
+      content: '';
+      position: absolute;
+      inset: 0 calc(50% - 26px);
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgb(28 37 64 / 9%) 46%,
+        rgb(28 37 64 / 16%) 50%,
+        rgb(28 37 64 / 9%) 54%,
+        transparent
+      );
+      pointer-events: none;
+    }
+    .home-book .pb-across {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* A scene: a box in which scenery pieces are placed in design pixels (see --u). */
+  .home-book .pb-scene {
+    container-type: inline-size;
+    overflow: hidden;
+  }
+  .home-book .pb-scene__in {
+    --u: calc(100cqw / var(--sw, 1200));
+    position: relative;
+    height: calc(var(--sh, 520) * var(--u));
+    margin-left: calc(var(--sx, 0) * var(--u) * -1);
+    width: calc(1200 * var(--u));
+  }
+  .home-book .pb-scene .pb-pop--art {
+    display: block;
+    position: absolute;
+    left: calc(var(--x) * var(--u));
+    top: calc((var(--y) - var(--h) - var(--sy, 0)) * var(--u));
+    width: calc(var(--w) * var(--u));
+    height: calc(var(--h) * var(--u));
+  }
+
+  /* Pieces of text are cards of the same paper, with a scored fold along the foot. */
+  .home-book .pb-card {
+    padding: 22px 24px 24px;
+    border-radius: 4px 6px 5px 7px;
+    background-color: #fffdf6;
+    background-image: var(--pb-grain);
+    box-shadow:
+      0 0 0 1px rgb(28 37 64 / 10%),
+      0 2px 0 rgb(28 37 64 / 10%);
+  }
+  .home-book .pb-kicker {
+    font: 700 26px/1 var(--pb-hand);
+    color: var(--pb-red);
+  }
+  .home-book .pb-h2 {
+    font: 800 clamp(30px, 4.6vw, 44px) / 1.02 var(--pb-display);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  .home-book .pb-note {
+    font: 500 22px/1.15 var(--pb-hand);
+    color: rgb(28 37 64 / 78%);
+  }
+  .home-book .pb-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px 10px;
+    border: 2px solid var(--pb-ink);
+    border-radius: 6px 9px 7px 10px;
+    background: var(--pb-sun);
+    color: var(--pb-ink);
+    font: 800 15px/1.1 var(--pb-display);
+    text-decoration: none;
+    box-shadow: 3px 3px 0 var(--pb-ink);
+    transition:
+      transform 0.18s,
+      box-shadow 0.18s;
+  }
+  .home-book .pb-btn:hover {
+    transform: translate(-1px, -2px) rotate(-1deg);
+    box-shadow: 5px 6px 0 var(--pb-ink);
+  }
+  .home-book .pb-btn--plain {
+    background: #fffdf6;
+  }
+  /* Brushy coloured paper: flat colour with the scanned wash multiplied over it. */
+  .home-book .pb-paint {
+    background-color: var(--paint, var(--pb-blue));
+    background-image: var(--pb-wash);
+    background-size: 420px auto;
+    background-blend-mode: multiply;
+  }
+
+  /* ---------- Pieces that stand up as they scroll in (small screens with motion) ---------- */
+  html.pb-m-fx .home-book .pb-pop {
+    transform-origin: 50% 100%;
+    transform: perspective(900px) rotateX(calc((1 - var(--o, 1)) * 72deg));
+    opacity: calc(var(--o, 1) * 3);
+  }
+  html.pb-measure .home-book .pb-pop {
+    transform: none !important;
+  }
+
+  /* ---------- The 3D book (wide screens with motion) ---------- */
+  html.pb-m-book .home-book {
+    .pb-track {
+      position: relative;
+      height: var(--pb-track, 1900vh);
+    }
+    .pb-stage {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: clip;
+      perspective: 2400px;
+      perspective-origin: 50% 58%;
+    }
+    .pb-cam {
+      position: absolute;
+      left: 50%;
+      top: 58%;
+      width: 0;
+      height: 0;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+    .pb-vol {
+      position: absolute;
+      left: -600px;
+      top: -320px;
+      display: block;
+      width: 1200px;
+      height: 640px;
+      margin: 0;
+      padding: 0;
+      transform-style: preserve-3d;
+      font-size: 15.5px;
+      line-height: 1.42;
+    }
+    /* Cover boards under the page block: red cloth outside, marbled endpaper turn-ins inside. */
+    .pb-board {
+      display: block;
+      position: absolute;
+      top: -16px;
+      width: 618px;
+      height: 672px;
+      border-radius: 5px;
+      background:
+        linear-gradient(rgb(250 245 234 / 0%), rgb(250 245 234 / 0%)) padding-box,
+        url('/book/endpaper.webp') center / 640px auto;
+      box-shadow:
+        0 0 0 5px var(--pb-red),
+        0 0 0 6px rgb(28 37 64 / 35%),
+        0 14px 0 -2px #b93a2c,
+        0 40px 50px -10px rgb(15 25 35 / 60%);
+      transform: translateZ(-4px);
+    }
+    .pb-board--l {
+      left: -18px;
+      transform-origin: 100% 50%;
+    }
+    .pb-board--r {
+      left: 600px;
+      transform-origin: 0 50%;
+    }
+    .pb-opening,
+    .pb-opening__pin,
+    .pb-spread,
+    .pb-scene,
+    .pb-scene__in {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: auto;
+      height: auto;
+      margin: 0;
+      padding: 0;
+      overflow: visible;
+      container-type: normal;
+      border-radius: 0;
+      background: none;
+      box-shadow: none;
+      transform-style: preserve-3d;
+      --u: 1px;
+    }
+    .pb-spread::before {
+      content: none;
+    }
+    /* Spreads that are not open are kept in the tab order (focus scrolls to them, see
+       book.ts) but not painted. Opacity flattens them, which no longer matters. */
+    .pb-spread:not(.is-on) {
+      opacity: 0;
+      pointer-events: none;
+      transform-style: flat;
+    }
+    .pb-page {
+      position: absolute;
+      top: 0;
+      display: block;
+      width: 600px;
+      height: 640px;
+      background-color: var(--pb-card);
+      background-image:
+        linear-gradient(var(--page-fold), var(--page-fold)),
+        linear-gradient(90deg, var(--page-gutter)), var(--pb-grain);
+      transform-style: preserve-3d;
+      --page-fold: transparent;
+    }
+    .pb-page:empty {
+      display: block;
+    }
+    .pb-page--l {
+      left: 0;
+      transform-origin: 100% 50%;
+      border-radius: 5px 0 0 5px;
+      --page-gutter: transparent 82%, rgb(28 37 64 / 7%) 94%, rgb(28 37 64 / 20%);
+      box-shadow:
+        -2px 2px 0 #e9dfca,
+        -4px 4px 0 #fbf6ea,
+        -6px 6px 0 #e3d8c0,
+        -8px 8px 0 #f6efdf;
+    }
+    .pb-page--r {
+      left: 600px;
+      transform-origin: 0 50%;
+      border-radius: 0 5px 5px 0;
+      --page-gutter: rgb(28 37 64 / 20%), rgb(28 37 64 / 7%) 6%, transparent 18%;
+      box-shadow:
+        2px 2px 0 #e9dfca,
+        4px 4px 0 #fbf6ea,
+        6px 6px 0 #e3d8c0,
+        8px 8px 0 #f6efdf;
+    }
+    /* Light on a turning page: a tint laid just above anything folded flat on it. */
+    .pb-page::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: var(--pb-ink);
+      opacity: var(--shade, 0);
+      transform: translateZ(9px);
+      pointer-events: none;
+    }
+    .pb-pop,
+    .pb-scene .pb-pop--art {
+      display: block;
+      position: absolute;
+      left: calc(var(--x) * 1px);
+      top: calc((var(--y) - var(--h)) * 1px);
+      width: calc(var(--w) * 1px);
+      height: calc(var(--h) * 1px);
+      margin: 0;
+      transform-origin: 50% 100%;
+      /* --o: how far the piece has stood up (0 flat on the page, 1 standing); --a: its standing
+         angle from the page (50 faces the viewer exactly, so text pieces use that); --tw: the
+         tremble; --px: pointer, for a slight lean. */
+      transform: translateZ(calc(var(--z, 1) * 1px))
+        rotateX(calc((var(--o, 0) * var(--a, 50) + var(--tw, 0)) * -1deg))
+        skewX(calc(var(--px, 0) * var(--lean, 0) * var(--o, 0) * 1deg));
+      will-change: transform;
+    }
+    [data-at] {
+      --o: 0;
+    }
+    /* Pieces that straddle the gutter cannot lie on a turning page, so they slip away just as
+       they fold flat. */
+    .pb-pop.pb-across > *,
+    .pb-pop.pb-across:empty {
+      opacity: calc(var(--o, 0) * 9);
+    }
+    .pb-across {
+      pointer-events: none;
+    }
+    .pb-spread.is-up .pb-across {
+      pointer-events: auto;
+    }
+    .pb-pop--art {
+      pointer-events: none;
+    }
+    /* Cast shadow on the page in front of a standing piece (light from back left). */
+    .pb-shadow {
+      display: block;
+      position: absolute;
+      left: calc(var(--x) * 1px);
+      top: calc(var(--y) * 1px);
+      width: calc(var(--w) * 1px);
+      height: calc(var(--h) * 1px);
+      transform-origin: 0 0;
+      transform: translateZ(0.5px) skewX(24deg) scaleY(calc(var(--o, 0) * var(--len, 0.34)));
+      opacity: calc(var(--o, 0) * 0.26);
+      pointer-events: none;
+    }
+    .pb-shadow > i {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: var(--pb-ink);
+      transform: scaleY(-1);
+      mask: var(--mask, none) center / 100% 100% no-repeat;
+      border-radius: 4px;
+    }
+    /* Cards cast a shorter, plainer shadow than the cut-out scenery. */
+    .pb-shadow--card {
+      --len: 0.16;
+    }
+    .pb-shadow.pb-flip > i {
+      transform: scale(-1, -1);
+    }
+    .pb-card {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 18px 22px 20px;
+      box-shadow:
+        0 0 0 1px rgb(28 37 64 / 12%),
+        0 -3px 0 #e9dfca inset;
+    }
+    .pb-h2 {
+      font-size: 38px;
+    }
+    .pb-note {
+      font-size: 21px;
+    }
+  }
+</style>

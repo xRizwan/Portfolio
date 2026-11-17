@@ -1,0 +1,513 @@
+---
+// The opening: a home-built rocket on its pad at dusk, with the portrait at the porthole.
+// With motion on, the section is tall and its stage is pinned; launch.ts turns the scroll into
+// the launch (lamps, shaking, ignition, smoke, the ground dropping away, the sky going dark,
+// boosters falling off, and the rocket turning into the lane to carry on down the page).
+// With motion off or no scripts it is one still screen: the rocket on the pad and the greeting.
+import { Image } from 'astro:assets';
+import portrait from '../../../assets/portrait.png';
+import { site } from '../../../data/site';
+import { art } from './art';
+
+const statuses = ['On the pad', 'Engines lit', 'Lift-off', 'Boosters away', 'Coasting'];
+const lamps = [0, 1, 2, 3, 4];
+
+// Where each puff of launch smoke ends up, in units of the scene height, and how big it gets.
+// Together they cover the lower three quarters of the frame.
+const puffs = [
+  { x: -0.2, y: -0.02, size: 1.3, turn: -20, wait: 0 },
+  { x: 0.2, y: -0.02, size: 1.3, turn: 24, wait: 0.01 },
+  { x: -0.44, y: 0.01, size: 1.8, turn: 30, wait: 0.03 },
+  { x: 0.46, y: 0.01, size: 1.8, turn: -26, wait: 0.035 },
+  { x: -0.12, y: -0.24, size: 2.1, turn: 14, wait: 0.05 },
+  { x: 0.16, y: -0.21, size: 2, turn: -18, wait: 0.055 },
+  { x: -0.74, y: -0.1, size: 2.3, turn: -34, wait: 0.07 },
+  { x: 0.76, y: -0.12, size: 2.4, turn: 32, wait: 0.075 },
+  { x: 0, y: -0.06, size: 2.7, turn: 8, wait: 0.085 },
+];
+const clouds = [
+  { left: '4%', width: '30%' },
+  { left: '62%', width: '36%' },
+  { left: '30%', width: '24%' },
+];
+---
+
+<section class="sp-launch" data-sp-launch aria-labelledby="sp-hello">
+  <div class="sp-l-stage" data-l-stage>
+    <div class="sp-l-dusk" data-l-dusk></div>
+    <div class="sp-l-box" data-l-ground>
+      <img class="sp-l-pad" {...art('pad')} alt="" fetchpriority="high" />
+    </div>
+    <div class="sp-l-clouds" aria-hidden="true">
+      {clouds.map((cloud) => (
+        <img
+          {...art('smoke')}
+          alt=""
+          data-l-cloud
+          style={{ left: cloud.left, width: cloud.width }}
+        />
+      ))}
+    </div>
+
+    <img class="sp-l-arrival" {...art('ring')} alt="" data-l-planet />
+
+    <div class="sp-l-rocket" data-l-rocket>
+      <div class="sp-l-shake" data-l-shake>
+        <img
+          class="sp-l-booster sp-l-booster--left"
+          {...art('booster')}
+          alt=""
+          data-l-booster="-1"
+        />
+        <img
+          class="sp-l-booster sp-l-booster--right"
+          {...art('booster')}
+          alt=""
+          data-l-booster="1"
+        />
+        <img class="sp-l-flame" {...art('flame')} alt="" data-l-flame />
+        <img class="sp-l-hull" {...art('rocket')} alt="" />
+        <span class="sp-l-porthole">
+          <Image
+            src={portrait}
+            width={420}
+            alt={`Portrait of ${site.name}, looking out of the rocket's porthole`}
+            loading="eager"
+          />
+        </span>
+      </div>
+    </div>
+
+    <div class="sp-l-box sp-l-smoke" data-l-smoke aria-hidden="true">
+      <img class="sp-l-steam" {...art('smoke')} alt="" />
+      <img class="sp-l-steam sp-l-steam--right" {...art('smoke')} alt="" />
+      {puffs.map((puff) => (
+        <img
+          class="sp-l-puff"
+          {...art('smoke')}
+          alt=""
+          data-l-puff
+          data-x={puff.x}
+          data-y={puff.y}
+          data-size={puff.size}
+          data-turn={puff.turn}
+          data-wait={puff.wait}
+        />
+      ))}
+    </div>
+
+    <div class="sp-l-copy" data-l-copy>
+      <h1 id="sp-hello">
+        <span class="sp-l-hi">Hi, I'm</span>
+        <span class="sp-l-name">{site.shortName}</span>
+      </h1>
+      <p class="sp-l-role">{site.intro.role}</p>
+      <p class="sp-l-summary">{site.intro.summary}</p>
+      <p class="sp-l-cue" aria-hidden="true">
+        Scroll to launch
+        <svg viewBox="0 0 16 22" width="12" height="16" aria-hidden="true">
+          <path
+            d="M8 1v19m0 0-6-6m6 6 6-6"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.4"
+          ></path>
+        </svg>
+      </p>
+    </div>
+
+    <div class="sp-l-board" data-l-board aria-hidden="true">
+      <div class="sp-l-lamps">
+        {lamps.map(() => (
+          <span data-l-lamp />
+        ))}
+      </div>
+      <div class="sp-l-status" data-l-status>
+        {statuses.map((status, index) => (
+          <span class:list={{ 'is-on': index === 0 }}>{status}</span>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  /* Scene geometry. The painted pad is one 16:9 picture; `--bw`/`--bh` are its size on screen
+     and `--px` is where its launch platform should sit across the viewport. The rocket and the
+     smoke are placed from the same numbers, so they stay on the platform at any screen shape.
+     0.481 and 0.098 are the platform's position inside the painting. */
+  .lab-space .sp-launch {
+    position: relative;
+    z-index: 1;
+    --bw: max(120vw, calc(var(--sp-vh) * 177.68));
+    --bh: calc(var(--bw) / 1.7768);
+    --px: 38vw;
+  }
+  .sp-motion .lab-space .sp-launch {
+    height: calc(var(--sp-vh) * 500);
+  }
+  .lab-space .sp-l-stage {
+    position: relative;
+    height: calc(var(--sp-vh) * 100);
+    min-height: 540px;
+    overflow: hidden;
+  }
+  .sp-motion .lab-space .sp-l-stage {
+    position: sticky;
+    top: 0;
+  }
+  /* The last of the daylight: the indigo at the top of the painting, carried up to the top of
+     the screen. It fades out on the way up and leaves the stars. */
+  .lab-space .sp-l-dusk {
+    position: absolute;
+    inset: 0;
+    background: var(--sp-dusk);
+  }
+  .lab-space .sp-l-dusk::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--sp-grain);
+    opacity: 0.4;
+    mix-blend-mode: soft-light;
+  }
+  .lab-space .sp-l-box {
+    position: absolute;
+    left: calc(var(--px) - var(--bw) * 0.481);
+    bottom: 0;
+    width: var(--bw);
+    height: var(--bh);
+    will-change: transform;
+  }
+  .lab-space .sp-l-pad {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    /* Soften the top edge of the sheet into the dusk colour behind it. */
+    mask-image: linear-gradient(to bottom, transparent 0, #000 7%);
+  }
+  .lab-space .sp-l-clouds img {
+    position: absolute;
+    top: 0;
+    max-width: none;
+    opacity: 0;
+    will-change: transform;
+  }
+
+  /* The first planet, which only exists in the animated version. */
+  .lab-space .sp-l-arrival {
+    position: absolute;
+    right: calc(var(--sp-lane) + 4vw);
+    top: 16%;
+    width: clamp(150px, 22vw, 340px);
+    opacity: 0;
+    will-change: transform;
+  }
+  html:not(.sp-motion) .lab-space .sp-l-arrival {
+    display: none;
+  }
+  .lab-space .sp-l-rocket {
+    position: absolute;
+    left: var(--px);
+    bottom: calc(var(--bh) * 0.098);
+    height: calc(var(--bh) * 0.46);
+    aspect-ratio: 448 / 700;
+    /* `translate` (not `transform`) centres it, so the script's transform adds to this. */
+    translate: -50% 0;
+    will-change: transform;
+  }
+  .lab-space .sp-l-shake {
+    position: absolute;
+    inset: 0;
+  }
+  .lab-space .sp-l-hull {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  .lab-space .sp-l-booster {
+    position: absolute;
+    bottom: 3%;
+    width: auto;
+    height: 70%;
+    max-width: none;
+  }
+  .lab-space .sp-l-booster--left {
+    left: -5%;
+  }
+  .lab-space .sp-l-booster--right {
+    right: -5%;
+  }
+  .lab-space .sp-l-flame {
+    position: absolute;
+    top: 91%;
+    left: 50%;
+    width: 46%;
+    max-width: none;
+    translate: -50% 0;
+    transform-origin: 50% 0;
+    /* Unlit until the script lights it. */
+    opacity: 0;
+  }
+  /* The portrait sits exactly over the painted glass of the porthole (centre 50% / 38.1% of the
+     rocket, 39% of its width). The offsets frame the face inside the tall photo. */
+  .lab-space .sp-l-porthole {
+    position: absolute;
+    left: 50%;
+    top: 38.1%;
+    width: 39.5%;
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    overflow: hidden;
+    border-radius: 50%;
+    background: var(--sp-mint);
+  }
+  .lab-space .sp-l-porthole img {
+    position: absolute;
+    left: -39.3%;
+    top: -107.3%;
+    width: 190%;
+    max-width: none;
+  }
+  /* A wash of the glass colour and a little grain, so the photo belongs to the painting. */
+  .lab-space .sp-l-porthole::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background:
+      var(--sp-grain), linear-gradient(160deg, rgb(118 199 176 / 34%), rgb(242 177 52 / 10%) 60%);
+    box-shadow: inset 0 0 0 3px rgb(27 24 64 / 55%);
+  }
+
+  .lab-space .sp-l-smoke {
+    pointer-events: none;
+  }
+  .lab-space .sp-l-puff,
+  .lab-space .sp-l-steam {
+    position: absolute;
+    left: 48.1%;
+    bottom: 9.8%;
+    width: calc(var(--bh) * 0.3);
+    max-width: none;
+    translate: -50% 50%;
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+  /* Steam venting on the pad before anything is lit. */
+  .sp-motion .lab-space .sp-l-steam {
+    width: calc(var(--bh) * 0.11);
+    animation: sp-steam 3.6s ease-out infinite;
+  }
+  .sp-motion .lab-space .sp-l-steam--right {
+    --steam-x: 1;
+    animation-delay: 1.7s;
+  }
+  .sp-motion .lab-space .sp-l-stage.is-lit .sp-l-steam {
+    display: none;
+  }
+  @keyframes sp-steam {
+    0% {
+      opacity: 0;
+      transform: translate(calc(var(--steam-x, -1) * var(--bh) * 0.05), 0) scale(0.3);
+    }
+    25% {
+      opacity: 0.85;
+    }
+    100% {
+      opacity: 0;
+      transform: translate(calc(var(--steam-x, -1) * var(--bh) * 0.17), calc(var(--bh) * -0.03))
+        scale(1.25);
+    }
+  }
+
+  .lab-space .sp-l-copy {
+    position: absolute;
+    left: 54vw;
+    right: calc(var(--sp-lane) + 1vw);
+    top: 19%;
+    color: var(--sp-ink);
+  }
+  .lab-space .sp-l-hi {
+    display: block;
+    font: 700 clamp(15px, 1.5vw, 21px) / 1.2 var(--sp-mono);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .lab-space .sp-l-name {
+    display: block;
+    margin: 6px 0 0 -0.05em;
+    color: var(--sp-cream);
+    font: 800 clamp(92px, 12.6vw, 214px) / 0.84 var(--sp-display);
+    letter-spacing: -0.055em;
+    /* The second colour of the print, a little out of register. */
+    text-shadow: 0.045em 0.04em 0 var(--sp-ink);
+  }
+  .lab-space .sp-l-role {
+    display: inline-block;
+    margin-top: 22px;
+    padding: 8px 14px;
+    background: var(--sp-ink);
+    color: var(--sp-mustard);
+    font: 700 clamp(12px, 1vw, 14px) / 1.3 var(--sp-mono);
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    rotate: -1.2deg;
+  }
+  .lab-space .sp-l-summary {
+    position: relative;
+    max-width: 30ch;
+    margin-top: 12px;
+    padding: 14px 18px 16px;
+    background: var(--sp-paper);
+    box-shadow: 5px 5px 0 var(--sp-ink);
+    font: 600 clamp(16px, 1.42vw, 20px) / 1.45 var(--sp-body);
+    rotate: 0.6deg;
+  }
+  .lab-space .sp-l-cue {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    margin-top: 26px;
+    font: 700 13px/1 var(--sp-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .sp-motion .lab-space .sp-l-cue {
+    display: inline-flex;
+    padding: 9px 13px;
+    background: var(--sp-tomato);
+    color: var(--sp-cream);
+    box-shadow: 4px 4px 0 var(--sp-ink);
+  }
+  .sp-motion .lab-space .sp-l-cue svg {
+    animation: sp-cue 1.3s ease-in-out infinite alternate;
+  }
+  @keyframes sp-cue {
+    from {
+      transform: translateY(-3px);
+    }
+    to {
+      transform: translateY(3px);
+    }
+  }
+
+  /* Launch board: five lamps that come on one by one as you start to scroll (the countdown), and
+     a one-line status. Decoration only; it does not exist without motion. */
+  .lab-space .sp-l-board {
+    position: absolute;
+    left: clamp(16px, 5vw, 64px);
+    bottom: 72px;
+    display: none;
+    gap: 9px;
+    padding: 11px 14px 12px;
+    border: 2px solid var(--sp-cream);
+    background: var(--sp-ink);
+    box-shadow: 4px 4px 0 var(--sp-tomato);
+    font: 700 12px/1 var(--sp-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .sp-motion .lab-space .sp-l-board {
+    display: grid;
+  }
+  .lab-space .sp-l-lamps {
+    display: flex;
+    gap: 7px;
+  }
+  .lab-space .sp-l-lamps span {
+    width: 13px;
+    height: 13px;
+    border: 2px solid var(--sp-cream);
+    border-radius: 50%;
+    background: transparent;
+    transition:
+      background-color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+  .lab-space .sp-l-lamps span.is-on {
+    background: var(--sp-mustard);
+    box-shadow: 0 0 0 3px rgb(242 177 52 / 28%);
+  }
+  .lab-space .sp-l-lamps span.is-on:last-child {
+    background: var(--sp-tomato);
+    box-shadow: 0 0 0 3px rgb(228 87 46 / 34%);
+  }
+  .lab-space .sp-l-status {
+    display: grid;
+    min-width: 15ch;
+  }
+  .lab-space .sp-l-status span {
+    grid-area: 1 / 1;
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+      opacity 0.25s ease,
+      transform 0.25s ease;
+  }
+  .lab-space .sp-l-status span.is-on {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Phones: the scene takes the lower two thirds, centred on the platform, and the greeting sits
+     in the dusk above it. */
+  @media (max-width: 760px) {
+    .lab-space .sp-launch {
+      --bw: max(106vw, calc(var(--sp-vh) * 64 * 1.7768));
+      --px: 50vw;
+    }
+    /* Lift the scene clear of the preview switcher; a strip of the painted ground colour
+       fills in underneath and falls away with it. */
+    .lab-space .sp-l-box {
+      bottom: 46px;
+    }
+    .lab-space .sp-l-box:not(.sp-l-smoke) {
+      box-shadow: 0 46px 0 #83b793;
+    }
+    .lab-space .sp-l-rocket {
+      bottom: calc(var(--bh) * 0.098 + 46px);
+    }
+    .lab-space .sp-l-copy {
+      left: 20px;
+      right: 20px;
+      top: 78px;
+      color: var(--sp-cream);
+    }
+    .lab-space .sp-l-name {
+      font-size: clamp(78px, 25vw, 120px);
+      text-shadow: 0.045em 0.04em 0 var(--sp-tomato);
+    }
+    .lab-space .sp-l-role {
+      margin-top: 14px;
+      background: var(--sp-mustard);
+      color: var(--sp-ink);
+    }
+    .lab-space .sp-l-summary {
+      padding: 10px 14px 12px;
+      color: var(--sp-ink);
+      box-shadow: 4px 4px 0 var(--sp-tomato);
+      font-size: 15px;
+    }
+    .lab-space .sp-l-cue {
+      margin-top: 16px;
+    }
+    /* Just the lamps on a phone, small enough to stay clear of the rocket. */
+    .lab-space .sp-l-board {
+      left: 12px;
+      bottom: 66px;
+      padding: 8px 9px;
+    }
+    .lab-space .sp-l-status {
+      display: none;
+    }
+    .lab-space .sp-l-lamps {
+      gap: 5px;
+    }
+    .lab-space .sp-l-lamps span {
+      width: 10px;
+      height: 10px;
+    }
+  }
+</style>

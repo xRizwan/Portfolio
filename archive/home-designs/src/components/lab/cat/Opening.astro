@@ -1,0 +1,475 @@
+---
+// Pinned opening: the living room in late afternoon. Scrolling wakes the ginger cat, walks it
+// along the bookcase, knocks the vase off, sends the kitten after a ball of yarn and brings the
+// evening on (see opening.ts). Without scripts or motion it is one still picture.
+import { Image } from 'astro:assets';
+import portrait from '../../../assets/portrait.png';
+import { site } from '../../../data/site';
+import Art from './Art.astro';
+---
+
+<section class="cat-open" data-cat-open data-cat-nofollow aria-label="Introduction">
+  <div class="cat-open-stage" data-cat-open-stage>
+    <img
+      class="cat-open-room"
+      src="/lab/cat/room.webp"
+      width="1600"
+      height="900"
+      alt=""
+      loading="eager"
+      decoding="async"
+    />
+
+    <div class="cat-open-window" aria-hidden="true">
+      <div class="cat-open-sky">
+        <img
+          src="/lab/cat/sky.webp"
+          width="800"
+          height="1200"
+          alt=""
+          loading="eager"
+          data-cat-open-sky
+        />
+      </div>
+      <Art name="window" eager />
+    </div>
+
+    <figure class="cat-open-portrait">
+      <span class="cat-open-string" aria-hidden="true"></span>
+      <Image
+        src={portrait}
+        alt={`Portrait of ${site.name}`}
+        width={420}
+        loading="eager"
+        fetchpriority="high"
+      />
+      <Art name="frame" eager />
+    </figure>
+
+    <Art name="lamp" class="cat-open-lamp" eager />
+
+    <div class="cat-open-case" data-cat-open-case aria-hidden="true">
+      <Art name="bookcase" eager />
+      <div class="cat-open-ginger" data-cat-open-ginger data-pose="sleep">
+        <Art name="ginger-sleep" data-pose="sleep" style="--w:365" eager />
+        <Art name="ginger-stretch" data-pose="stretch" style="--w:495" eager />
+        <Art name="ginger-walk-a" data-pose="walk-a" style="--w:440" eager />
+        <Art name="ginger-walk-b" data-pose="walk-b" style="--w:475" eager />
+        <Art name="ginger-bat" data-pose="bat" style="--w:465" eager />
+        <Art name="ginger-sit" data-pose="sit" style="--w:310" eager />
+      </div>
+      <Art name="vase" class="cat-open-vase" data-cat-open-vase eager />
+    </div>
+
+    <!-- Evening: an even dusk first, then (once the lamp is on) dusk with a pool of lamp light. -->
+    <div class="cat-open-dusk" data-cat-open-dusk aria-hidden="true"></div>
+    <div class="cat-open-night" data-cat-open-night aria-hidden="true"></div>
+    <div class="cat-open-glow" data-cat-open-glow aria-hidden="true"></div>
+
+    <div class="cat-open-text">
+      <h1>
+        <span class="cat-open-hi">Hi, I'm</span>
+        <span class="cat-open-name">{site.shortName}</span>
+      </h1>
+      <p class="cat-open-role">{site.intro.role}</p>
+      <p class="cat-open-summary">{site.intro.summary}</p>
+      <p class="cat-open-hint" data-cat-open-hint aria-hidden="true">
+        Scroll down. Somebody is about to wake up.
+      </p>
+    </div>
+
+    <svg class="cat-open-thread" data-cat-open-thread aria-hidden="true">
+      <path class="cat-thread-line" d=""></path>
+      <path class="cat-thread-ply" d=""></path>
+    </svg>
+    <div class="cat-open-kitten" data-cat-open-kitten data-pose="sit" aria-hidden="true">
+      <Art name="tux-run-a" data-pose="run-a" eager />
+      <Art name="tux-run-b" data-pose="run-b" eager />
+      <Art name="tux-sit" data-pose="sit" eager />
+      <Art name="tux-blink" data-pose="blink" eager />
+    </div>
+    <div class="cat-open-ball" data-cat-open-ball aria-hidden="true">
+      <img src="/lab/cat/yarn-ball.webp" width="240" height="240" alt="" loading="eager" />
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .lab-cat .cat-open {
+    position: relative;
+    height: 100vh;
+    height: 100svh;
+    min-height: 560px;
+  }
+  /* Scroll distance for the story; only when scripts and motion are on. */
+  .lab-cat.cat-js.cat-motion .cat-open {
+    height: 520vh;
+  }
+  .lab-cat .cat-open-stage {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100svh;
+    min-height: 560px;
+    overflow: hidden;
+    background: var(--cream);
+    /* Scene layout: everything stands on the floor line. */
+    --floor: 15%;
+    --case-w: 66vh;
+    --case-x: 65.5%;
+    --exit-x: 14%;
+  }
+  .lab-cat .cat-open-room {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: 50% 100%;
+  }
+
+  .lab-cat .cat-open-window {
+    position: absolute;
+    left: calc(var(--case-x) + var(--case-w) / 2);
+    top: 7%;
+    width: 50vh;
+    aspect-ratio: 1;
+    translate: -50% 0;
+  }
+  .lab-cat .cat-open-window > img {
+    position: relative;
+    display: block;
+    width: 100%;
+  }
+  /* The panes are transparent; the evening sky slides past behind them. */
+  .lab-cat .cat-open-sky {
+    position: absolute;
+    inset: 13% 27% 15.5% 27%;
+    overflow: hidden;
+    background: #cfe0dc;
+  }
+  .lab-cat .cat-open-sky img {
+    position: absolute;
+    left: -120%;
+    top: 0;
+    width: 250%;
+    max-width: none;
+    will-change: transform;
+  }
+
+  .lab-cat .cat-open-portrait {
+    position: absolute;
+    left: 47%;
+    top: 15%;
+    width: 27vh;
+    aspect-ratio: 327 / 405;
+    margin: 0;
+    rotate: 1.2deg;
+  }
+  .lab-cat .cat-open-portrait > img:first-of-type {
+    position: absolute;
+    inset: 8% 10%;
+    width: 80%;
+    height: 84%;
+    object-fit: cover;
+    object-position: 50% 42%;
+  }
+  .lab-cat .cat-open-portrait > img:last-of-type {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  /* Picture wire and nail */
+  .lab-cat .cat-open-string {
+    position: absolute;
+    left: 50%;
+    bottom: 99%;
+    width: 46%;
+    aspect-ratio: 2.4;
+    translate: -50% 0;
+    background:
+      linear-gradient(
+          to top right,
+          transparent calc(50% - 1px),
+          var(--plum) 50%,
+          transparent calc(50% + 1px)
+        )
+        left / 50% 100% no-repeat,
+      linear-gradient(
+          to top left,
+          transparent calc(50% - 1px),
+          var(--plum) 50%,
+          transparent calc(50% + 1px)
+        )
+        right / 50% 100% no-repeat;
+  }
+  .lab-cat .cat-open-string::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: -4px;
+    width: 9px;
+    height: 9px;
+    translate: -50% 0;
+    border-radius: 50%;
+    background: var(--plum);
+  }
+
+  .lab-cat .cat-open-lamp {
+    position: absolute;
+    left: 39.5%;
+    bottom: var(--floor);
+    width: auto;
+    height: 40vh;
+    max-width: none;
+  }
+
+  .lab-cat .cat-open-case {
+    position: absolute;
+    left: var(--case-x);
+    bottom: var(--floor);
+    width: var(--case-w);
+  }
+  .lab-cat .cat-open-case > img:first-child {
+    display: block;
+    width: 100%;
+  }
+  /* Ginger cat on top of the bookcase. All poses share one box, anchored at the feet. */
+  .lab-cat .cat-open-ginger {
+    position: absolute;
+    right: 5%;
+    bottom: 97.5%;
+    width: 30%;
+    aspect-ratio: 440 / 335;
+    scale: -1 1;
+    will-change: transform;
+  }
+  .lab-cat .cat-open-ginger img {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    /* --w is the pose's width on the original sheet, where the walking cat is 440 wide. */
+    width: calc(var(--w) / 440 * 100%);
+    max-width: none;
+    translate: -50% 0;
+    opacity: 0;
+  }
+  .lab-cat .cat-open-ginger[data-pose='sleep'] img[data-pose='sleep'],
+  .lab-cat .cat-open-ginger[data-pose='stretch'] img[data-pose='stretch'],
+  .lab-cat .cat-open-ginger[data-pose='walk-a'] img[data-pose='walk-a'],
+  .lab-cat .cat-open-ginger[data-pose='walk-b'] img[data-pose='walk-b'],
+  .lab-cat .cat-open-ginger[data-pose='bat'] img[data-pose='bat'],
+  .lab-cat .cat-open-ginger[data-pose='sit'] img[data-pose='sit'] {
+    opacity: 1;
+  }
+  .lab-cat.cat-motion .cat-open-ginger img[data-pose='sleep'] {
+    transform-origin: 50% 100%;
+    animation: cat-open-breathe 3.2s ease-in-out infinite;
+  }
+  @keyframes cat-open-breathe {
+    50% {
+      transform: scale(1.012, 1.045);
+    }
+  }
+  .lab-cat .cat-open-vase {
+    position: absolute;
+    left: 2.5%;
+    bottom: 97.5%;
+    width: 9.5%;
+    will-change: transform;
+  }
+
+  .lab-cat .cat-open-dusk,
+  .lab-cat .cat-open-night,
+  .lab-cat .cat-open-glow {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+  }
+  .lab-cat .cat-open-dusk {
+    background: linear-gradient(#b98a9a, #7a5a7c);
+    mix-blend-mode: multiply;
+  }
+  .lab-cat .cat-open-night {
+    --pool: 43% 47%;
+    background: radial-gradient(
+      ellipse 62% 78% at var(--pool),
+      rgb(74 50 80 / 0%) 0,
+      rgb(74 50 80 / 12%) 38%,
+      rgb(60 40 68 / 78%) 100%
+    );
+    mix-blend-mode: multiply;
+  }
+  .lab-cat .cat-open-glow {
+    --pool: 43% 47%;
+    background: radial-gradient(
+      ellipse 26% 34% at var(--pool),
+      rgb(255 208 128 / 55%),
+      rgb(255 208 128 / 0%) 100%
+    );
+    mix-blend-mode: soft-light;
+  }
+
+  .lab-cat .cat-open-text {
+    position: absolute;
+    left: max(var(--pad), 5.5%);
+    top: 19%;
+    width: 33%;
+  }
+  .lab-cat .cat-open-text h1 {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .lab-cat .cat-open-hi {
+    margin: 0 0 0.02em 0.1em;
+    font: 700 clamp(34px, 7.2vh, 64px) / 1 var(--hand);
+    color: var(--marm-ink);
+    rotate: -5deg;
+  }
+  .lab-cat .cat-open-name {
+    font: 600 min(24vh, 11.2vw) / 0.86 var(--serif);
+    letter-spacing: -0.045em;
+  }
+  .lab-cat .cat-open-role {
+    margin-top: 2.6vh;
+    font: 700 13px/1.3 var(--sans);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .lab-cat .cat-open-summary {
+    max-width: 30ch;
+    margin-top: 1.4vh;
+    font: 500 clamp(19px, 3vh, 24px) / 1.32 var(--serif);
+    text-wrap: pretty;
+  }
+  .lab-cat .cat-open-hint {
+    display: none;
+    margin-top: 2.4vh;
+    font: 500 24px/1.1 var(--hand);
+    color: var(--marm-ink);
+  }
+  .lab-cat.cat-js.cat-motion .cat-open-hint {
+    display: block;
+  }
+
+  /* Floor: kitten, yarn and the thread it leaves behind. */
+  .lab-cat .cat-open-thread {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .lab-cat .cat-open-thread path {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .lab-cat .cat-open-ball {
+    position: absolute;
+    /* Still picture: the ball lies where the thread will later leave the room. */
+    left: var(--exit-x);
+    bottom: 7.5%;
+    width: 7vh;
+    height: 7vh;
+    will-change: transform;
+  }
+  .lab-cat .cat-open-ball img {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .lab-cat .cat-open-kitten {
+    position: absolute;
+    left: calc(var(--exit-x) + 11%);
+    bottom: 7.5%;
+    width: 15vh;
+    aspect-ratio: 295 / 272;
+    transform: scaleX(-1);
+    will-change: transform;
+  }
+  .lab-cat .cat-open-kitten img {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: calc(var(--w) / 295 * 100%);
+    max-width: none;
+    translate: -50% 0;
+    opacity: 0;
+  }
+  .lab-cat .cat-open-kitten[data-pose='run-a'] img[data-pose='run-a'],
+  .lab-cat .cat-open-kitten[data-pose='run-b'] img[data-pose='run-b'],
+  .lab-cat .cat-open-kitten[data-pose='sit'] img[data-pose='sit'],
+  .lab-cat .cat-open-kitten[data-pose='blink'] img[data-pose='blink'] {
+    opacity: 1;
+  }
+
+  @media (max-width: 859px) {
+    .lab-cat .cat-open-stage {
+      --case-w: 74vw;
+      --case-x: 23%;
+      --exit-x: 20%;
+    }
+    .lab-cat .cat-open-text {
+      top: 86px;
+      width: auto;
+      right: var(--pad);
+    }
+    .lab-cat .cat-open-hi {
+      font-size: 38px;
+    }
+    .lab-cat .cat-open-name {
+      font-size: min(25vw, 17vh);
+    }
+    .lab-cat .cat-open-role {
+      margin-top: 14px;
+      font-size: 12px;
+    }
+    .lab-cat .cat-open-summary {
+      margin-top: 8px;
+      font-size: 18px;
+    }
+    .lab-cat .cat-open-hint {
+      margin-top: 10px;
+      font-size: 21px;
+    }
+    .lab-cat .cat-open-window {
+      left: 71%;
+      top: 41.5%;
+      width: min(54vw, 27vh);
+    }
+    .lab-cat .cat-open-portrait {
+      left: 7%;
+      top: 43.5%;
+      width: min(31vw, 16vh);
+    }
+    .lab-cat .cat-open-lamp {
+      left: 1%;
+      height: 23vh;
+    }
+    .lab-cat .cat-open-night,
+    .lab-cat .cat-open-glow {
+      --pool: 30% 42%;
+    }
+    .lab-cat .cat-open-night {
+      background: radial-gradient(
+        ellipse 100% 62% at var(--pool),
+        rgb(74 50 80 / 0%) 0,
+        rgb(74 50 80 / 14%) 50%,
+        rgb(60 40 68 / 78%) 100%
+      );
+    }
+    .lab-cat .cat-open-ball {
+      width: 5.2vh;
+      height: 5.2vh;
+    }
+    .lab-cat .cat-open-kitten {
+      left: calc(var(--exit-x) + 16%);
+      width: 11vh;
+    }
+  }
+</style>

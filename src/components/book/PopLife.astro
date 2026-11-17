@@ -1,0 +1,107 @@
+---
+// Things on the desk around the book that never quite keep still: a paper balloon bobbing on a
+// thin wire, two clouds drifting across, and loose paper scraps that lift when the page is
+// scrolled fast (life.ts). All of it sits behind the pages, so it never covers any text.
+import { art, artSrc } from './art';
+---
+
+<div class="pb-life" aria-hidden="true">
+  <canvas class="pb-life__scraps" data-pb-scraps></canvas>
+  <img
+    class="pb-life__cloud pb-life__cloud--a"
+    src={artSrc('cloud')}
+    width={art.cloud.w}
+    height={art.cloud.h}
+    alt=""
+    loading="lazy"
+    decoding="async"
+  />
+  <img
+    class="pb-life__cloud pb-life__cloud--b"
+    src={artSrc('cloud')}
+    width={art.cloud.w}
+    height={art.cloud.h}
+    alt=""
+    loading="lazy"
+    decoding="async"
+  />
+  <div class="pb-life__balloon" data-pb-balloon>
+    <i></i>
+    <img
+      src={artSrc('balloon')}
+      width={art.balloon.w}
+      height={art.balloon.h}
+      alt=""
+      loading="lazy"
+      decoding="async"
+    />
+  </div>
+</div>
+
+<style is:global>
+  .home-book .pb-life {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .home-book main {
+    position: relative;
+    z-index: 1;
+  }
+  .home-book .pb-life__scraps {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .home-book .pb-life__cloud {
+    position: absolute;
+    left: 0;
+    width: clamp(90px, 11vw, 170px);
+    filter: drop-shadow(0 10px 6px rgb(15 25 35 / 22%));
+  }
+  .home-book .pb-life__cloud--a {
+    top: 13vh;
+    translate: 6vw 0;
+  }
+  .home-book .pb-life__cloud--b {
+    top: 30vh;
+    width: clamp(70px, 8vw, 120px);
+    translate: 84vw 0;
+  }
+  @keyframes pb-drift {
+    from {
+      translate: -20vw 0;
+    }
+    to {
+      translate: 110vw 0;
+    }
+  }
+  html:is(.pb-m-book, .pb-m-fx) .home-book .pb-life__cloud--a {
+    animation: pb-drift 140s linear -30s infinite;
+  }
+  html:is(.pb-m-book, .pb-m-fx) .home-book .pb-life__cloud--b {
+    animation: pb-drift 190s linear -150s infinite;
+  }
+  .home-book .pb-life__balloon {
+    position: absolute;
+    right: clamp(6px, 4.2vw, 70px);
+    top: 0;
+    width: clamp(46px, 5.6vw, 84px);
+    padding-top: 19vh;
+    transform-origin: 50% 0;
+    transform: translate(var(--bx, 0px), var(--by, 0px)) rotate(var(--br, 0deg));
+    filter: drop-shadow(0 14px 8px rgb(15 25 35 / 25%));
+  }
+  /* The wire it hangs on. */
+  .home-book .pb-life__balloon i {
+    position: absolute;
+    left: 50%;
+    top: -40vh;
+    bottom: calc(100% - 19vh - 4px);
+    width: 1.5px;
+    background: rgb(28 37 64 / 55%);
+  }
+</style>

@@ -1,0 +1,19 @@
+---
+// One carriage: a stretch of panelled wall with windows cut through it, and whatever the section
+// hangs on that wall.
+interface Props {
+  id: string;
+}
+const { id } = Astro.props;
+---
+
+<section
+  class:list={['tr-car', `tr-car--${id}`]}
+  id={id}
+  data-tr-car={id}
+  aria-labelledby={`tr-${id}-title`}
+>
+  <div class="tr-car-wall" aria-hidden="true"></div>
+  <div class="tr-car-frames" aria-hidden="true"></div>
+  <slot />
+</section>

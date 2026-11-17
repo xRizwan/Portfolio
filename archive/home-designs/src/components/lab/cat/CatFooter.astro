@@ -1,0 +1,40 @@
+---
+import { site } from '../../../data/site';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="cat-foot">
+  <p class="cat-foot-hand">The cats have gone to bed. Thanks for stopping by.</p>
+  <p>
+    &copy; {year} {site.name}
+  </p>
+  <a href="#main">Back to the top</a>
+</footer>
+
+<style is:global>
+  .lab-cat .cat-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px 28px;
+    /* Room at the bottom for the preview switcher. */
+    padding: 30px var(--pad) 84px;
+    background: #1c1220;
+    color: #cdb3bf;
+    font: 500 14px/1.4 var(--sans);
+  }
+  .lab-cat .cat-foot-hand {
+    margin-right: auto;
+    font: 500 24px/1.1 var(--hand);
+    color: #f3c9a0;
+  }
+  .lab-cat .cat-foot a {
+    font-weight: 700;
+    text-underline-offset: 4px;
+  }
+  .lab-cat .cat-foot a:hover {
+    color: var(--cream);
+  }
+</style>

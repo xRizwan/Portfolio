@@ -1,0 +1,301 @@
+---
+// Contact and footer: the summit. The sky goes to the deep blue of high altitude, prayer
+// flags flutter across the top, the contact links are written into the summit register and
+// the page ends on the snow by the cairn, with the view back down the route.
+import { site } from '../../../data/site';
+
+const strip = (url: string) => url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+const links = [
+  { label: 'Email', value: site.email, href: `mailto:${site.email}` },
+  { label: 'GitHub', value: strip(site.github), href: site.github },
+  { label: 'LinkedIn', value: strip(site.linkedin), href: site.linkedin },
+  { label: 'Resume', value: 'Download the PDF', href: site.resume },
+];
+const backDown = [
+  { label: 'Trailhead', href: '#about' },
+  { label: 'Gear', href: '#skills' },
+  { label: 'Camps', href: '#experience' },
+  { label: 'Routes', href: '#work' },
+  { label: 'Register', href: '#certificates' },
+];
+// Prayer flags in the page's own colours, strung on a sagging line.
+const flagColours = ['#f7f9fb', '#8fa3b5', '#e2552f', '#7fa07a', '#f6d9b8'];
+const flags = Array.from({ length: 13 }, (_, index) => {
+  const x = 40 + index * 70;
+  // A gentle catenary sag across the string.
+  const t = (x - 500) / 500;
+  const y = 18 + 44 * (1 - t * t);
+  return { x, y, colour: flagColours[index % flagColours.length] ?? '#f7f9fb', index };
+});
+const year = new Date().getFullYear();
+---
+
+<section class="mt-summit" id="contact" aria-labelledby="mt-summit-title">
+  <div class="mt-summit-sky">
+    <svg class="mt-flags" viewBox="0 0 1000 130" preserveAspectRatio="none" aria-hidden="true">
+      <path class="mt-flags-line" d="M0 10Q500 120 1000 10"></path>
+      {flags.map((flag) => (
+        <g transform={`translate(${flag.x} ${flag.y})`}>
+          <path
+            class="mt-flag"
+            d="M-22 0H22V47l-5 3-6-4-5 5-6-3-5 4-6-3-5 3-6-2Z"
+            fill={flag.colour}
+            style={{ '--d': `${(flag.index % 5) * -0.37}s` }}
+          />
+        </g>
+      ))}
+    </svg>
+
+    <div class="mt-wrap mt-summit-inner">
+      <p class="mt-place">The summit</p>
+      <h2 class="mt-h2" id="mt-summit-title">
+        That's the top. <em>Say hello.</em>
+      </h2>
+      <p class="mt-summit-note">
+        Email works best, or find me on GitHub and LinkedIn. My resume has the whole route on one
+        page.
+      </p>
+
+      <ul class="mt-sign">
+        {links.map((link) => (
+          <li>
+            <a href={link.href}>
+              <span class="mt-sign-label">{link.label}</span>
+              <span class="mt-sign-value">{link.value}</span>
+              <svg viewBox="0 0 22 12" aria-hidden="true">
+                <path d="M1 6h19m-5-5 5 5-5 5" />
+              </svg>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+
+  <div class="mt-summit-peak">
+    <img
+      class="mt-summit-art"
+      src="/lab/mountain/summit.webp"
+      width="1500"
+      height="680"
+      alt="Watercolour sketch of a snowy summit with a stone cairn, a red flag and a line of prayer flags above rows of lower peaks"
+      loading="lazy"
+    />
+    <nav class="mt-backdown" aria-label="The view back down">
+      <p class="mt-pencil">The view back down</p>
+      <ul>
+        {backDown.map((stop) => (
+          <li>
+            <a href={stop.href}>{stop.label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</section>
+
+<footer class="mt-foot">
+  <p>
+    &copy; {year} {site.name}
+  </p>
+  <a href="#top">Back down to the valley</a>
+</footer>
+
+<style is:global>
+  /* The summit sits below the snow and the rope (see the layer list in mountain.astro), so
+     snow falls across the deep blue and the climber arrives at the top. */
+  .lab-mountain .mt-summit {
+    position: relative;
+    z-index: 2;
+  }
+  /* High-altitude sky: from the snow light of the register up into deep blue. */
+  .lab-mountain .mt-summit-sky {
+    position: relative;
+    padding: clamp(150px, 20vh, 210px) 0 clamp(90px, 12vh, 130px);
+    background: linear-gradient(
+      180deg,
+      rgb(29 53 87 / 0%) 0,
+      rgb(29 53 87 / 70%) 110px,
+      var(--mt-deep) 240px,
+      #172c49 100%
+    );
+    color: var(--mt-snow);
+  }
+  .lab-mountain .mt-summit .mt-place {
+    color: #d5dfe9;
+  }
+  .lab-mountain .mt-summit .mt-h2 em {
+    color: #ff8a63;
+  }
+  .lab-mountain .mt-flags {
+    position: absolute;
+    top: 150px;
+    left: 0;
+    width: 100%;
+    height: clamp(80px, 9vw, 130px);
+    overflow: visible;
+    opacity: 0.95;
+  }
+  .lab-mountain .mt-flags-line {
+    fill: none;
+    stroke: #d5dfe9;
+    stroke-width: 1.5;
+    vector-effect: non-scaling-stroke;
+  }
+  .lab-mountain .mt-flag {
+    transform-box: fill-box;
+    transform-origin: 50% 0;
+    animation: mt-prayer 2.4s ease-in-out infinite alternate;
+    animation-delay: var(--d);
+    opacity: 0.92;
+  }
+  @keyframes mt-prayer {
+    0% {
+      transform: skewX(-8deg) scaleY(0.96);
+    }
+    50% {
+      transform: skewX(6deg) scaleY(1);
+    }
+    100% {
+      transform: skewX(-3deg) scaleY(0.92) rotate(4deg);
+    }
+  }
+  .lab-mountain .mt-summit-inner {
+    padding-top: clamp(90px, 12vw, 150px);
+  }
+  .lab-mountain .mt-summit-note {
+    max-width: 30em;
+    margin-top: 18px;
+    color: #dbe4ee;
+    font: italic 400 clamp(19px, 1.6vw, 22px) / 1.5 var(--mt-serif);
+  }
+
+  /* Contact links, signed into the summit register. */
+  .lab-mountain .mt-sign {
+    display: grid;
+    margin-top: clamp(30px, 5vh, 50px);
+    border-top: 1px solid rgb(247 249 251 / 25%);
+  }
+  .lab-mountain .mt-sign a {
+    display: grid;
+    grid-template-columns: 120px 1fr auto;
+    align-items: baseline;
+    gap: 16px;
+    padding: 18px 4px;
+    border-bottom: 1px solid rgb(247 249 251 / 25%);
+    text-decoration: none;
+    transition:
+      background-color 0.3s ease,
+      padding 0.3s ease;
+  }
+  .lab-mountain .mt-sign a:hover {
+    padding-left: 14px;
+    background: rgb(247 249 251 / 6%);
+  }
+  .lab-mountain .mt-sign-label {
+    color: #b5c4d4;
+    font: 400 12px/1 var(--mt-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .lab-mountain .mt-sign-value {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font: 500 clamp(22px, 3vw, 40px) / 1.1 var(--mt-serif);
+  }
+  .lab-mountain .mt-sign svg {
+    width: 26px;
+    height: 14px;
+    fill: none;
+    stroke: var(--mt-red);
+    stroke-width: 2;
+    stroke-linecap: round;
+    transition: transform 0.3s ease;
+  }
+  .lab-mountain .mt-sign a:hover svg {
+    transform: translateX(6px);
+  }
+  .lab-mountain .mt-summit .mt-sign a:focus-visible,
+  .lab-mountain .mt-summit .mt-backdown a:focus-visible {
+    outline-color: #ff8a63;
+  }
+
+  /* The summit itself: the sky pales from deep blue back to snow light behind the cairn. */
+  .lab-mountain .mt-summit-peak {
+    position: relative;
+    padding: clamp(10px, 4vh, 40px) 0 0;
+    background: linear-gradient(
+      180deg,
+      #172c49 0%,
+      #3d5778 18%,
+      #9fb2c6 40%,
+      #e3eaf1 58%,
+      var(--mt-snow) 70%
+    );
+  }
+  .lab-mountain .mt-summit-art {
+    width: min(1500px, 100%);
+    margin-inline: auto;
+  }
+  .lab-mountain .mt-backdown {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px 18px;
+    width: var(--mt-col);
+    margin: -10px auto 0;
+    padding-bottom: 20px;
+  }
+  .lab-mountain .mt-backdown ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+  }
+  .lab-mountain .mt-backdown a {
+    display: block;
+    padding: 6px 10px;
+    border-radius: 999px;
+    color: var(--mt-ink);
+    font: 400 12px/1 var(--mt-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  .lab-mountain .mt-backdown a:hover {
+    background: rgb(31 42 54 / 8%);
+    color: var(--mt-red-ink);
+  }
+
+  .lab-mountain .mt-foot {
+    position: relative;
+    z-index: 5;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 10px 20px;
+    padding: 22px clamp(16px, 3vw, 36px) 88px;
+    background: var(--mt-snow);
+    border-top: 1px solid rgb(74 79 87 / 18%);
+    color: var(--mt-graphite);
+    font: 400 12px/1.4 var(--mt-mono);
+    letter-spacing: 0.06em;
+  }
+  .lab-mountain .mt-foot a {
+    color: var(--mt-ink);
+  }
+
+  @media (max-width: 700px) {
+    .lab-mountain .mt-sign a {
+      grid-template-columns: 1fr auto;
+      gap: 4px 12px;
+    }
+    .lab-mountain .mt-sign-label {
+      grid-column: 1 / -1;
+    }
+    .lab-mountain .mt-backdown {
+      margin-left: var(--mt-margin);
+    }
+  }
+</style>

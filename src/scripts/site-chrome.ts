@@ -1,20 +1,11 @@
 import { finePointer, motionAllowed, reducedMotion, selectAll } from './motion';
 
-// Motion toggle: the OS preference sets the initial state; the button overrides it.
-const motionControls = selectAll('[data-motion]', HTMLButtonElement);
+// Reduced motion follows the OS setting. The `motion-off` body class is what global.css uses to
+// stop CSS animations, so it mirrors that setting (there is no on-page motion button).
 function setMotion(paused: boolean): void {
   document.body.classList.toggle('motion-off', paused);
-  for (const control of motionControls) {
-    control.setAttribute('aria-pressed', String(paused));
-    control.textContent = paused ? 'Motion off' : 'Pause motion';
-  }
 }
 setMotion(reducedMotion.matches);
-for (const control of motionControls) {
-  control.addEventListener('click', () =>
-    setMotion(!document.body.classList.contains('motion-off')),
-  );
-}
 reducedMotion.addEventListener('change', (event) => setMotion(event.matches));
 
 // Theme toggle: light is the default; a saved choice is applied in the document head before paint.

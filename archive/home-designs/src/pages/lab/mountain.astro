@@ -1,0 +1,375 @@
+---
+// Trial home page "Summit": a mountain expedition kept as a field journal. The page is the
+// climb: it opens at dawn in the valley and ends on the summit, so the altitude rises as you
+// scroll down. Pencil-and-watercolour sketches for the small things, linocut for the range.
+import MtCamps from '../../components/lab/mountain/MtCamps.astro';
+import MtGear from '../../components/lab/mountain/MtGear.astro';
+import MtHeader from '../../components/lab/mountain/MtHeader.astro';
+import MtLife from '../../components/lab/mountain/MtLife.astro';
+import MtOpening from '../../components/lab/mountain/MtOpening.astro';
+import MtRegister from '../../components/lab/mountain/MtRegister.astro';
+import MtRoutes from '../../components/lab/mountain/MtRoutes.astro';
+import MtSummit from '../../components/lab/mountain/MtSummit.astro';
+import MtTrailhead from '../../components/lab/mountain/MtTrailhead.astro';
+import LabLayout from '../../layouts/LabLayout.astro';
+---
+
+<LabLayout slug="mountain" themeColor="#f6d9b8">
+  <!-- Marks the page as scripted before first paint, so the pinned opening does not jump. -->
+  <script is:inline slot="head">
+    document.documentElement.classList.add('mt-js');
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.documentElement.classList.add('mt-pin');
+    }
+  </script>
+  <MtHeader />
+  <main id="main">
+    <MtOpening />
+    <div class="mt-climb" data-mt-climb>
+      <!-- The sky behind the whole climb: valley morning at the top, summit light at the end. -->
+      <div class="mt-sky" aria-hidden="true"></div>
+      <div class="mt-rope" aria-hidden="true">
+        <span class="mt-rope-line"></span>
+        <span class="mt-rope-climber" data-mt-climber>
+          <img src="/lab/mountain/climber.webp" width="183" height="360" alt="" />
+        </span>
+      </div>
+      <MtLife />
+      <MtTrailhead />
+      <MtGear />
+      <MtCamps />
+      <MtRoutes />
+      <MtRegister />
+      <MtSummit />
+    </div>
+  </main>
+</LabLayout>
+
+<script>
+  import '../../components/lab/mountain/main.ts';
+</script>
+
+<style is:global>
+  /* Layers inside the climb, back to front: sky (0), mist (1), the summit band (2), snow and
+     eagle (3), rope and goat (4), section content (5), header (100). Creatures therefore pass
+     behind every card; on the summit band the snow and the climber show in front of the sky. */
+  .lab-mountain {
+    --mt-ink: #1f2a36;
+    --mt-graphite: #4a4f57;
+    --mt-peach: #f6d9b8;
+    --mt-green: #7fa07a;
+    --mt-pine: #2f4a3c;
+    --mt-mist: #8fa3b5;
+    --mt-snow: #f7f9fb;
+    --mt-deep: #1d3557;
+    --mt-red: #e2552f;
+    --mt-red-ink: #b8391a;
+    --mt-paper: #f5ecd7;
+    --mt-paper-edge: #e6d8b6;
+    --mt-tape: rgb(236 222 184 / 82%);
+    --mt-serif: Newsreader, Georgia, 'Times New Roman', serif;
+    --mt-hand: Caveat, 'Comic Sans MS', cursive;
+    --mt-mono: 'Space Mono', ui-monospace, Consolas, monospace;
+    --mt-vh: 1vh;
+    /* Paper grain from SVG turbulence: drawn once as a tile and laid over every journal page. */
+    --mt-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.38 0 0 0 0 0.25 0 0 0 0.16 0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+    /* Margin either side of the content column; the rope hangs in the left one. */
+    --mt-gutter: clamp(34px, 8vw, 120px);
+    --mt-col: min(1120px, 100vw - var(--mt-gutter) * 2);
+    --mt-margin: calc((100vw - var(--mt-col)) / 2);
+    background: var(--mt-peach);
+    color: var(--mt-ink);
+    font-family: var(--mt-serif);
+    font-size: 18px;
+    line-height: 1.6;
+  }
+  @supports (height: 1svh) {
+    .lab-mountain {
+      --mt-vh: 1svh;
+    }
+  }
+  @media (max-width: 700px) {
+    .lab-mountain {
+      /* Phones: a narrow strip on the left for the rope, the usual 16px on the right. */
+      --mt-col: calc(100vw - 50px);
+      --mt-margin: 34px;
+      font-size: 17px;
+    }
+  }
+  html:has(.lab-mountain) {
+    scroll-behavior: smooth;
+    scroll-padding-top: 76px;
+  }
+  .lab-mountain :where(h1, h2, h3, h4, p, ul, ol, figure, dl, dd, blockquote) {
+    margin: 0;
+    padding: 0;
+  }
+  .lab-mountain :where(ul, ol) {
+    list-style: none;
+  }
+  .lab-mountain :where(a) {
+    color: inherit;
+  }
+  .lab-mountain :where(img) {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+  .lab-mountain :where(button) {
+    font: inherit;
+    color: inherit;
+  }
+  .lab-mountain :focus-visible {
+    outline: 3px solid var(--mt-red);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  .lab-mountain .mt-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* The climb: everything after the opening. The sky gradient runs the full height, so the
+     colour of the page is the altitude, with or without scripts. */
+  .lab-mountain .mt-climb {
+    position: relative;
+    overflow-x: clip;
+  }
+  .lab-mountain .mt-sky {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: linear-gradient(
+      180deg,
+      #f6d9b8 0%,
+      #eedcbc 7%,
+      #cfd8b4 15%,
+      #a9c09f 24%,
+      #a7b8b8 34%,
+      #8fa3b5 44%,
+      #a9b9c7 55%,
+      #cdd7e0 66%,
+      #eef2f6 76%,
+      #f7f9fb 86%,
+      #f7f9fb 100%
+    );
+  }
+  .lab-mountain .mt-section {
+    position: relative;
+    z-index: 5;
+    padding: clamp(130px, 18vh, 190px) 0 clamp(70px, 10vh, 110px);
+  }
+  .lab-mountain .mt-wrap {
+    position: relative;
+    width: var(--mt-col);
+    margin-inline: auto;
+  }
+  @media (max-width: 700px) {
+    .lab-mountain .mt-wrap {
+      margin-left: var(--mt-margin);
+    }
+  }
+
+  /* Section headings: a pencil place-name above a large serif title. */
+  .lab-mountain .mt-place {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--mt-graphite);
+    font: 700 clamp(24px, 2.4vw, 30px) / 1 var(--mt-hand);
+    transform: rotate(-2deg);
+  }
+  .lab-mountain .mt-place::before {
+    content: '';
+    width: 34px;
+    height: 2px;
+    background: var(--mt-red);
+    border-radius: 2px;
+    transform: rotate(-6deg);
+  }
+  .lab-mountain .mt-h2 {
+    margin-top: 10px;
+    font: 500 clamp(44px, 6.4vw, 92px) / 0.98 var(--mt-serif);
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+  .lab-mountain .mt-h2 em {
+    font-style: italic;
+    color: var(--mt-red-ink);
+  }
+  .lab-mountain .mt-pencil {
+    color: var(--mt-graphite);
+    font: 500 clamp(22px, 2vw, 26px) / 1.2 var(--mt-hand);
+  }
+
+  /* A journal page: yellowed paper with grain, a soft deckle shadow and tape on two corners. */
+  .lab-mountain .mt-paper {
+    position: relative;
+    background:
+      var(--mt-grain),
+      radial-gradient(
+        120% 90% at 30% 20%,
+        #fbf4e3 0%,
+        var(--mt-paper) 55%,
+        var(--mt-paper-edge) 100%
+      );
+    box-shadow:
+      0 1px 0 rgb(80 60 30 / 18%),
+      0 18px 30px -18px rgb(40 34 20 / 45%),
+      0 4px 10px -4px rgb(40 34 20 / 20%);
+    border-radius: 3px 5px 4px 6px;
+  }
+  .lab-mountain .mt-tape::before,
+  .lab-mountain .mt-tape::after {
+    content: '';
+    position: absolute;
+    z-index: 2;
+    width: 92px;
+    height: 26px;
+    background: var(--mt-grain), var(--mt-tape);
+    box-shadow: 0 1px 2px rgb(60 45 20 / 18%);
+    clip-path: polygon(3% 0, 97% 6%, 100% 50%, 96% 100%, 2% 94%, 0 46%);
+    pointer-events: none;
+  }
+  .lab-mountain .mt-tape::before {
+    top: -11px;
+    left: -24px;
+    transform: rotate(-38deg);
+  }
+  .lab-mountain .mt-tape::after {
+    right: -24px;
+    bottom: -9px;
+    transform: rotate(-36deg);
+  }
+
+  .lab-mountain .mt-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px 13px;
+    border: 2px solid var(--mt-ink);
+    border-radius: 999px 980px 999px 960px;
+    background: var(--mt-ink);
+    color: var(--mt-snow);
+    font: 700 13px/1 var(--mt-mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition:
+      transform 0.25s ease,
+      background-color 0.25s ease,
+      color 0.25s ease;
+  }
+  .lab-mountain .mt-btn:hover {
+    transform: translateY(-2px) rotate(-1deg);
+    background: var(--mt-red);
+    border-color: var(--mt-red);
+  }
+  .lab-mountain .mt-btn--ghost {
+    background: transparent;
+    color: var(--mt-ink);
+  }
+  .lab-mountain .mt-btn--ghost:hover {
+    color: var(--mt-snow);
+  }
+  .lab-mountain .mt-btn svg {
+    width: 22px;
+    height: 12px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  /* The fixed line up the left margin. The climber is sticky inside it, so it always sits at
+     the reader's place on the page, with no script needed. */
+  .lab-mountain .mt-rope {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(var(--mt-margin) / 2 - 20px);
+    z-index: 4;
+    width: 40px;
+    pointer-events: none;
+  }
+  .lab-mountain .mt-rope-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 18px;
+    width: 4px;
+    border-radius: 4px;
+    /* Two-tone diagonal stripes read as twisted kernmantle rope. */
+    background: repeating-linear-gradient(
+      160deg,
+      var(--mt-red) 0 5px,
+      #f08a62 5px 7px,
+      var(--mt-red-ink) 7px 10px
+    );
+    box-shadow: 1px 1px 0 rgb(30 40 50 / 15%);
+  }
+  .lab-mountain .mt-rope-climber {
+    position: sticky;
+    top: calc(var(--mt-vh) * 46);
+    display: block;
+    width: 40px;
+    margin-top: 40px;
+    transform-origin: 50% 0;
+  }
+  .lab-mountain .mt-rope-climber img {
+    width: 40px;
+    filter: drop-shadow(0 4px 3px rgb(30 40 50 / 25%));
+  }
+  @media (max-width: 700px) {
+    .lab-mountain .mt-rope {
+      left: 2px;
+      width: 26px;
+    }
+    .lab-mountain .mt-rope-line {
+      left: 11px;
+      width: 3px;
+    }
+    .lab-mountain .mt-rope-climber,
+    .lab-mountain .mt-rope-climber img {
+      width: 26px;
+    }
+  }
+
+  /* Things that settle into place as they scroll into view. Only hidden when scripts run. */
+  .mt-js .lab-mountain [data-reveal] {
+    opacity: 0;
+    transform: translateY(36px) rotate(var(--reveal-tilt, 1.5deg));
+    transition:
+      opacity 0.7s ease,
+      transform 0.9s cubic-bezier(0.2, 0.85, 0.25, 1.08);
+    transition-delay: calc(var(--reveal-i, 0) * 80ms);
+  }
+  .mt-js .lab-mountain [data-reveal].is-in {
+    opacity: 1;
+    transform: rotate(var(--reveal-rest, 0deg));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html:has(.lab-mountain) {
+      scroll-behavior: auto;
+    }
+    .lab-mountain *,
+    .lab-mountain *::before,
+    .lab-mountain *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+    .mt-js .lab-mountain [data-reveal] {
+      opacity: 1;
+      transform: rotate(var(--reveal-rest, 0deg));
+    }
+  }
+  .lab-mountain.motion-off [data-reveal] {
+    opacity: 1 !important;
+    transform: rotate(var(--reveal-rest, 0deg)) !important;
+  }
+</style>

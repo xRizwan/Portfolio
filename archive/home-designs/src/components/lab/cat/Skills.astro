@@ -1,0 +1,263 @@
+---
+// Skills: jars on little shelves. Picking a jar brings the ginger cat over to tip it out, and
+// the group's items tumble onto the table below (skills.ts). Without scripts every group is
+// simply listed.
+import { skillGroups } from '../../../data/skills';
+import Art from './Art.astro';
+import type { ArtName } from './art';
+
+const jars: ArtName[] = ['jar-a', 'jar-b', 'jar-c', 'jar-d', 'jar-e', 'jar-f'];
+const jarFor = (index: number): ArtName => jars[(index * 5 + 2) % jars.length] ?? 'jar-a';
+---
+
+<section id="skills" class="cat-sec cat-skills" data-thread="right">
+  <span class="cat-ledge" aria-hidden="true"></span>
+  <div class="cat-wrap">
+    <p class="cat-note" data-cat-reveal>
+      Skills
+    </p>
+    <h2 class="cat-h2" data-cat-reveal>
+      What I keep <em>on the shelf</em>
+    </h2>
+    <div class="cat-pantry" data-cat-pantry>
+      <p class="cat-pantry-hint">Pick a jar. The cat will tip it out for you.</p>
+      <div class="cat-shelf" role="group" aria-label="Skill groups">
+        {skillGroups.map((group, index) => (
+          <button
+            type="button"
+            class="cat-jar"
+            data-cat-jar={group.id}
+            aria-controls={`cat-spill-${group.id}`}
+            aria-expanded="false"
+            data-cat-reveal
+            style={`--i:${index % 6}`}
+          >
+            <span class="cat-jar-top">
+              <span class="cat-jar-art" data-cat-knock>
+                <Art name={jarFor(index)} />
+              </span>
+            </span>
+            <Art name="plank" class="cat-jar-plank" />
+            <span class="cat-jar-label">{group.title}</span>
+          </button>
+        ))}
+        <span class="cat-jar-cat" data-cat-jar-cat aria-hidden="true">
+          <Art name="ginger-bat" />
+        </span>
+      </div>
+      <div class="cat-spills">
+        {skillGroups.map((group) => (
+          <section
+            class="cat-spill"
+            id={`cat-spill-${group.id}`}
+            data-cat-spill={group.id}
+            aria-label={group.name}
+          >
+            <h3>{group.name}</h3>
+            <ul>
+              {group.items.map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .lab-cat .cat-skills {
+    position: relative;
+    background: linear-gradient(#f3e4cd, #f1d9c0);
+  }
+  .lab-cat .cat-pantry {
+    margin-top: 34px;
+  }
+  .lab-cat .cat-pantry-hint {
+    display: none;
+    font: 500 25px/1.1 var(--hand);
+    color: var(--plum-soft);
+  }
+  .lab-cat .cat-pantry.is-live .cat-pantry-hint {
+    display: block;
+  }
+  .lab-cat .cat-shelf {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 34px clamp(10px, 1.8vw, 26px);
+    margin-top: 30px;
+  }
+  .lab-cat .cat-jar {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* Hang the shelves at slightly different heights, like a wall someone put up by eye. */
+  .lab-cat .cat-jar:nth-child(even) {
+    top: 16px;
+  }
+  .lab-cat .cat-jar:nth-child(3n) {
+    top: -8px;
+  }
+  .lab-cat .cat-jar-top {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    width: 100%;
+    height: 116px;
+  }
+  .lab-cat .cat-jar-art {
+    display: block;
+    height: 100%;
+    transform-origin: 85% 100%;
+    transition:
+      transform 0.5s cubic-bezier(0.3, 1.5, 0.5, 1),
+      rotate 0.4s cubic-bezier(0.3, 1.8, 0.5, 1);
+  }
+  .lab-cat .cat-jar-art img {
+    display: block;
+    width: auto;
+    height: 100%;
+    max-width: none;
+  }
+  .lab-cat .cat-jar:hover .cat-jar-art {
+    transform: translateY(-5px) rotate(-3deg);
+  }
+  .lab-cat .cat-jar.is-tipped .cat-jar-art,
+  .lab-cat .cat-jar.is-tipped:hover .cat-jar-art {
+    transform: translateX(16%) rotate(42deg);
+  }
+  .lab-cat [data-cat-knock].is-knocked {
+    rotate: var(--knock, 5deg);
+  }
+  .lab-cat .cat-jar-plank {
+    display: block;
+    width: 100%;
+    margin-top: -3px;
+  }
+  .lab-cat .cat-jar-label {
+    margin-top: 2px;
+    padding: 2px 6px;
+    font: 700 23px/1.02 var(--hand);
+    text-wrap: balance;
+    background-image: linear-gradient(var(--marm), var(--marm));
+    background-repeat: no-repeat;
+    background-position: 50% 100%;
+    background-size: 0 3px;
+    transition: background-size 0.3s;
+  }
+  .lab-cat .cat-jar:hover .cat-jar-label,
+  .lab-cat .cat-jar.is-tipped .cat-jar-label {
+    background-size: 100% 3px;
+  }
+  /* The ginger cat sits on the shelf of the open jar with a paw out. */
+  .lab-cat .cat-jar-cat {
+    position: absolute;
+    left: -26%;
+    bottom: 100%;
+    width: 70%;
+    pointer-events: none;
+    display: none;
+  }
+  .lab-cat .cat-jar-top .cat-jar-cat {
+    display: block;
+    bottom: 0;
+  }
+  .lab-cat .cat-jar-cat img {
+    display: block;
+    width: 100%;
+    transform-origin: 30% 100%;
+  }
+  .lab-cat.cat-motion .cat-jar-cat.is-pop img {
+    animation: cat-jar-pop 0.5s cubic-bezier(0.3, 1.5, 0.5, 1);
+  }
+  @keyframes cat-jar-pop {
+    from {
+      transform: translateY(18%) scale(0.7);
+      opacity: 0;
+    }
+  }
+
+  /* The table the items land on */
+  .lab-cat .cat-spills {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+    margin-top: 44px;
+  }
+  .lab-cat .cat-pantry.is-live .cat-spills {
+    display: block;
+    min-height: 250px;
+    padding: 26px clamp(18px, 3vw, 36px) 32px;
+    background: var(--paper);
+    border: 2px solid var(--plum);
+    border-radius: 18px 220px 16px 240px / 240px 16px 220px 18px;
+    box-shadow: 5px 6px 0 rgb(59 42 63 / 16%);
+  }
+  .lab-cat .cat-pantry.is-live .cat-spill {
+    display: none;
+  }
+  .lab-cat .cat-pantry.is-live .cat-spill.is-open {
+    display: block;
+  }
+  .lab-cat .cat-spill h3 {
+    font: 500 italic 30px/1.1 var(--serif);
+  }
+  .lab-cat .cat-spill ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 9px;
+    margin-top: 16px;
+  }
+  .lab-cat .cat-spill li {
+    padding: 8px 14px 9px;
+    background: #f7dfa0;
+    border: 1.5px solid var(--plum);
+    border-radius: 6px 14px 7px 12px;
+    font: 600 15px/1.2 var(--sans);
+    rotate: -1.5deg;
+  }
+  .lab-cat .cat-spill li:nth-child(4n + 2) {
+    background: #eac1bb;
+    rotate: 1.2deg;
+  }
+  .lab-cat .cat-spill li:nth-child(4n + 3) {
+    background: #c3d1b3;
+    rotate: -0.4deg;
+  }
+  .lab-cat .cat-spill li:nth-child(4n) {
+    background: #f6c79d;
+    rotate: 2deg;
+  }
+
+  @media (max-width: 859px) {
+    .lab-cat .cat-shelf {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 26px 12px;
+    }
+    .lab-cat .cat-jar-top {
+      height: 78px;
+    }
+    .lab-cat .cat-jar-label {
+      font-size: 20px;
+    }
+    .lab-cat .cat-jar-cat {
+      left: -10%;
+      width: 64%;
+    }
+    .lab-cat .cat-spills {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
